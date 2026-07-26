@@ -29,13 +29,14 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font-body);overscroll-behavior:none;}
-body{margin:0;padding-bottom:calc(78px + var(--safe-b));}
+body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 ::selection{background:var(--red-soft);}
 
 /* ============ HEADER ============ */
 #hdr{position:sticky;top:0;z-index:80;background:rgba(8,8,10,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--bd);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
 .hdr-brand{display:flex;align-items:center;gap:10px;cursor:pointer;}
-.hdr-mark{width:34px;height:34px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:15px;color:#fff;flex-shrink:0;box-shadow:0 4px 16px -4px #e8412c66;}
+.hdr-mark{width:34px;height:34px;border-radius:9px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 16px -4px #e8412c66;}
+.hdr-mark img{width:100%;height:100%;object-fit:cover;}
 .hdr-name{font-family:var(--font-display);font-weight:700;font-size:15px;line-height:1.1;letter-spacing:-.01em;}
 .hdr-sub{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.14em;font-family:var(--font-mono);margin-top:2px;}
 .hdr-actions{display:flex;align-items:center;gap:8px;}
@@ -146,7 +147,7 @@ body{margin:0;padding-bottom:calc(78px + var(--safe-b));}
 .note-add-inp{flex:1;background:var(--bg3);border:1.5px solid var(--bd);color:var(--t);border-radius:9px;padding:10px 12px;font-size:13.5px;font-family:inherit;}
 .note-add-btn{background:var(--grad);border:none;color:#fff;font-weight:700;border-radius:9px;padding:0 16px;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0;}
 
-.save-bar{position:sticky;bottom:calc(70px + var(--safe-b));margin-top:20px;}
+.save-bar{margin-top:20px;padding-bottom:var(--safe-b);}
 .save-btn{width:100%;background:var(--grad);border:none;color:#fff;font-weight:700;font-size:14.5px;padding:15px;border-radius:12px;cursor:pointer;font-family:var(--font-body);box-shadow:0 8px 24px -8px #e8412c66;}
 
 /* ============ CALENDAR ============ */
@@ -323,11 +324,6 @@ body{margin:0;padding-bottom:calc(78px + var(--safe-b));}
 .demo-note{background:#e8c03a11;border:1.5px solid #e8c03a33;border-radius:11px;padding:12px 14px;font-size:12.5px;color:#e8c03a;line-height:1.6;margin-bottom:18px;}
 
 /* ============ BOTTOM NAV ============ */
-#bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,17,.95);backdrop-filter:blur(14px);border-top:1px solid var(--bd);display:flex;z-index:100;padding-bottom:var(--safe-b);}
-.bnav-btn{flex:1;border:none;background:none;color:var(--t4);padding:11px 4px 9px;font-size:10px;font-family:var(--font-mono);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600;letter-spacing:.02em;}
-.bnav-btn .bi{font-size:19px;}
-.bnav-btn.act{color:var(--red);}
-
 /* ============ MODAL / TOAST ============ */
 #toast{position:fixed;bottom:calc(86px + var(--safe-b));left:50%;transform:translateX(-50%);background:#1a1a26;color:var(--t);padding:11px 20px;border-radius:11px;font-size:13.5px;font-weight:600;border:1px solid var(--bd2);z-index:300;pointer-events:none;white-space:nowrap;opacity:0;transition:opacity .2s;}
 #toast.show{opacity:1;}
@@ -341,7 +337,7 @@ body{margin:0;padding-bottom:calc(78px + var(--safe-b));}
 
 <div id="hdr">
   <div class="hdr-brand" onclick="nav('dash')">
-    <div class="hdr-mark">IC</div>
+    <div class="hdr-mark"><img src="icons/icon-app-logo.png" alt="Impact Coaching"></div>
     <div>
       <div class="hdr-name">Impact Coaching</div>
       <div class="hdr-sub">Dashboard 2.0</div>
@@ -447,43 +443,72 @@ body{margin:0;padding-bottom:calc(78px + var(--safe-b));}
   <button class="back-btn" onclick="nav('dash')">‹ Dashboard</button>
   <div class="pg-eyebrow">Build & Assign</div>
   <div class="pg-title">Workout Builder</div>
-  <div class="pg-sub">Pick a client, plan the session, save it to their calendar.</div>
+  <div class="pg-sub">Pick a client to see their history, then build the session.</div>
 
   <div class="bld-client-strip" id="bld-client-strip"></div>
 
-  <div class="bld-meta-row">
-    <div>
-      <label class="lbl">Session Name</label>
-      <input class="inp" id="bld-sess-name" placeholder="e.g. Leg Day" style="margin-bottom:0;">
-    </div>
-    <div>
-      <label class="lbl">Date</label>
-      <input class="inp" id="bld-sess-date" type="date" style="margin-bottom:0;">
-    </div>
-  </div>
+  <div id="bld-no-client" class="empty-good" style="padding:40px 20px;">Select a client above to get started.</div>
 
-  <div class="bld-tabs">
-    <button class="bld-tab" id="bld-tab-lib" onclick="setBuilderTab('lib')">Exercise Library</button>
-    <button class="bld-tab" id="bld-tab-plan" onclick="setBuilderTab('plan')">Plan <span id="bld-plan-count" class="sec-count">0</span></button>
-  </div>
+  <div id="bld-client-area" style="display:none;">
+    <div class="sec-hdr"><div class="sec-title">Recent Progress</div></div>
+    <div id="bld-history-list"></div>
 
-  <div id="bld-lib-view">
-    <input class="search-box" id="bld-search" placeholder="Search exercises…" style="margin-bottom:12px;" oninput="renderExLibrary()">
-    <div class="bld-chipsec">
-      <div class="bld-chipsec-lbl">Category</div>
-      <div class="filter-row" id="bld-cat-chips"></div>
+    <div class="qa-row" style="margin-top:6px;">
+      <button class="qa-btn primary" onclick="openCreateWorkoutModal(false)">+ Create Workout</button>
+      <button class="qa-btn gh" onclick="openCreateWorkoutModal(true)">⚡ Quick Start</button>
     </div>
-    <div class="bld-chipsec">
-      <div class="bld-chipsec-lbl">Equipment</div>
-      <div class="filter-row" id="bld-eq-chips"></div>
-    </div>
-    <div id="bld-lib-count" class="pg-sub" style="margin-bottom:8px;"></div>
-    <div id="bld-lib-results"></div>
-  </div>
 
-  <div id="bld-plan-view" style="display:none;">
-    <div id="bld-plan-list"></div>
-    <div class="save-bar"><button class="save-btn" onclick="saveBuiltSession()">💾 Save Session to Client</button></div>
+    <div class="sec-hdr" style="margin-top:20px;"><div class="sec-title">Planned Workouts</div></div>
+    <div id="bld-planned-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════ CREATE WORKOUT MODAL ══════════════ -->
+<div class="modal-ov" id="wb-create-modal">
+  <div class="ms">
+    <div class="ms-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="pg-title" style="margin-bottom:0;">Create Workout</div>
+      <button class="icon-btn" onclick="closeCreateWorkoutModal()">✕</button>
+    </div>
+
+    <label class="lbl">Workout Title</label>
+    <input class="inp" id="wb-title" placeholder="e.g. Leg Day">
+    <label class="lbl">Date</label>
+    <input class="inp" id="wb-date" type="date">
+
+    <div id="wb-exercise-cards"></div>
+
+    <button class="btn btn-gh" onclick="openExercisePicker()">+ Add Exercise</button>
+    <button class="btn btn-grad" onclick="saveWorkout()">Save Workout</button>
+  </div>
+</div>
+
+<!-- ══════════════ WORKOUT BUILDER EXERCISE PICKER ══════════════ -->
+<div class="modal-ov" id="wb-pick-ex-modal">
+  <div class="ms">
+    <div class="ms-handle"></div>
+    <div class="pg-eyebrow">Select Exercise</div>
+    <div class="pg-title" style="margin-bottom:12px;">Add to Workout</div>
+    <input class="search-box" id="wb-pick-search" placeholder="Search exercises…" style="margin-bottom:10px;" oninput="renderWbPickList()">
+    <div class="filter-row" id="wb-pick-cat-chips" style="margin-bottom:12px;"></div>
+    <div id="wb-pick-list" style="max-height:320px;overflow-y:auto;margin-bottom:14px;"></div>
+    <button class="btn btn-gh" onclick="closeExercisePicker()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══════════════ PLANNED WORKOUT VIEW ══════════════ -->
+<div class="modal-ov" id="wb-view-modal">
+  <div class="ms">
+    <div class="ms-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div class="pg-title" style="margin-bottom:0;" id="wb-view-title">—</div>
+      <button class="icon-btn" onclick="closeWbView()">✕</button>
+    </div>
+    <div class="pg-sub" id="wb-view-date"></div>
+    <div id="wb-view-rows" style="margin:14px 0;"></div>
+    <button class="btn btn-grad" onclick="markWbSessionDone()">✓ Mark Completed</button>
+    <button class="btn" style="background:#1a0000;border:1.5px solid #e85d3a44;color:var(--red);" onclick="deleteWbSession()">🗑 Delete Workout</button>
   </div>
 </div>
 
@@ -494,7 +519,7 @@ body{margin:0;padding-bottom:calc(78px + var(--safe-b));}
   <!-- Dashboard sub-view -->
   <div id="meno-view-dash">
     <div style="text-align:center;margin-bottom:18px;">
-      <div style="width:84px;height:84px;border-radius:20px;background:var(--meno-grad);display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 12px;box-shadow:0 8px 28px -8px #9a3ae866;">🏋️‍♀️</div>
+      <div style="width:84px;height:84px;border-radius:20px;overflow:hidden;margin:0 auto 12px;box-shadow:0 8px 28px -8px #9a3ae866;"><img src="icons/icon-menofit.png" alt="MenoFit" style="width:100%;height:100%;object-fit:cover;"></div>
       <div class="meno-brand" style="font-size:26px;">MenoFit</div>
       <div class="pg-sub" style="font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;margin-top:2px;">Small Group Menopause Training</div>
     </div>
@@ -732,7 +757,14 @@ body{margin:0;padding-bottom:calc(78px + var(--safe-b));}
   <button class="back-btn" onclick="nav('dash')">‹ Dashboard</button>
   <div class="pg-eyebrow">Reference</div>
   <div class="pg-title">Exercise Library</div>
-  <div class="pg-sub">Your full 357-exercise gym library — browse, search, filter.</div>
+  <div class="pg-sub">Your full 357-exercise gym library — browse, search, filter, and add your own.</div>
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <input class="inp" id="el-new-name" placeholder="New exercise name" style="margin-bottom:0;flex:1;">
+    <select class="inp" id="el-new-cat" style="margin-bottom:0;width:auto;"></select>
+    <select class="inp" id="el-new-eq" style="margin-bottom:0;width:auto;"></select>
+    <button class="note-add-btn" onclick="addCustomExercise()">Add</button>
+  </div>
 
   <input class="search-box" id="el-search" placeholder="Search exercises…" style="margin-bottom:12px;" oninput="renderExLibraryView()">
   <div class="bld-chipsec">
@@ -844,11 +876,6 @@ body{margin:0;padding-bottom:calc(78px + var(--safe-b));}
   <button class="btn btn-gh" onclick="resetDemo()">Reset Demo Data</button>
 </div>
 
-<div id="bnav">
-  <button class="bnav-btn act" data-p="dash" onclick="nav('dash')"><span class="bi">▦</span>Dashboard</button>
-  <button class="bnav-btn" data-p="settings" onclick="nav('settings')"><span class="bi">⚙</span>Settings</button>
-</div>
-
 <div id="toast"></div>
 
 <!-- ══════════════ EDIT CLIENT MODAL ══════════════ -->
@@ -941,7 +968,7 @@ function daysAgo(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toIS
 // STATE
 // ═══════════════════════════════════════════════════════════
 const SK = "impact-coaching-v3";
-let DB = {clients:[],sessions:[],targets:{},notes:{},menoSessions:[],menofit:{activeBlock:null,history:[]},menoCustomExercises:{},settings:{scriptUrl:"",lastSync:null}};
+let DB = {clients:[],sessions:[],targets:{},notes:{},menoSessions:[],menofit:{activeBlock:null,history:[]},menoCustomExercises:{},customExercises:[],settings:{scriptUrl:"",lastSync:null}};
 let currentClientId = null;
 let currentFilter = "all";
 let calMode = "month";
@@ -957,6 +984,7 @@ function loadDB(){
   if(!DB.menofit) DB.menofit = {activeBlock:null, history:[]};
   if(!DB.menoSessions) DB.menoSessions = [];
   if(!DB.menoCustomExercises) DB.menoCustomExercises = {};
+  if(!DB.customExercises) DB.customExercises = [];
 }
 function saveDB(){ try{ localStorage.setItem(SK, JSON.stringify(DB)); }catch(e){} }
 function resetDemo(){ localStorage.removeItem(SK); loadDB(); renderAll(); toast("Demo data reset"); }
@@ -1031,6 +1059,7 @@ function openSoon(title, sub){
 // WORKOUT BUILDER
 // ═══════════════════════════════════════════════════════════
 let EX_LIBRARY = [];
+function mainLib(){ return EX_LIBRARY.concat(DB.customExercises||[]); }
 async function loadExerciseLibrary(){
   try{
     const res = await fetch('exercises.json');
@@ -1048,23 +1077,16 @@ const EQ_LABELS = {barbell:"Barbell",dumbbell:"Dumbbell",kettlebell:"Kettlebell"
 const EQ_ORDER = ["barbell","dumbbell","kettlebell","cable","machine_plate","machine_pin","smith","bodyweight","bag_ball","cardio_machine","other"];
 
 let builderClientId = null;
-let builderRows = [];
-let builderCat = null;
-let builderEq = null;
-let builderTab = "lib";
+let wbDraft = null; // {title, date, exercises:[{exId,name,sets:[{kg,reps}]}]}
+let wbEditingSessionId = null;
+let wbPickCat = null;
+let wbViewingSessionId = null;
 
 function openBuilder(){
   nav("builder");
   document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("act"));
-  if(!document.getElementById("bld-sess-date").value){
-    document.getElementById("bld-sess-date").value = new Date().toISOString().split("T")[0];
-  }
   renderBuilderClientStrip();
-  setBuilderTab("lib");
-  renderBuilderCatChips();
-  renderBuilderEqChips();
-  renderExLibrary();
-  renderBuilderPlan();
+  renderBuilderClientArea();
 }
 
 function renderBuilderClientStrip(){
@@ -1077,109 +1099,179 @@ function renderBuilderClientStrip(){
 function selectBuilderClient(id){
   builderClientId = id;
   renderBuilderClientStrip();
-  renderExLibrary();
-  renderBuilderPlan();
+  renderBuilderClientArea();
 }
+function renderBuilderClientArea(){
+  const has = !!builderClientId;
+  document.getElementById("bld-no-client").style.display = has ? "none" : "block";
+  document.getElementById("bld-client-area").style.display = has ? "block" : "none";
+  if(!has) return;
 
-function setBuilderTab(tab){
-  builderTab = tab;
-  document.getElementById("bld-tab-lib").classList.toggle("act", tab==="lib");
-  document.getElementById("bld-tab-plan").classList.toggle("act", tab==="plan");
-  document.getElementById("bld-lib-view").style.display = tab==="lib" ? "block" : "none";
-  document.getElementById("bld-plan-view").style.display = tab==="plan" ? "block" : "none";
-  if(tab==="plan") renderBuilderPlan();
-}
-
-function renderBuilderCatChips(){
-  const cats = ["all", ...EX_CAT_ORDER];
-  document.getElementById("bld-cat-chips").innerHTML = cats.map(c=>
-    `<button class="f-chip ${(c==='all'?!builderCat:builderCat===c)?'act':''}" onclick="setBuilderCat('${c==='all'?'':c}')">${c==='all'?'All':EX_CAT_LABELS[c]}</button>`
-  ).join("");
-}
-function setBuilderCat(c){ builderCat = c||null; renderBuilderCatChips(); renderExLibrary(); }
-function renderBuilderEqChips(){
-  const eqs = ["all", ...EQ_ORDER];
-  document.getElementById("bld-eq-chips").innerHTML = eqs.map(e=>
-    `<button class="f-chip ${(e==='all'?!builderEq:builderEq===e)?'act':''}" onclick="setBuilderEq('${e==='all'?'':e}')">${e==='all'?'All':EQ_LABELS[e]}</button>`
-  ).join("");
-}
-function setBuilderEq(e){ builderEq = e||null; renderBuilderEqChips(); renderExLibrary(); }
-
-function renderExLibrary(){
-  const q = (document.getElementById("bld-search").value||"").trim().toLowerCase();
-  let list = EX_LIBRARY;
-  if(builderCat) list = list.filter(e=>e.cat===builderCat);
-  if(builderEq) list = list.filter(e=>e.eq===builderEq);
-  if(q) list = list.filter(e=>e.name.toLowerCase().includes(q));
-
-  document.getElementById("bld-lib-count").textContent = EX_LIBRARY.length
-    ? list.length+" of "+EX_LIBRARY.length+" exercises"
-    : "exercises.json not loaded — this needs the app hosted (or run from a local server) to fetch it; won't load over a plain double-clicked file";
-
-  document.getElementById("bld-lib-results").innerHTML = list.slice(0,150).map(ex=>{
-    const lw = (builderClientId && lastWeights(builderClientId, ex.name)[0]);
-    return `
-    <div class="ex-row" onclick="addExToPlan('${ex.id}')">
-      <div class="ex-info">
-        <div class="ex-name">${ex.name}</div>
-        <div class="ex-meta">${EX_CAT_LABELS[ex.cat]||ex.cat} · ${EQ_LABELS[ex.eq]||"Other"}</div>
-        ${lw ? `<div class="ex-lw">Last: ${lw.weight}kg (${fmtDate(lw.date)})</div>` : ""}
+  const hist = lastWeights(builderClientId);
+  document.getElementById("bld-history-list").innerHTML = hist.length ? hist.map(p=>`
+    <div class="prog-row">
+      <div>
+        <div class="prog-ex">${p.ex}</div>
+        <div class="prog-when">${fmtDate(p.date)}</div>
       </div>
-      <button class="ex-add-btn">+</button>
-    </div>`;
-  }).join("") || '<div class="empty-good">No exercises match</div>';
+      <div class="prog-wt">${p.weight}kg</div>
+    </div>`).join("") : '<div class="empty-good">No history yet for this client</div>';
+
+  const planned = clientSessions(builderClientId).filter(s=>s.status==="planned");
+  document.getElementById("bld-planned-list").innerHTML = planned.length ? planned.map(s=>`
+    <div class="meno-sess-row" onclick="openWbView('${s.id}')">
+      <div class="meno-sess-badge" style="background:var(--grad);">${(s.rows||[]).length}</div>
+      <div class="meno-sess-info">
+        <div class="meno-sess-date">${s.name||"Session"}</div>
+        <div class="meno-sess-status">${fmtDate(s.date)}</div>
+      </div>
+      <span class="day-sess-badge planned">Planned</span>
+    </div>`).join("") : '<div class="empty-good">No planned workouts yet — tap "Create Workout" to build one, with sets, reps and planned weight.</div>';
 }
 
-function addExToPlan(exId){
-  const ex = EX_LIBRARY.find(e=>e.id===exId);
-  if(!ex) return;
-  builderRows.push({exId:ex.id, name:ex.name, cat:ex.cat, eq:ex.eq, sets:"3", reps:"12", target:""});
-  document.getElementById("bld-plan-count").textContent = builderRows.length;
-  toast(ex.name+" added");
+// ── Create Workout modal ──
+function openCreateWorkoutModal(quickStart){
+  if(!builderClientId){ toast("Pick a client first"); return; }
+  wbEditingSessionId = null;
+  wbDraft = { title: quickStart ? "Quick Workout" : "", date: new Date().toISOString().split("T")[0], exercises: [] };
+  document.getElementById("wb-title").value = wbDraft.title;
+  document.getElementById("wb-date").value = wbDraft.date;
+  renderWbExerciseCards();
+  document.getElementById("wb-create-modal").classList.add("show");
 }
-function removeFromPlan(idx){
-  builderRows.splice(idx,1);
-  document.getElementById("bld-plan-count").textContent = builderRows.length;
-  renderBuilderPlan();
+function closeCreateWorkoutModal(){
+  document.getElementById("wb-create-modal").classList.remove("show");
 }
-function updatePlanField(idx, field, val){
-  builderRows[idx][field] = val;
-}
-
-function renderBuilderPlan(){
-  document.getElementById("bld-plan-count").textContent = builderRows.length;
-  document.getElementById("bld-plan-list").innerHTML = builderRows.length ? builderRows.map((r,i)=>`
+function renderWbExerciseCards(){
+  const el = document.getElementById("wb-exercise-cards");
+  el.innerHTML = wbDraft.exercises.length ? wbDraft.exercises.map((ex,i)=>{
+    const lw = lastWeights(builderClientId, ex.name)[0];
+    const setsHtml = ex.sets.map((s,si)=>`
+      <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-family:var(--font-mono);flex-shrink:0;">${si+1}</div>
+        <input class="plan-field-inp" placeholder="planned kg" value="${s.kg}" oninput="updateWbSet(${i},${si},'kg',this.value)" style="flex:1;">
+        <input class="plan-field-inp" placeholder="planned reps" value="${s.reps}" oninput="updateWbSet(${i},${si},'reps',this.value)" style="flex:1;">
+        <button class="ex-add-btn" style="background:none;color:var(--red);font-size:14px;" onclick="removeWbSetRow(${i},${si})">✕</button>
+      </div>`).join("");
+    return `
     <div class="plan-row">
       <div class="plan-row-top">
-        <span class="plan-row-name">${r.name}</span>
-        <button class="plan-row-rm" onclick="removeFromPlan(${i})">Remove</button>
+        <span class="plan-row-name">${ex.name}</span>
+        <button class="plan-row-rm" onclick="removeWbExercise(${i})">✕</button>
       </div>
-      <div class="plan-row-fields">
-        <div><div class="plan-field-lbl">Sets</div><input class="plan-field-inp" value="${r.sets}" oninput="updatePlanField(${i},'sets',this.value)"></div>
-        <div><div class="plan-field-lbl">Reps</div><input class="plan-field-inp" value="${r.reps}" oninput="updatePlanField(${i},'reps',this.value)"></div>
-        <div><div class="plan-field-lbl">Target kg</div><input class="plan-field-inp" value="${r.target}" oninput="updatePlanField(${i},'target',this.value)" placeholder="—"></div>
-      </div>
-    </div>`).join("") : '<div class="empty-good">Nothing in the plan yet — add exercises from the Library tab</div>';
+      <div class="pg-sub" style="margin-bottom:8px;">${lw ? "Last: "+lw.weight+"kg ("+fmtDate(lw.date)+")" : "No history yet for this exercise"}</div>
+      ${setsHtml}
+      <button class="btn btn-gh" style="margin-bottom:0;" onclick="addWbSetRow(${i})">+ Reps & Sets</button>
+    </div>`;
+  }).join("") : '<div class="empty-good" style="margin-bottom:14px;">No exercises yet — tap "+ Add Exercise" below</div>';
+}
+function addWbSetRow(exIdx){
+  wbDraft.exercises[exIdx].sets.push({kg:"",reps:""});
+  renderWbExerciseCards();
+}
+function removeWbSetRow(exIdx, setIdx){
+  wbDraft.exercises[exIdx].sets.splice(setIdx,1);
+  renderWbExerciseCards();
+}
+function updateWbSet(exIdx, setIdx, field, val){
+  wbDraft.exercises[exIdx].sets[setIdx][field] = val;
+}
+function removeWbExercise(idx){
+  wbDraft.exercises.splice(idx,1);
+  renderWbExerciseCards();
 }
 
-function saveBuiltSession(){
+// ── Exercise picker (for the create-workout modal) ──
+function openExercisePicker(){
+  wbPickCat = null;
+  document.getElementById("wb-pick-search").value = "";
+  renderWbPickCatChips();
+  renderWbPickList();
+  document.getElementById("wb-pick-ex-modal").classList.add("show");
+}
+function closeExercisePicker(){
+  document.getElementById("wb-pick-ex-modal").classList.remove("show");
+}
+function renderWbPickCatChips(){
+  const cats = ["all", ...EX_CAT_ORDER];
+  document.getElementById("wb-pick-cat-chips").innerHTML = cats.map(c=>
+    `<button class="f-chip ${(c==='all'?!wbPickCat:wbPickCat===c)?'act':''}" onclick="setWbPickCat('${c==='all'?'':c}')">${c==='all'?'All':EX_CAT_LABELS[c]}</button>`
+  ).join("");
+}
+function setWbPickCat(c){ wbPickCat = c||null; renderWbPickCatChips(); renderWbPickList(); }
+function renderWbPickList(){
+  const q = (document.getElementById("wb-pick-search").value||"").trim().toLowerCase();
+  let list = mainLib();
+  if(wbPickCat) list = list.filter(e=>e.cat===wbPickCat);
+  if(q) list = list.filter(e=>e.name.toLowerCase().includes(q));
+  document.getElementById("wb-pick-list").innerHTML = list.slice(0,150).map(ex=>`
+    <div class="ex-row" onclick="pickWbExercise('${ex.id}')">
+      <div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-meta">${EX_CAT_LABELS[ex.cat]||ex.cat} · ${EQ_LABELS[ex.eq]||"Other"}</div></div>
+      <button class="ex-add-btn">＋</button>
+    </div>`).join("") || '<div class="empty-good">No exercises match</div>';
+}
+function pickWbExercise(exId){
+  const ex = mainLib().find(e=>e.id===exId);
+  if(!ex) return;
+  wbDraft.exercises.push({exId:ex.id, name:ex.name, sets:[{kg:"",reps:""}]});
+  closeExercisePicker();
+  renderWbExerciseCards();
+}
+
+function saveWorkout(){
   if(!builderClientId){ toast("Pick a client first"); return; }
-  if(!builderRows.length){ toast("Add at least one exercise"); return; }
-  const name = document.getElementById("bld-sess-name").value.trim() || "Session";
-  const date = document.getElementById("bld-sess-date").value || new Date().toISOString().split("T")[0];
-  const session = {
-    id: "s"+Date.now(),
-    clientId: builderClientId,
-    date, name, status: "planned",
-    rows: builderRows.map(r=>({exerciseName:r.name, scheme:r.sets+"×"+r.reps, target:r.target}))
-  };
-  DB.sessions.push(session);
+  if(!wbDraft.exercises.length){ toast("Add at least one exercise"); return; }
+  const title = document.getElementById("wb-title").value.trim() || "Workout";
+  const date = document.getElementById("wb-date").value || new Date().toISOString().split("T")[0];
+  const rows = wbDraft.exercises.map(ex=>({
+    exerciseName: ex.name,
+    scheme: ex.sets.length+"×"+(ex.sets[0]?.reps||"—"),
+    target: ex.sets[0]?.kg || "",
+    sets: ex.sets
+  }));
+  if(wbEditingSessionId){
+    const s = DB.sessions.find(x=>x.id===wbEditingSessionId);
+    if(s){ s.name=title; s.date=date; s.rows=rows; }
+  } else {
+    DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows });
+  }
   saveDB();
-  toast("Session saved to "+getClient(builderClientId).name);
-  builderRows = [];
-  document.getElementById("bld-sess-name").value = "";
-  renderBuilderPlan();
-  setBuilderTab("lib");
+  toast("Workout saved to "+getClient(builderClientId).name);
+  closeCreateWorkoutModal();
+  renderBuilderClientArea();
+}
+
+// ── Planned workout view/delete ──
+function openWbView(sessId){
+  wbViewingSessionId = sessId;
+  const s = DB.sessions.find(x=>x.id===sessId);
+  if(!s) return;
+  document.getElementById("wb-view-title").textContent = s.name||"Session";
+  document.getElementById("wb-view-date").textContent = fmtDate(s.date);
+  document.getElementById("wb-view-rows").innerHTML = (s.rows||[]).map(r=>`
+    <div class="prog-row">
+      <div><div class="prog-ex">${r.exerciseName}</div><div class="prog-when">${r.scheme||""}</div></div>
+      <div class="prog-wt">${r.target?r.target+"kg":"—"}</div>
+    </div>`).join("") || '<div class="empty-good">No exercises logged</div>';
+  document.getElementById("wb-view-modal").classList.add("show");
+}
+function closeWbView(){ document.getElementById("wb-view-modal").classList.remove("show"); }
+function markWbSessionDone(){
+  const s = DB.sessions.find(x=>x.id===wbViewingSessionId);
+  if(!s) return;
+  s.status = "completed";
+  saveDB();
+  closeWbView();
+  renderBuilderClientArea();
+  toast("Marked completed");
+}
+function deleteWbSession(){
+  if(!confirm("Delete this planned workout?")) return;
+  DB.sessions = DB.sessions.filter(x=>x.id!==wbViewingSessionId);
+  saveDB();
+  closeWbView();
+  renderBuilderClientArea();
+  toast("Workout deleted");
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1724,6 +1816,10 @@ function openExLibrary(){
   document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("act"));
   elCat = null; elEq = null;
   document.getElementById("el-search").value = "";
+  const catSel = document.getElementById("el-new-cat");
+  if(!catSel.options.length) catSel.innerHTML = EX_CAT_ORDER.map(c=>`<option value="${c}">${EX_CAT_LABELS[c]}</option>`).join("");
+  const eqSel = document.getElementById("el-new-eq");
+  if(!eqSel.options.length) eqSel.innerHTML = EQ_ORDER.map(e=>`<option value="${e}">${EQ_LABELS[e]}</option>`).join("");
   renderElCatChips();
   renderElEqChips();
   renderExLibraryView();
@@ -1744,39 +1840,61 @@ function renderElEqChips(){
 function setElEq(e){ elEq = e||null; renderElEqChips(); renderExLibraryView(); }
 function renderExLibraryView(){
   const q = (document.getElementById("el-search").value||"").trim().toLowerCase();
-  let list = EX_LIBRARY;
+  const full = mainLib();
+  let list = full;
   if(elCat) list = list.filter(e=>e.cat===elCat);
   if(elEq) list = list.filter(e=>e.eq===elEq);
   if(q) list = list.filter(e=>e.name.toLowerCase().includes(q));
 
   document.getElementById("el-count").textContent = EX_LIBRARY.length
-    ? list.length+" of "+EX_LIBRARY.length+" exercises"
+    ? list.length+" of "+full.length+" exercises"
     : "exercises.json not loaded — needs the app hosted (or run from a local server) to fetch it";
 
-  document.getElementById("el-results").innerHTML = list.slice(0,250).map(ex=>`
+  document.getElementById("el-results").innerHTML = list.slice(0,250).map(ex=>{
+    const isCustom = !!ex.custom;
+    return `
     <div class="ex-row" style="cursor:default;">
       <div class="ex-info">
-        <div class="ex-name">${ex.name}</div>
-        <div class="ex-meta">${EX_CAT_LABELS[ex.cat]||ex.cat} · ${EQ_LABELS[ex.eq]||"Other"} · ${(ex.m||[]).join(", ")}</div>
+        <div class="ex-name">${ex.name}${isCustom?' <span style="color:var(--red);font-size:9.5px;font-family:var(--font-mono);text-transform:uppercase;">· Custom</span>':''}</div>
+        <div class="ex-meta">${EX_CAT_LABELS[ex.cat]||ex.cat} · ${EQ_LABELS[ex.eq]||"Other"}${(ex.m||[]).length?' · '+(ex.m||[]).join(", "):""}</div>
       </div>
-    </div>`).join("") || '<div class="empty-good">No exercises match</div>';
+      ${isCustom?`<button class="plan-row-rm" onclick="deleteCustomExercise('${ex.id}')">✕</button>`:''}
+    </div>`;
+  }).join("") || '<div class="empty-good">No exercises match</div>';
+}
+function addCustomExercise(){
+  const name = document.getElementById("el-new-name").value.trim();
+  const cat = document.getElementById("el-new-cat").value;
+  const eq = document.getElementById("el-new-eq").value;
+  if(!name){ toast("Enter an exercise name"); return; }
+  const id = "custom"+Date.now();
+  DB.customExercises.push({id, name, cat, eq, m:[], custom:true});
+  saveDB();
+  document.getElementById("el-new-name").value = "";
+  renderExLibraryView();
+  toast(name+" added to library ✓");
+}
+function deleteCustomExercise(id){
+  DB.customExercises = DB.customExercises.filter(e=>e.id!==id);
+  saveDB();
+  renderExLibraryView();
 }
 
 const TILES = [
-  {ic:"👥", lbl:"Clients", sub:"Roster & profiles", action:"openClients()"},
-  {ic:"📅", lbl:"Calendar", sub:"Session schedule", action:"openCalendar()"},
-  {ic:"🏋️", lbl:"Workout Builder", sub:"Create & assign", action:"openBuilder()"},
-  {ic:"🌸", lbl:"MenoFit Class Manager", sub:"Small-group blocks", action:"openMenoFit()"},
-  {ic:"🔢", lbl:"TDEE Calculator", sub:"Targets & macros", action:"openTdee()"},
-  {ic:"📚", lbl:"Exercise Library", sub:"Full move list", action:"openExLibrary()"},
-  {ic:"🔗", lbl:"Links", sub:"Quick access", action:"openLinks()"},
+  {ic:"👥", img:"icons/icon-clients.png", lbl:"Clients", sub:"Roster & profiles", action:"openClients()"},
+  {ic:"📅", img:"icons/icon-calendar.png", lbl:"Calendar", sub:"Session schedule", action:"openCalendar()"},
+  {ic:"🏋️", img:"icons/icon-create-workout.png", lbl:"Workout Builder", sub:"Create & assign", action:"openBuilder()"},
+  {ic:"🌸", img:"icons/icon-menofit.png", lbl:"MenoFit Class Manager", sub:"Small-group blocks", action:"openMenoFit()"},
+  {ic:"🔢", img:"icons/icon-tdee.png", lbl:"TDEE Calculator", sub:"Targets & macros", action:"openTdee()"},
+  {ic:"📚", img:"icons/icon-exercise-library.png", lbl:"Exercise Library", sub:"Full move list", action:"openExLibrary()"},
+  {ic:"🔗", img:"icons/icon-links.png", lbl:"Links", sub:"Quick access", action:"openLinks()"},
   {ic:"⚙️", lbl:"Settings", sub:"Sync & backend", action:"nav('settings')"}
 ];
 function renderTileGrid(){
   document.getElementById("tile-grid").innerHTML = TILES.map(t=>`
     <div class="menu-tile" onclick="${t.action}">
       ${t.soon?'<span class="menu-soon">Soon</span>':''}
-      <span class="menu-ic">${t.ic}</span>
+      ${t.img ? `<img class="menu-ic-img" src="${t.img}" alt="${t.lbl}">` : `<span class="menu-ic">${t.ic}</span>`}
       <div class="menu-lbl">${t.lbl}</div>
       <div class="menu-sub">${t.sub}</div>
     </div>`).join("");
