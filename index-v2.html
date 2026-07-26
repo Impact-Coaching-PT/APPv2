@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Impact Coaching">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>Impact Coaching — Dashboard 2.0</title>
+<link rel="icon" href="icons/icon-app-logo-square.png">
+<link rel="apple-touch-icon" href="icons/icon-app-logo-square.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -881,6 +883,19 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 </div>
 
 <div id="toast"></div>
+
+<!-- ══════════════ CLIENT SESSION VIEW ══════════════ -->
+<div class="modal-ov" id="cd-session-view-modal">
+  <div class="ms">
+    <div class="ms-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div class="pg-title" style="margin-bottom:0;" id="cd-sv-title">—</div>
+      <button class="icon-btn" onclick="closeCdSessionView()">✕</button>
+    </div>
+    <div class="pg-sub" id="cd-sv-date"></div>
+    <div id="cd-sv-rows" style="margin-top:14px;"></div>
+  </div>
+</div>
 
 <!-- ══════════════ EDIT CLIENT MODAL ══════════════ -->
 <div class="modal-ov" id="edit-modal-ov">
@@ -2166,7 +2181,7 @@ function renderClientDetail(){
   const sess = clientSessions(c.id).slice(0,6);
   document.getElementById("sessions-count").textContent = sess.length;
   document.getElementById("tl-list").innerHTML = sess.length ? sess.map((s,i)=>`
-    <div class="tl-item">
+    <div class="tl-item" onclick="openCdSessionView('${s.id}')">
       <div class="tl-dot-wrap"><div class="tl-dot ${s.status==='completed'?'done':'planned'}"></div>${i<sess.length-1?'<div class="tl-line"></div>':''}</div>
       <div class="tl-body">
         <div class="tl-name">${s.name||"Session"}</div>
@@ -2189,6 +2204,35 @@ function renderClientDetail(){
 
 function toggleCollapse(id){
   document.getElementById(id).classList.toggle("open");
+}
+
+function openCdSessionView(sessId){
+  const s = DB.sessions.find(x=>x.id===sessId);
+  if(!s) return;
+  document.getElementById("cd-sv-title").textContent = s.name || "Session";
+  document.getElementById("cd-sv-date").textContent = fmtDate(s.date) + (s.status==='completed' ? " · Completed" : " · Planned");
+  const rows = s.rows || [];
+  document.getElementById("cd-sv-rows").innerHTML = rows.length ? rows.map(r=>{
+    let weightLine;
+    if(r.sets && r.sets.length){
+      weightLine = r.sets.map((set,i)=>`Set ${i+1}: ${set.kg||"–"}kg × ${set.reps||"–"}`).join("<br>");
+    } else {
+      const w = r.actual || r.target;
+      weightLine = w ? (w+"kg"+(r.actual?"":" (planned)")) : "—";
+    }
+    return `
+    <div class="prog-row" style="align-items:flex-start;">
+      <div>
+        <div class="prog-ex">${r.exerciseName||"Exercise"}</div>
+        <div class="prog-when">${r.scheme||""}</div>
+      </div>
+      <div class="prog-wt" style="text-align:right;font-size:13px;">${weightLine}</div>
+    </div>`;
+  }).join("") : '<div class="empty-good">No exercises logged for this session</div>';
+  document.getElementById("cd-session-view-modal").classList.add("show");
+}
+function closeCdSessionView(){
+  document.getElementById("cd-session-view-modal").classList.remove("show");
 }
 
 function addNote(){
