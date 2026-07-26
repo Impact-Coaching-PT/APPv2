@@ -1,0 +1,3529 @@
+[
+ {
+  "id": "L01",
+  "name": "Leg Press (Pin)",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L02",
+  "name": "Leg Press (Plate)",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L03",
+  "name": "Hack Squat",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L04",
+  "name": "Smith Back Squat",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Hamstrings"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "L05",
+  "name": "Smith Glute Squat",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Quads"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "L06",
+  "name": "Belt Squat",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L07",
+  "name": "Front Squat",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L08",
+  "name": "Sumo Deadlift",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Hamstrings",
+   "Adductors"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L09",
+  "name": "Glute Bridge (BB)",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Hamstrings"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L10",
+  "name": "Glute Bridge (Plate)",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Hamstrings"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L11",
+  "name": "Hip Thrust",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Hamstrings"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L12",
+  "name": "Smith Split Squat",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Full Leg"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "L13",
+  "name": "Bulgarian Split Squat",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "L14",
+  "name": "Walking Lunges",
+  "cat": "legs",
+  "m": [
+   "Full Leg",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L15",
+  "name": "Walking Lunges (Bag)",
+  "cat": "legs",
+  "m": [
+   "Full Leg",
+   "Glutes"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "L16",
+  "name": "Reverse Lunges",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L17",
+  "name": "Lunge Rack RDL",
+  "cat": "legs",
+  "m": [
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L18",
+  "name": "Lunge Rack B-Split Squat",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Full Leg"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L19",
+  "name": "Curtsey Lunge",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Adductors"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L20",
+  "name": "Side Step Squats",
+  "cat": "legs",
+  "m": [
+   "Abductors",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L21",
+  "name": "Leg Extension (Pin)",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L22",
+  "name": "Leg Extension (Plate)",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L23",
+  "name": "Leg Curl (Pin)",
+  "cat": "legs",
+  "m": [
+   "Hamstrings"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L24",
+  "name": "Leg Curl (Plate)",
+  "cat": "legs",
+  "m": [
+   "Hamstrings"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L25",
+  "name": "Single RDL",
+  "cat": "legs",
+  "m": [
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L26",
+  "name": "Smith RDL",
+  "cat": "legs",
+  "m": [
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "L27",
+  "name": "Adductor",
+  "cat": "legs",
+  "m": [
+   "Adductors"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L28",
+  "name": "Abductor",
+  "cat": "legs",
+  "m": [
+   "Abductors",
+   "Glutes"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L29",
+  "name": "Booty Builder (Single)",
+  "cat": "legs",
+  "m": [
+   "Glutes"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L30",
+  "name": "Cable Kickbacks",
+  "cat": "legs",
+  "m": [
+   "Glutes"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "L31",
+  "name": "Landmine Squat",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L32",
+  "name": "Kettlebell Sumo",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Adductors",
+   "Hamstrings"
+  ],
+  "eq": "kettlebell"
+ },
+ {
+  "id": "L33",
+  "name": "Heel Raise",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L34",
+  "name": "Box Step Ups",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L35",
+  "name": "Cable Step Downs",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "C01",
+  "name": "Bench Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps",
+   "Shoulders"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "C02",
+  "name": "Narrow Bench Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "C03",
+  "name": "Incline Bench Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "C04",
+  "name": "Decline Bench Press",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "C05",
+  "name": "Dumbbell Bench Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "C06",
+  "name": "Dumbbell Incline Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "C07",
+  "name": "Plate Chest Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "C08",
+  "name": "Pin Chest Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "C09",
+  "name": "Smith Incline Bench",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "C10",
+  "name": "Cable Flys",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "C11",
+  "name": "Dumbbell Flys",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "C12",
+  "name": "Pec Fly (Pin)",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "C13",
+  "name": "Incline Plate Single",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "C14",
+  "name": "Press Ups",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "C15",
+  "name": "Diamond Press Ups",
+  "cat": "chest",
+  "m": [
+   "Triceps",
+   "Chest"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "C16",
+  "name": "TRX Press Ups",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "B01",
+  "name": "Lat Pull Down (Pin)",
+  "cat": "back",
+  "m": [
+   "Lats",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B02",
+  "name": "Lat Pull Down (Cable)",
+  "cat": "back",
+  "m": [
+   "Lats",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B03",
+  "name": "Seated Cable Row (Narrow)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B04",
+  "name": "Seated Cable Row (Wide)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps",
+   "Lats"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B05",
+  "name": "Barbell Row (Underhand)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps",
+   "Lats"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B06",
+  "name": "Bent Over Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Lats",
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B07",
+  "name": "Rack Pull",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "B08",
+  "name": "Smith Rack Pull",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Hamstrings"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "B09",
+  "name": "Deadlift",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B10",
+  "name": "Chin Ups (Assisted)",
+  "cat": "back",
+  "m": [
+   "Lats",
+   "Biceps"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "B11",
+  "name": "Pull Ups (Assisted)",
+  "cat": "back",
+  "m": [
+   "Lats",
+   "Upper Back"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "B12",
+  "name": "Front Pull Down",
+  "cat": "back",
+  "m": [
+   "Lats"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B13",
+  "name": "Plate Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "B14",
+  "name": "Plate Row Single",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "B15",
+  "name": "TRX Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "B16",
+  "name": "Landmine Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B17",
+  "name": "Kettlebell Bench Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "kettlebell"
+ },
+ {
+  "id": "B18",
+  "name": "Pin Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "B19",
+  "name": "T-Bar Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Lats"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B20",
+  "name": "Dual Cable Back Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Lats"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S01",
+  "name": "Shoulder Press (Pin)",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "S02",
+  "name": "Shoulder Press (Plate)",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "S03",
+  "name": "Dumbbell Shoulder Press",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "S04",
+  "name": "Smith Seated OH Press",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "S05",
+  "name": "Landmine Single OH Press",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "S06",
+  "name": "Lateral Raise",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "S07",
+  "name": "Front Raise",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "S08",
+  "name": "Rear Delt Fly",
+  "cat": "shoulders",
+  "m": [
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "S09",
+  "name": "Face Pull",
+  "cat": "shoulders",
+  "m": [
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S10",
+  "name": "Arnold Press",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "S11",
+  "name": "Upright Row",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Upper Back"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A01",
+  "name": "Barbell Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A02",
+  "name": "Hammer Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A03",
+  "name": "Cable Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A04",
+  "name": "Preacher Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A05",
+  "name": "Dumbbell Curl & Press",
+  "cat": "arms",
+  "m": [
+   "Biceps",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A06",
+  "name": "Cross Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A07",
+  "name": "Wall Bicep Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A08",
+  "name": "TRX Bicep Row",
+  "cat": "arms",
+  "m": [
+   "Biceps",
+   "Upper Back"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "A09",
+  "name": "Spin Curls",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "A10",
+  "name": "Kettlebell Curl & Press",
+  "cat": "arms",
+  "m": [
+   "Biceps",
+   "Shoulders"
+  ],
+  "eq": "kettlebell"
+ },
+ {
+  "id": "A11",
+  "name": "Tricep Press (Pin)",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "A12",
+  "name": "Tricep V-Bar",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A13",
+  "name": "Tricep Rope Push Down",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A14",
+  "name": "Assisted Dip",
+  "cat": "arms",
+  "m": [
+   "Triceps",
+   "Chest"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "A15",
+  "name": "Skull Crusher",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A16",
+  "name": "Bench Dips",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O01",
+  "name": "Cable Crunch",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "O02",
+  "name": "Decline Sit Up",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O03",
+  "name": "Decline Sit Up with Twist",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O04",
+  "name": "Knee Raise",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O05",
+  "name": "Landmine Anti-Rotation",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "O06",
+  "name": "Russian Twists",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O07",
+  "name": "Plank",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O08",
+  "name": "Side Plank",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O09",
+  "name": "Ab Curl (Pin)",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "O10",
+  "name": "Ball Sit Ups",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O11",
+  "name": "Woodchops",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV01",
+  "name": "Assault Bike",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "cardio_machine"
+ },
+ {
+  "id": "CV02",
+  "name": "Stairmaster",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "cardio_machine"
+ },
+ {
+  "id": "CV03",
+  "name": "Cross Trainer",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "cardio_machine"
+ },
+ {
+  "id": "CV04",
+  "name": "Rowing Machine",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "CV05",
+  "name": "Ski Erg",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "cardio_machine"
+ },
+ {
+  "id": "CV06",
+  "name": "Watt Bike",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "cardio_machine"
+ },
+ {
+  "id": "CV07",
+  "name": "Sled Push",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Quads"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV08",
+  "name": "Sled Pull",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Hamstrings"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV09",
+  "name": "Sled Push/Pull",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Full Leg"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV10",
+  "name": "Crab Walks",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Abductors"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CV11",
+  "name": "Ball Slams",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CV12",
+  "name": "Rope Slams",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Core"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV13",
+  "name": "Box Jumps",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Quads"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CV14",
+  "name": "Walking (Treadmill)",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "cardio_machine"
+ },
+ {
+  "id": "CV15",
+  "name": "Running (Treadmill)",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "cardio_machine"
+ },
+ {
+  "id": "L36",
+  "name": "Leg Extension (Pin) Single",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L37",
+  "name": "Leg Curl (Pin) Single",
+  "cat": "legs",
+  "m": [
+   "Hamstrings"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L38",
+  "name": "Leg Press (Pin) Single",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L39",
+  "name": "Leg Press (Pin) High Feet",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Hamstrings"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L40",
+  "name": "Leg Press (Pin) Wide Feet",
+  "cat": "legs",
+  "m": [
+   "Adductors",
+   "Glutes"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "L41",
+  "name": "Leg Extension (Plate)",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L42",
+  "name": "Leg Curl (Plate) Single",
+  "cat": "legs",
+  "m": [
+   "Hamstrings"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L43",
+  "name": "Glute Bridge (Plate) Single",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Hamstrings"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L44",
+  "name": "Hack Squat Narrow Stance",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L45",
+  "name": "Hack Squat Wide Stance",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Adductors"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L46",
+  "name": "Belt Squat Pulse",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L47",
+  "name": "Lunge Rack Squat",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Full Leg"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L48",
+  "name": "Lunge Rack Reverse Lunge",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Full Leg"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L49",
+  "name": "Lunge Rack Walking Lunge",
+  "cat": "legs",
+  "m": [
+   "Full Leg",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L50",
+  "name": "Lunge Rack OH Press Lunge",
+  "cat": "legs",
+  "m": [
+   "Full Leg",
+   "Shoulders"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L51",
+  "name": "Sled Leg Press",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "L52",
+  "name": "Sled Reverse Drag",
+  "cat": "legs",
+  "m": [
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "L53",
+  "name": "Booty Builder (Double)",
+  "cat": "legs",
+  "m": [
+   "Glutes"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L54",
+  "name": "Booty Builder Pulse",
+  "cat": "legs",
+  "m": [
+   "Glutes"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "L55",
+  "name": "Cable Pull Through",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Hamstrings"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "L56",
+  "name": "Cable Glute Kickback",
+  "cat": "legs",
+  "m": [
+   "Glutes"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "L57",
+  "name": "Cable Hip Abduction",
+  "cat": "legs",
+  "m": [
+   "Abductors",
+   "Glutes"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "L58",
+  "name": "Cable Hip Adduction",
+  "cat": "legs",
+  "m": [
+   "Adductors"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "L59",
+  "name": "Cable Step Ups",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "L60",
+  "name": "Box Step Downs",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Full Leg"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L61",
+  "name": "Box Jump",
+  "cat": "legs",
+  "m": [
+   "Full Leg",
+   "Quads"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L62",
+  "name": "Plyo Lunge",
+  "cat": "legs",
+  "m": [
+   "Full Leg",
+   "Quads"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L63",
+  "name": "Wall Sit",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L64",
+  "name": "Sumo Squat Hold",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Adductors"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L65",
+  "name": "Sumo Squat Pulse",
+  "cat": "legs",
+  "m": [
+   "Glutes",
+   "Adductors"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L66",
+  "name": "Good Mornings",
+  "cat": "legs",
+  "m": [
+   "Hamstrings",
+   "Glutes",
+   "Upper Back"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L67",
+  "name": "Romanian Deadlift (BB)",
+  "cat": "legs",
+  "m": [
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L68",
+  "name": "Stiff Leg Deadlift",
+  "cat": "legs",
+  "m": [
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "L69",
+  "name": "Calf Raise (Standing)",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L70",
+  "name": "Calf Raise (Seated)",
+  "cat": "legs",
+  "m": [
+   "Quads"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L71",
+  "name": "Squat Jump",
+  "cat": "legs",
+  "m": [
+   "Full Leg",
+   "Quads"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L72",
+  "name": "Lateral Band Walk",
+  "cat": "legs",
+  "m": [
+   "Abductors",
+   "Glutes"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "L73",
+  "name": "Monster Walk",
+  "cat": "legs",
+  "m": [
+   "Abductors",
+   "Glutes"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "L74",
+  "name": "Step Ups (Plyo Box)",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "L75",
+  "name": "Single Leg Press (Plate)",
+  "cat": "legs",
+  "m": [
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "C17",
+  "name": "Chest Fly (Pin) Single",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "C18",
+  "name": "Chest Fly (Pin) Low to High",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "C19",
+  "name": "Chest Fly (Pin) High to Low",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "C20",
+  "name": "Incline Press (Plate)",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "C21",
+  "name": "Decline Press (Plate)",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "C22",
+  "name": "Incline Press (Plate) Single",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "C23",
+  "name": "Decline Press (Plate) Single",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "C24",
+  "name": "Cable Chest Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "C25",
+  "name": "Cable Fly Low to High",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "C26",
+  "name": "Cable Fly High to Low",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "C27",
+  "name": "Single Cable Chest Fly",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "C28",
+  "name": "Cable Cross Over",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "C29",
+  "name": "Smith Bench Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps",
+   "Shoulders"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "C30",
+  "name": "Smith Decline Bench",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "C31",
+  "name": "Smith Narrow Bench",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "C32",
+  "name": "Decline Press Ups",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "C33",
+  "name": "Wide Press Ups",
+  "cat": "chest",
+  "m": [
+   "Chest"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "C34",
+  "name": "Incline Press Ups",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "C35",
+  "name": "Chest Dips",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "C36",
+  "name": "Dumbbell Pullover",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Lats"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "C37",
+  "name": "Dumbbell Decline Press",
+  "cat": "chest",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "B21",
+  "name": "Lat Pull Down (Pin) Narrow",
+  "cat": "back",
+  "m": [
+   "Lats",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B22",
+  "name": "Lat Pull Down (Pin) Wide",
+  "cat": "back",
+  "m": [
+   "Lats",
+   "Upper Back"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B23",
+  "name": "Lat Pull Down (Pin) Underhand",
+  "cat": "back",
+  "m": [
+   "Lats",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B24",
+  "name": "Seated Row (Pin) Narrow",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "B25",
+  "name": "Seated Row (Pin) Wide",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Lats"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "B26",
+  "name": "Seated Row (Pin) Underhand",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "B27",
+  "name": "Pin Row Single",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "B28",
+  "name": "T-Bar Row (Wide Grip)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Lats"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B29",
+  "name": "T-Bar Row (Narrow Grip)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B30",
+  "name": "Plate Row (Single)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "B31",
+  "name": "Cable Row (Single)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B32",
+  "name": "Cable Row (Underhand)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B33",
+  "name": "Cable Row (Wide)",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Lats"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B34",
+  "name": "Cable Straight Arm Pull Down",
+  "cat": "back",
+  "m": [
+   "Lats"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B35",
+  "name": "Cable Single Arm Pull Down",
+  "cat": "back",
+  "m": [
+   "Lats",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B36",
+  "name": "Cable Face Pull",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B37",
+  "name": "Cable Rear Delt Fly",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B38",
+  "name": "Cable High Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Lats"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B39",
+  "name": "Cable Low Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "B40",
+  "name": "Smith Bent Over Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps",
+   "Lats"
+  ],
+  "eq": "smith"
+ },
+ {
+  "id": "B41",
+  "name": "BB Underhand Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B42",
+  "name": "BB Overhand Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Lats"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B43",
+  "name": "Meadow Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B44",
+  "name": "Superman",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "B45",
+  "name": "Back Extension",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "B46",
+  "name": "Hyperextension",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Hamstrings"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "B47",
+  "name": "Renegade Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps",
+   "Core"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "B48",
+  "name": "TRX Archer Row",
+  "cat": "back",
+  "m": [
+   "Upper Back",
+   "Biceps"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "S12",
+  "name": "Shoulder Press (Pin) Single",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "S13",
+  "name": "Rear Delt Fly (Pin)",
+  "cat": "shoulders",
+  "m": [
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "machine_pin"
+ },
+ {
+  "id": "S14",
+  "name": "Shoulder Press (Plate) Single",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "S15",
+  "name": "Cable Lateral Raise",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S16",
+  "name": "Cable Lateral Raise Single",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S17",
+  "name": "Cable Front Raise",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S18",
+  "name": "Cable Front Raise Single",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S19",
+  "name": "Cable Rear Delt Fly Single",
+  "cat": "shoulders",
+  "m": [
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S20",
+  "name": "Cable Upright Row",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Upper Back"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S21",
+  "name": "Cable Overhead Press",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "S22",
+  "name": "DB Lateral Raise Single",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "S23",
+  "name": "DB Front Raise Alternate",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "S24",
+  "name": "DB Rear Delt Fly",
+  "cat": "shoulders",
+  "m": [
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "S25",
+  "name": "DB Shrug",
+  "cat": "shoulders",
+  "m": [
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "S26",
+  "name": "BB Shoulder Press",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "S27",
+  "name": "Push Press",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Triceps",
+   "Full Leg"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "S28",
+  "name": "Plate Front Raise",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "S29",
+  "name": "Plate Lateral Raise",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "S30",
+  "name": "Plate Press",
+  "cat": "shoulders",
+  "m": [
+   "Shoulders",
+   "Chest"
+  ],
+  "eq": "machine_plate"
+ },
+ {
+  "id": "A17",
+  "name": "Hammer Curl (Pin)",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A18",
+  "name": "Tricep Push Down (Pin)",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A19",
+  "name": "Tricep Push Down (Pin) Single",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A20",
+  "name": "Cable Curl (Bar)",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A21",
+  "name": "Cable Curl Single",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A22",
+  "name": "Cable Hammer Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A23",
+  "name": "Cable Hammer Curl Single",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A24",
+  "name": "Cable Overhead Tricep Ext",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A25",
+  "name": "Cable Tricep Ext Single",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A26",
+  "name": "Cable Bayesian Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A27",
+  "name": "Cable Bayesian Curl Single",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A28",
+  "name": "Cable Rev Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A29",
+  "name": "Cable Wrist Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A30",
+  "name": "Preacher Curl (Narrow Bar)",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A31",
+  "name": "Preacher Curl (Wide Bar)",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A32",
+  "name": "Preacher Curl (DB)",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A33",
+  "name": "Preacher Curl (Cable)",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "A34",
+  "name": "Mini BB Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A35",
+  "name": "Mini BB Overhead Tricep Ext",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A36",
+  "name": "Mini BB Skull Crusher",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A37",
+  "name": "Mini BB Upright Row",
+  "cat": "arms",
+  "m": [
+   "Shoulders",
+   "Upper Back"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A38",
+  "name": "Concentration Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A39",
+  "name": "Incline DB Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A40",
+  "name": "Zottman Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A41",
+  "name": "Reverse Curl (BB)",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A42",
+  "name": "Tricep Kickback",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A43",
+  "name": "Tricep Kickback Single",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A44",
+  "name": "Overhead Tricep Ext (DB)",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A45",
+  "name": "Overhead Tricep Ext (DB) Single",
+  "cat": "arms",
+  "m": [
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "A46",
+  "name": "Close Grip Bench Press",
+  "cat": "arms",
+  "m": [
+   "Triceps",
+   "Chest"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "A47",
+  "name": "Dip (Parallel Bars)",
+  "cat": "arms",
+  "m": [
+   "Triceps",
+   "Chest"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "A48",
+  "name": "21s Barbell Curl",
+  "cat": "arms",
+  "m": [
+   "Biceps"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "O12",
+  "name": "Cable Oblique Crunch",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "O13",
+  "name": "Cable Woodchop High to Low",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "O14",
+  "name": "Cable Woodchop Low to High",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "O15",
+  "name": "Cable Rotation",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "O16",
+  "name": "Cable Kneeling Crunch",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "O17",
+  "name": "Cable Anti Rotation",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "cable"
+ },
+ {
+  "id": "O18",
+  "name": "Box Jump",
+  "cat": "core",
+  "m": [
+   "Core",
+   "Full Leg"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O19",
+  "name": "Decline Sit Up (Plyo Box)",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O20",
+  "name": "Slam Ball Overhead Slam",
+  "cat": "core",
+  "m": [
+   "Core",
+   "Shoulders"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "O21",
+  "name": "Slam Ball Side Slam",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "O22",
+  "name": "Slam Ball Squat Slam",
+  "cat": "core",
+  "m": [
+   "Core",
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "O23",
+  "name": "Slam Ball Wall Ball",
+  "cat": "core",
+  "m": [
+   "Core",
+   "Shoulders",
+   "Quads"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "O24",
+  "name": "Slam Ball Russian Twist",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "O25",
+  "name": "Dead Bug",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O26",
+  "name": "Bird Dog",
+  "cat": "core",
+  "m": [
+   "Core",
+   "Glutes"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O27",
+  "name": "Mountain Climbers",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O28",
+  "name": "Hollow Body Hold",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O29",
+  "name": "V Sit",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O30",
+  "name": "Hanging Knee Raise",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O31",
+  "name": "Hanging Leg Raise",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O32",
+  "name": "Ab Rollout",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O33",
+  "name": "Pallof Press",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "barbell"
+ },
+ {
+  "id": "O34",
+  "name": "Plank Up Downs",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O35",
+  "name": "Bicycle Crunch",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O36",
+  "name": "Toe Touches",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O37",
+  "name": "Flutter Kicks",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O38",
+  "name": "Leg Raises",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "O39",
+  "name": "Sit Up",
+  "cat": "core",
+  "m": [
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CV16",
+  "name": "Sled Sprint (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Full Leg"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV17",
+  "name": "Sled Drag (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Hamstrings",
+   "Glutes"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV18",
+  "name": "Weighted Bag Carry (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Full Leg"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "CV19",
+  "name": "Weighted Bag Lunge (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Full Leg",
+   "Glutes"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "CV20",
+  "name": "Farmers Walk (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Full Leg",
+   "Upper Back"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV21",
+  "name": "Bear Crawl (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Core",
+   "Full Leg"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CV22",
+  "name": "Shuttle Run (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV23",
+  "name": "Sled Push (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV24",
+  "name": "Sled Pull (20m)",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Hamstrings"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV25",
+  "name": "High Knees",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CV26",
+  "name": "Burpees",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Full Leg",
+   "Chest"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CV27",
+  "name": "Star Jumps",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CV28",
+  "name": "Jump Rope",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CV29",
+  "name": "Slam Ball Intervals",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Core"
+  ],
+  "eq": "bag_ball"
+ },
+ {
+  "id": "CV30",
+  "name": "Battle Ropes",
+  "cat": "cardio",
+  "m": [
+   "Cardio",
+   "Shoulders",
+   "Core"
+  ],
+  "eq": "other"
+ },
+ {
+  "id": "CB01",
+  "name": "Squat + Bicep Curl (BW)",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CB02",
+  "name": "DB Squat + Bicep Curl",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB03",
+  "name": "KB Squat + Bicep Curl",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "kettlebell"
+ },
+ {
+  "id": "CB04",
+  "name": "DB Squat + Front Raise",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB05",
+  "name": "DB Squat + Lateral Raise",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB06",
+  "name": "DB Squat + Shoulder Press (Thruster)",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB07",
+  "name": "DB Squat + Upright Row",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB08",
+  "name": "DB Squat + Arnold Press",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB09",
+  "name": "DB Goblet Squat + Press",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB10",
+  "name": "DB Sumo Squat + Upright Row",
+  "cat": "combination",
+  "m": [
+   "Glutes",
+   "Adductors",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB11",
+  "name": "KB Goblet Squat + Press",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders"
+  ],
+  "eq": "kettlebell"
+ },
+ {
+  "id": "CB12",
+  "name": "DB Squat Pulse + Curl",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB13",
+  "name": "DB Squat + Twist",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Core"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB14",
+  "name": "BW Squat Jump + Overhead Reach",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders",
+   "Cardio"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CB15",
+  "name": "DB Reverse Lunge + Bicep Curl",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB16",
+  "name": "DB Reverse Lunge + Front Raise",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB17",
+  "name": "DB Reverse Lunge + Shoulder Press",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB18",
+  "name": "DB Reverse Lunge + Overhead Reach",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders",
+   "Core"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB19",
+  "name": "DB Forward Lunge + Bicep Curl",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB20",
+  "name": "DB Forward Lunge + Lateral Raise",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB21",
+  "name": "DB Lateral Lunge + Front Raise",
+  "cat": "combination",
+  "m": [
+   "Glutes",
+   "Adductors",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB22",
+  "name": "DB Curtsy Lunge + Lateral Raise",
+  "cat": "combination",
+  "m": [
+   "Glutes",
+   "Adductors",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB23",
+  "name": "BW Walking Lunge + Twist",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CB24",
+  "name": "DB Walking Lunge + Curl",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB25",
+  "name": "DB Step Up + Shoulder Press",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB26",
+  "name": "DB Step Up + Bicep Curl",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB27",
+  "name": "DB Step Up + Lateral Raise",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB28",
+  "name": "DB Step Up + Knee Drive + Press",
+  "cat": "combination",
+  "m": [
+   "Quads",
+   "Glutes",
+   "Shoulders",
+   "Core"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB29",
+  "name": "DB Deadlift + Bent Over Row",
+  "cat": "combination",
+  "m": [
+   "Hamstrings",
+   "Glutes",
+   "Lats",
+   "Upper Back"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB30",
+  "name": "DB Deadlift + Bicep Curl",
+  "cat": "combination",
+  "m": [
+   "Hamstrings",
+   "Glutes",
+   "Biceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB31",
+  "name": "DB RDL + Row",
+  "cat": "combination",
+  "m": [
+   "Hamstrings",
+   "Glutes",
+   "Lats",
+   "Upper Back"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB32",
+  "name": "KB Sumo Deadlift + Upright Row",
+  "cat": "combination",
+  "m": [
+   "Glutes",
+   "Hamstrings",
+   "Shoulders"
+  ],
+  "eq": "kettlebell"
+ },
+ {
+  "id": "CB33",
+  "name": "KB Swing + Squat",
+  "cat": "combination",
+  "m": [
+   "Glutes",
+   "Hamstrings",
+   "Quads",
+   "Cardio"
+  ],
+  "eq": "kettlebell"
+ },
+ {
+  "id": "CB34",
+  "name": "DB Single Leg RDL + Row",
+  "cat": "combination",
+  "m": [
+   "Hamstrings",
+   "Glutes",
+   "Lats",
+   "Core"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB35",
+  "name": "DB Renegade Row + Press Up",
+  "cat": "combination",
+  "m": [
+   "Lats",
+   "Core",
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB36",
+  "name": "KB Around the World + Squat",
+  "cat": "combination",
+  "m": [
+   "Shoulders",
+   "Core",
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "kettlebell"
+ },
+ {
+  "id": "CB37",
+  "name": "DB Bear Crawl + Row",
+  "cat": "combination",
+  "m": [
+   "Core",
+   "Lats",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB38",
+  "name": "BW Burpee + Tuck Jump",
+  "cat": "combination",
+  "m": [
+   "Full Leg",
+   "Chest",
+   "Cardio",
+   "Core"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CB39",
+  "name": "BW Mountain Climber + Press Up",
+  "cat": "combination",
+  "m": [
+   "Core",
+   "Chest",
+   "Triceps",
+   "Cardio"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CB40",
+  "name": "BW Plank + Shoulder Tap + Jack",
+  "cat": "combination",
+  "m": [
+   "Core",
+   "Shoulders",
+   "Cardio"
+  ],
+  "eq": "bodyweight"
+ },
+ {
+  "id": "CB41",
+  "name": "DB Halo + Squat",
+  "cat": "combination",
+  "m": [
+   "Shoulders",
+   "Core",
+   "Quads",
+   "Glutes"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB42",
+  "name": "DB Floor Press + Leg Raise",
+  "cat": "combination",
+  "m": [
+   "Chest",
+   "Triceps",
+   "Core"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB43",
+  "name": "DB Chest Press + Skull Crusher",
+  "cat": "combination",
+  "m": [
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB44",
+  "name": "DB Incline Press + Fly",
+  "cat": "combination",
+  "m": [
+   "Chest",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB45",
+  "name": "DB Single Arm Row + Rotation",
+  "cat": "combination",
+  "m": [
+   "Lats",
+   "Upper Back",
+   "Core"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB46",
+  "name": "DB Bent Over Row + Reverse Fly",
+  "cat": "combination",
+  "m": [
+   "Lats",
+   "Upper Back",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB47",
+  "name": "DB Shoulder Press + Tricep Ext",
+  "cat": "combination",
+  "m": [
+   "Shoulders",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB48",
+  "name": "DB Hammer Curl + Press",
+  "cat": "combination",
+  "m": [
+   "Biceps",
+   "Shoulders"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB49",
+  "name": "DB Plank Row + Press Up",
+  "cat": "combination",
+  "m": [
+   "Lats",
+   "Core",
+   "Chest",
+   "Triceps"
+  ],
+  "eq": "dumbbell"
+ },
+ {
+  "id": "CB50",
+  "name": "DB Crab Toe Touch",
+  "cat": "combination",
+  "m": [
+   "Core",
+   "Triceps",
+   "Hamstrings"
+  ],
+  "eq": "dumbbell"
+ }
+]
