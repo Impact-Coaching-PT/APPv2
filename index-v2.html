@@ -119,6 +119,8 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 .menu-tile{background:var(--bg2);border:1.5px solid var(--bd);border-radius:16px;padding:18px 14px;cursor:pointer;position:relative;transition:border-color .15s;}
 .menu-tile:active{border-color:var(--bd2);background:var(--bg3);}
 .menu-ic{font-size:22px;margin-bottom:10px;display:block;}
+.menu-ic-img{width:46px;height:46px;object-fit:contain;margin-bottom:10px;display:block;border-radius:9px;}
+.menu-tile{box-shadow:0 0 18px -10px var(--tile-glow,transparent);}
 .menu-lbl{font-size:14px;font-weight:700;font-family:var(--font-display);letter-spacing:-.01em;}
 .menu-sub{font-size:10.5px;color:var(--t3);margin-top:2px;font-family:var(--font-mono);}
 .menu-soon{position:absolute;top:12px;right:12px;font-size:8.5px;font-weight:700;color:var(--t4);background:var(--bg4);padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--font-mono);}
@@ -353,9 +355,10 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 
 <!-- ══════════════ DASHBOARD ══════════════ -->
 <div class="page active" id="pg-dash">
-  <div class="pg-eyebrow">Overview</div>
-  <div class="pg-title">Morning, Ritchie</div>
-  <div class="pg-sub" id="dash-date"></div>
+  <div style="text-align:center;margin-bottom:16px;">
+    <div style="width:76px;height:76px;border-radius:18px;overflow:hidden;margin:0 auto 10px;box-shadow:0 8px 26px -6px #e8412c88;"><img src="icons/icon-app-logo.png" alt="Impact Coaching PT App" style="width:100%;height:100%;object-fit:cover;"></div>
+    <div class="pg-sub" id="dash-date" style="margin-bottom:0;"></div>
+  </div>
 
   <div class="stat-strip">
     <div class="stat-card"><div class="stat-num" id="stat-active">–</div><span class="stat-lbl">Active</span></div>
@@ -525,23 +528,23 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     </div>
 
     <div class="tile-grid">
-      <div class="menu-tile" onclick="menoSubNav('active')">
-        <span class="menu-ic">📅</span>
+      <div class="menu-tile" style="--tile-glow:#9a3ae8" onclick="menoSubNav('active')">
+        <img class="menu-ic-img" src="icons/menofit-active-block.png" alt="Active Block">
         <div class="menu-lbl">Active Block</div>
         <div class="menu-sub" id="meno-active-sub">No active block</div>
       </div>
-      <div class="menu-tile" onclick="openMenoBuilder()">
-        <span class="menu-ic">🛠️</span>
+      <div class="menu-tile" style="--tile-glow:#e83ab4" onclick="openMenoBuilder()">
+        <img class="menu-ic-img" src="icons/menofit-builder.png" alt="Builder">
         <div class="menu-lbl">Builder</div>
         <div class="menu-sub">Create new block</div>
       </div>
-      <div class="menu-tile" onclick="menoSubNav('library')">
-        <span class="menu-ic">📚</span>
+      <div class="menu-tile" style="--tile-glow:#e8923a" onclick="menoSubNav('library')">
+        <img class="menu-ic-img" src="icons/menofit-library.png" alt="Library">
         <div class="menu-lbl">Library</div>
         <div class="menu-sub">Exercises & plans</div>
       </div>
-      <div class="menu-tile" onclick="menoSubNav('history')">
-        <span class="menu-ic">⏱️</span>
+      <div class="menu-tile" style="--tile-glow:#9a3ae8" onclick="menoSubNav('history')">
+        <img class="menu-ic-img" src="icons/menofit-history.png" alt="History">
         <div class="menu-lbl">History</div>
         <div class="menu-sub" id="meno-hist-sub">0 past blocks</div>
       </div>
@@ -1881,18 +1884,18 @@ function deleteCustomExercise(id){
 }
 
 const TILES = [
-  {ic:"👥", img:"icons/icon-clients.png", lbl:"Clients", sub:"Roster & profiles", action:"openClients()"},
-  {ic:"📅", img:"icons/icon-calendar.png", lbl:"Calendar", sub:"Session schedule", action:"openCalendar()"},
-  {ic:"🏋️", img:"icons/icon-create-workout.png", lbl:"Workout Builder", sub:"Create & assign", action:"openBuilder()"},
-  {ic:"🌸", img:"icons/icon-menofit.png", lbl:"MenoFit Class Manager", sub:"Small-group blocks", action:"openMenoFit()"},
-  {ic:"🔢", img:"icons/icon-tdee.png", lbl:"TDEE Calculator", sub:"Targets & macros", action:"openTdee()"},
-  {ic:"📚", img:"icons/icon-exercise-library.png", lbl:"Exercise Library", sub:"Full move list", action:"openExLibrary()"},
-  {ic:"🔗", img:"icons/icon-links.png", lbl:"Links", sub:"Quick access", action:"openLinks()"},
+  {ic:"👥", img:"icons/icon-clients.png", glow:"#e8412c", lbl:"Clients", sub:"Roster & profiles", action:"openClients()"},
+  {ic:"📅", img:"icons/icon-calendar.png", glow:"#4a90e8", lbl:"Calendar", sub:"Session schedule", action:"openCalendar()"},
+  {ic:"🏋️", img:"icons/icon-create-workout.png", glow:"#e8412c", lbl:"Workout Builder", sub:"Create & assign", action:"openBuilder()"},
+  {ic:"🌸", img:"icons/icon-menofit.png", glow:"#9a3ae8", lbl:"MenoFit Class Manager", sub:"Small-group blocks", action:"openMenoFit()"},
+  {ic:"🔢", img:"icons/icon-tdee.png", glow:"#e89a3a", lbl:"TDEE Calculator", sub:"Targets & macros", action:"openTdee()"},
+  {ic:"📚", img:"icons/icon-exercise-library.png", glow:"#3ae87a", lbl:"Exercise Library", sub:"Full move list", action:"openExLibrary()"},
+  {ic:"🔗", img:"icons/icon-links.png", glow:"#4a90e8", lbl:"Links", sub:"Quick access", action:"openLinks()"},
   {ic:"⚙️", lbl:"Settings", sub:"Sync & backend", action:"nav('settings')"}
 ];
 function renderTileGrid(){
   document.getElementById("tile-grid").innerHTML = TILES.map(t=>`
-    <div class="menu-tile" onclick="${t.action}">
+    <div class="menu-tile" style="--tile-glow:${t.glow||'transparent'}" onclick="${t.action}">
       ${t.soon?'<span class="menu-soon">Soon</span>':''}
       ${t.img ? `<img class="menu-ic-img" src="${t.img}" alt="${t.lbl}">` : `<span class="menu-ic">${t.ic}</span>`}
       <div class="menu-lbl">${t.lbl}</div>
