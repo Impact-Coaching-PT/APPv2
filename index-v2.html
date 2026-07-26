@@ -870,12 +870,13 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
   <div class="pg-title">Sync</div>
   <div class="pg-sub">Connect this dashboard to your Drive backend.</div>
 
-  <div class="demo-note">This is Stage 1 — running on placeholder demo data so you can see the design. The new Apps Script backend (one file per client) comes in a later stage; once that's live, paste its URL here and Pull/Save will go live.</div>
+  <div class="demo-note">Paste the Apps Script Web App URL from your "PT APP" Drive folder below, then Save it. Pull loads everything from Drive; Save pushes everything currently on this device up to Drive.</div>
 
   <label class="lbl">Script URL</label>
   <input class="inp" id="script-url-inp" placeholder="Paste your Apps Script Web App URL">
-  <button class="btn btn-grad" onclick="saveScriptUrl()">⬇️ Pull Latest</button>
-  <button class="btn btn-gh" onclick="saveScriptUrl()">💾 Save to Drive</button>
+  <button class="btn btn-grad" id="btn-pull" onclick="pullFromDrive()">⬇️ Pull Latest</button>
+  <button class="btn btn-gh" id="btn-save" onclick="saveToDrive()">💾 Save to Drive</button>
+  <button class="btn btn-gh" onclick="saveScriptUrl()">Save Script URL Only</button>
   <button class="btn btn-gh" onclick="resetDemo()">Reset Demo Data</button>
 </div>
 
@@ -2293,14 +2294,77 @@ function toggleStatus(id){
 }
 
 // ═══════════════════════════════════════════════════════════
-// SYNC (placeholder — wires up once new Apps Script backend exists)
+// SYNC (live — talks to the Apps Script backend on Drive)
 // ═══════════════════════════════════════════════════════════
 function saveScriptUrl(){
   const url = document.getElementById("script-url-inp").value.trim();
   DB.settings.scriptUrl = url;
-  if(url){ DB.settings.lastSync = new Date().toISOString(); toast("URL saved — live sync arrives in a later stage"); }
-  else { toast("No URL set"); }
   saveDB(); renderHeader();
+  toast(url ? "Script URL saved" : "No URL set");
+}
+
+function setSyncing(isSyncing){
+  document.getElementById("btn-pull").disabled = isSyncing;
+  document.getElementById("btn-save").disabled = isSyncing;
+}
+
+async function pullFromDrive(){
+  saveScriptUrl();
+  const url = DB.settings.scriptUrl;
+  if(!url){ toast("Paste your Script URL first"); return; }
+  setSyncing(true);
+  toast("Pulling from Drive…");
+  try{
+    const res = await fetch(url + "?action=pullAll");
+    const data = await res.json();
+    if(!data.ok){ toast("Pull failed: "+(data.error||"unknown error")); setSyncing(false); return; }
+    DB.clients = data.clients || [];
+    DB.sessions = data.sessions || [];
+    DB.targets = data.targets || {};
+    DB.notes = data.notes || {};
+    DB.menoSessions = data.menoSessions || [];
+    DB.menofit = data.menofit || {activeBlock:null, history:[]};
+    DB.menoCustomExercises = data.menoCustomExercises || {};
+    DB.customExercises = data.customExercises || [];
+    DB.settings.lastSync = new Date().toISOString();
+    saveDB();
+    renderAll();
+    toast("Pulled "+DB.clients.length+" clients from Drive ✓");
+  }catch(err){
+    toast("Pull failed — check the Script URL and try again");
+  }
+  setSyncing(false);
+}
+
+async function saveToDrive(){
+  saveScriptUrl();
+  const url = DB.settings.scriptUrl;
+  if(!url){ toast("Paste your Script URL first"); return; }
+  setSyncing(true);
+  toast("Saving to Drive…");
+  try{
+    const payload = {
+      action: "pushAll",
+      clients: DB.clients, sessions: DB.sessions,
+      targets: DB.targets, notes: DB.notes,
+      menoSessions: DB.menoSessions, menofit: DB.menofit,
+      menoCustomExercises: DB.menoCustomExercises, customExercises: DB.customExercises
+    };
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(!data.ok){ toast("Save failed: "+(data.error||"unknown error")); setSyncing(false); return; }
+    DB.settings.lastSync = new Date().toISOString();
+    saveDB();
+    renderHeader();
+    toast("Saved to Drive ✓");
+  }catch(err){
+    toast("Save failed — check the Script URL and try again");
+  }
+  setSyncing(false);
 }
 
 // ═══════════════════════════════════════════════════════════
