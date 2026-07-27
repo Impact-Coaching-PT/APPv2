@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#15171c">
+<meta name="application-name" content="Impact Coaching Client Hub">
+<meta name="apple-mobile-web-app-title" content="Client Hub">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Impact Coaching - Client Hub</title>
+<link rel="icon" href="icons/icon-free-hub.png">
+<link rel="apple-touch-icon" href="icons/icon-free-hub.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#15171c; --bg2:#1c1f25; --bg3:#242730;
+  --bd:#343841; --bd2:#2a2d34;
+  --t:#f5f5f5; --t2:#c2c4c8; --t3:#8d9096; --t4:#5c5f66;
+  --red:#ae231c; --red2:#e33d2d;
+  --grad:linear-gradient(135deg,#ae231c,#e33d2d);
+  --disp:'Oswald',system-ui,sans-serif;
+  --cta-bg:rgba(227,61,45,.08); --cta-border:rgba(227,61,45,.4);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;margin:0;background:
+    radial-gradient(ellipse 900px 500px at 50% -10%, #22262e 0%, transparent 60%),
+    var(--bg);
+  color:var(--t);font-family:system-ui,-apple-system,sans-serif;font-size:16px;overscroll-behavior:none;}
+body{padding-bottom:40px;}
+.hidden{display:none!important;}
+.row{display:flex;align-items:center;}
+.between{justify-content:space-between;}
+.gap8{gap:8px;} .gap10{gap:10px;}
+.lbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin-bottom:6px;display:block;}
+.inp{background:var(--bg3);border:1.5px solid var(--bd);color:var(--t);border-radius:8px;padding:12px;width:100%;font-size:16px;font-family:inherit;appearance:none;-webkit-appearance:none;text-align:center;letter-spacing:.3em;}
+.inp:focus{outline:none;border-color:var(--red2);}
+.btn{border:none;border-radius:10px;padding:13px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--disp);text-transform:uppercase;letter-spacing:.05em;width:100%;margin-bottom:10px;}
+.btn-r{background:var(--grad);color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.15);}
+.btn-gh{background:transparent;border:1.5px solid var(--bd);color:var(--t2);}
+.btn-danger{background:transparent;border:1.5px solid #e33d2d99;color:#e33d2d;}
+main{max-width:520px;margin:0 auto;padding:16px;}
+.notice{background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--t3);line-height:1.6;margin-bottom:16px;}
+.notice b{color:var(--t2);}
+
+/* Hero */
+.hero{text-align:center;padding:28px 16px 8px;}
+#hero-logo{width:120px;height:120px;border-radius:22px;display:block;margin:0 auto 16px;box-shadow:0 10px 34px rgba(0,0,0,.55);object-fit:cover;}
+.hero-title{font-size:22px;font-weight:700;font-family:var(--disp);text-transform:uppercase;letter-spacing:.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-tagline{font-family:var(--disp);font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.2em;margin-top:6px;}
+#hero-greeting{font-size:12px;color:var(--t3);font-family:monospace;margin-top:10px;}
+
+/* PIN gate */
+#pin-gate{max-width:340px;margin:0 auto;padding-top:12px;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin:20px 0;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--bd);background:transparent;}
+.pin-dot.filled{background:var(--red2);border-color:var(--red2);}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;}
+.key{background:var(--bg2);border:1.5px solid var(--bd);border-radius:12px;padding:18px 0;font-size:20px;font-weight:700;color:var(--t);text-align:center;cursor:pointer;font-family:var(--disp);}
+.key.wide{grid-column:span 1;font-size:13px;color:var(--t3);}
+#pin-error{color:var(--red2);font-size:12px;text-align:center;margin-top:10px;min-height:16px;font-family:monospace;}
+
+/* Stat strip */
+.stat-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px;}
+.stat-card{background:var(--bg2);border:1.5px solid var(--bd);border-radius:14px;padding:14px 8px;text-align:center;}
+.stat-num{font-family:var(--disp);font-size:19px;font-weight:700;}
+.stat-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;font-family:monospace;margin-top:4px;}
+
+/* Tile grid */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 24px;}
+.dash-tile{background:var(--bg2);border:1.5px solid var(--cta-border);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;position:relative;box-shadow:0 0 0 1px var(--cta-bg) inset, 0 6px 18px -6px rgba(0,0,0,.5), 0 0 14px -8px var(--red2);}
+.dash-tile-icon{width:52px;height:52px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px;}
+.dash-tile-title{font-family:var(--disp);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--t);}
+.dash-tile-sub{font-size:10.5px;color:var(--t3);margin-top:3px;font-family:monospace;}
+.dash-tile-badge{position:absolute;top:10px;right:10px;background:var(--grad);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:monospace;}
+
+.sec-hdr{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;font-family:monospace;font-weight:600;margin:20px 0 10px;}
+.list-row{background:var(--bg2);border:1.5px solid var(--bd);border-radius:12px;padding:13px 14px;margin-bottom:8px;cursor:pointer;}
+.list-row-name{font-size:14px;font-weight:600;}
+.list-row-sub{font-size:11px;color:var(--t3);margin-top:2px;font-family:monospace;}
+.empty-note{text-align:center;padding:24px 16px;color:var(--t3);font-size:13px;background:var(--bg2);border:1.5px dashed var(--bd);border-radius:12px;}
+
+.back-link{color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-bottom:16px;}
+
+/* Inactive banner */
+.inactive-card{background:var(--cta-bg);border:1.5px solid var(--cta-border);border-radius:16px;padding:22px;text-align:center;margin-top:20px;}
+.inactive-title{font-family:var(--disp);font-size:16px;font-weight:700;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
+.inactive-body{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px;}
+
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--bd);color:var(--t);padding:10px 18px;border-radius:20px;font-size:13px;z-index:99;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<main>
+  <div class="hero">
+    <img id="hero-logo" src="icons/icon-free-hub.png" alt="Impact Coaching">
+    <div class="hero-title">Client Hub</div>
+    <div class="hero-tagline">Impact Coaching</div>
+    <div id="hero-greeting"></div>
+  </div>
+
+  <!-- PIN GATE -->
+  <div id="pin-gate">
+    <label class="lbl" style="text-align:center;">Enter your PIN</label>
+    <div class="pin-dots" id="pin-dots"></div>
+    <div class="keypad" id="keypad"></div>
+    <div id="pin-error"></div>
+  </div>
+
+  <!-- DASHBOARD (shown after PIN unlock) -->
+  <div id="dashboard" class="hidden">
+
+    <div class="stat-strip">
+      <div class="stat-card"><div class="stat-num" id="stat-cals">-</div><div class="stat-lbl">Cals Today</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-streak">-</div><div class="stat-lbl">Day Streak</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-pending">-</div><div class="stat-lbl">Assigned</div></div>
+    </div>
+
+    <div class="sec-hdr">Menu</div>
+    <div class="dash-grid">
+      <div class="dash-tile" onclick="showSection('assigned')">
+        <span class="dash-tile-badge hidden" id="assigned-badge">0</span>
+        <div class="dash-tile-icon">🏋️</div>
+        <div class="dash-tile-title">Assigned Workouts</div>
+        <div class="dash-tile-sub">From Ritchie</div>
+      </div>
+      <div class="dash-tile" onclick="toast('Opens the Workout Tracker - coming next')">
+        <div class="dash-tile-icon">📋</div>
+        <div class="dash-tile-title">Workout Tracker</div>
+        <div class="dash-tile-sub">Log your training</div>
+      </div>
+      <div class="dash-tile" onclick="toast('Opens the Calorie Tracker - coming next')">
+        <div class="dash-tile-icon">🍽️</div>
+        <div class="dash-tile-title">Calorie Tracker</div>
+        <div class="dash-tile-sub">Log food &amp; macros</div>
+      </div>
+      <div class="dash-tile" onclick="showSection('links')">
+        <div class="dash-tile-icon">🔗</div>
+        <div class="dash-tile-title">Links</div>
+        <div class="dash-tile-sub">Quick access</div>
+      </div>
+      <div class="dash-tile" onclick="showSection('about')">
+        <div class="dash-tile-icon">ℹ️</div>
+        <div class="dash-tile-title">About</div>
+        <div class="dash-tile-sub">Impact Coaching</div>
+      </div>
+      <div class="dash-tile" onclick="showSection('settings')">
+        <div class="dash-tile-icon">⚙️</div>
+        <div class="dash-tile-title">Settings</div>
+        <div class="dash-tile-sub">Sync &amp; info</div>
+      </div>
+    </div>
+
+    <!-- INACTIVE BANNER (shown instead of tiles if client is toggled inactive) -->
+    <div id="inactive-banner" class="inactive-card hidden">
+      <div class="inactive-title">No Longer an Active Client</div>
+      <div class="inactive-body">Ritchie's marked your account as inactive. Your data here is yours to keep - export it below, then head to the free Impact Coaching Hub to keep tracking on your own.</div>
+      <button class="btn btn-r" onclick="exportMyData()">⬇️ Export My Data</button>
+      <button class="btn btn-gh" onclick="toast('Point this at your free Hub URL')">Go To Free Hub</button>
+    </div>
+  </div>
+
+  <!-- ASSIGNED WORKOUTS -->
+  <div id="section-assigned" class="hidden">
+    <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
+    <div class="sec-hdr" style="margin-top:0;">Assigned Workouts</div>
+    <div id="assigned-list"></div>
+  </div>
+
+  <!-- LINKS -->
+  <div id="section-links" class="hidden">
+    <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
+    <div class="sec-hdr" style="margin-top:0;">Links</div>
+    <div class="list-row" onclick="toast('Point this at the free Hub URL')"><div class="list-row-name">🏠 Free Hub</div></div>
+  </div>
+
+  <!-- ABOUT -->
+  <div id="section-about" class="hidden">
+    <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
+    <div class="sec-hdr" style="margin-top:0;">About Impact Coaching</div>
+    <div class="notice">Personal training and coaching from Ritchie - lift pounds and lose pounds. Details about services, socials, and contact go here.</div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="section-settings" class="hidden">
+    <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
+    <div class="sec-hdr" style="margin-top:0;">Settings</div>
+    <div class="notice">Your data syncs automatically with Ritchie whenever this app is open. Completed workouts, calories, and macros update on his side; nothing else does.</div>
+    <button class="btn btn-gh" onclick="pullMyData()">⬇️ Refresh My Data</button>
+    <button class="btn btn-danger" onclick="toast('Contact Ritchie to reset your PIN')">Forgot PIN?</button>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG - update SCRIPT_URL once the Apps Script is deployed
+// ═══════════════════════════════════════════════════════════
+const SCRIPT_URL = ""; // <-- paste the same Apps Script deployment URL used in the PT-App
+
+const LOCAL_KEY = "ic-clienthub-session";
+let clientRecord = null;
+let pinBuffer = "";
+
+// ═══════════════════════════════════════════════════════════
+// INIT - resolve client id from URL (?id=) or saved session
+// ═══════════════════════════════════════════════════════════
+function getClientId(){
+  const params = new URLSearchParams(window.location.search);
+  const urlId = params.get("id");
+  if(urlId){ localStorage.setItem(LOCAL_KEY+"-id", urlId); return urlId; }
+  return localStorage.getItem(LOCAL_KEY+"-id");
+}
+
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"), 2200);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PIN KEYPAD
+// ═══════════════════════════════════════════════════════════
+function renderKeypad(){
+  const keys = ["1","2","3","4","5","6","7","8","9","","0","del"];
+  document.getElementById("keypad").innerHTML = keys.map(k=>{
+    if(k==="") return `<div></div>`;
+    if(k==="del") return `<div class="key wide" onclick="pinDelete()">DEL</div>`;
+    return `<div class="key" onclick="pinPress('${k}')">${k}</div>`;
+  }).join("");
+}
+function renderPinDots(){
+  document.getElementById("pin-dots").innerHTML = [0,1,2,3,4].map(i=>
+    `<div class="pin-dot ${i<pinBuffer.length?'filled':''}"></div>`).join("");
+}
+function pinPress(d){
+  if(pinBuffer.length>=6) return;
+  pinBuffer += d;
+  renderPinDots();
+  document.getElementById("pin-error").textContent = "";
+  if(pinBuffer.length>=4) checkPin();
+}
+function pinDelete(){
+  pinBuffer = pinBuffer.slice(0,-1);
+  renderPinDots();
+}
+function checkPin(){
+  if(!clientRecord){ return; }
+  const realPin = (clientRecord.client && clientRecord.client.pin) || "";
+  if(pinBuffer === realPin){
+    unlockDashboard();
+  } else if(pinBuffer.length >= (realPin.length||4)){
+    document.getElementById("pin-error").textContent = "Incorrect PIN - try again";
+    pinBuffer = "";
+    renderPinDots();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// DATA - pull this client's record from the shared backend
+// ═══════════════════════════════════════════════════════════
+async function pullMyData(){
+  const id = getClientId();
+  if(!id){ document.getElementById("pin-error").textContent = "No client link found - ask Ritchie to resend your link."; return; }
+  if(!SCRIPT_URL){ toast("Backend not connected yet"); return; }
+  try{
+    const res = await fetch(SCRIPT_URL + "?action=client&id=" + encodeURIComponent(id));
+    const data = await res.json();
+    if(!data.ok){ document.getElementById("pin-error").textContent = "Couldn't find your account."; return; }
+    clientRecord = data.data;
+    localStorage.setItem(LOCAL_KEY+"-data", JSON.stringify(clientRecord));
+    if(document.getElementById("dashboard").classList.contains("hidden")===false){
+      renderDashboardData();
+      toast("Data refreshed");
+    }
+  }catch(e){
+    // fall back to whatever was last cached locally
+    const cached = localStorage.getItem(LOCAL_KEY+"-data");
+    if(cached) clientRecord = JSON.parse(cached);
+  }
+}
+
+function exportMyData(){
+  if(!clientRecord){ toast("Nothing to export yet"); return; }
+  const blob = new Blob([JSON.stringify(clientRecord, null, 1)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "my-impact-coaching-data.json";
+  a.click();
+  toast("Downloaded - take this to the free Hub");
+}
+
+// ═══════════════════════════════════════════════════════════
+// UNLOCK / RENDER
+// ═══════════════════════════════════════════════════════════
+function unlockDashboard(){
+  document.getElementById("pin-gate").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  const name = (clientRecord.client && clientRecord.client.name) || "";
+  document.getElementById("hero-greeting").textContent = name ? ("Welcome, "+name) : "";
+  renderDashboardData();
+}
+function renderDashboardData(){
+  const c = clientRecord.client || {};
+  const isInactive = c.status === "inactive" || c.archived === true;
+
+  document.querySelector(".stat-strip").classList.toggle("hidden", isInactive);
+  document.querySelector(".dash-grid").classList.toggle("hidden", isInactive);
+  document.getElementById("inactive-banner").classList.toggle("hidden", !isInactive);
+
+  // Placeholder stat wiring - real values come from the Workout/Calorie tracker data once those are built
+  document.getElementById("stat-cals").textContent = "-";
+  document.getElementById("stat-streak").textContent = "-";
+  const assigned = (clientRecord.sessions||[]).filter(s=>s.status==="planned" && s.assignedByCoach);
+  document.getElementById("stat-pending").textContent = assigned.length;
+  const badge = document.getElementById("assigned-badge");
+  if(assigned.length){ badge.textContent = assigned.length; badge.classList.remove("hidden"); }
+  renderAssignedList();
+}
+function renderAssignedList(){
+  const assigned = (clientRecord.sessions||[]).filter(s=>s.status==="planned" && s.assignedByCoach);
+  document.getElementById("assigned-list").innerHTML = assigned.length ? assigned.map(s=>`
+    <div class="list-row" onclick="toast('Opens this workout to complete - coming with the Workout Tracker')">
+      <div class="list-row-name">${s.name||"Workout"}</div>
+      <div class="list-row-sub">${s.date||""}</div>
+    </div>`).join("") : '<div class="empty-note">Nothing assigned right now</div>';
+}
+
+function showSection(id){
+  ["dashboard","section-assigned","section-links","section-about","section-settings"].forEach(s=>
+    document.getElementById(s).classList.add("hidden"));
+  document.getElementById(id==="dashboard" ? "dashboard" : "section-"+id).classList.remove("hidden");
+}
+function showDashboard(){ showSection("dashboard"); }
+
+// ═══════════════════════════════════════════════════════════
+// STARTUP
+// ═══════════════════════════════════════════════════════════
+(async function init(){
+  renderKeypad();
+  renderPinDots();
+  const cached = localStorage.getItem(LOCAL_KEY+"-data");
+  if(cached){ clientRecord = JSON.parse(cached); }
+  await pullMyData();
+  if(!clientRecord){
+    document.getElementById("pin-error").textContent = "Couldn't load your account - check your link or try again later.";
+  }
+})();
+</script>
+</body>
+</html>
