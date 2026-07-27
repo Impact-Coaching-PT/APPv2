@@ -1068,6 +1068,8 @@ function daysAgo(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toIS
 // STATE
 // ═══════════════════════════════════════════════════════════
 const SK = "impact-coaching-v3";
+const URL_KEY = "ic-ptapp-script-url";
+const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwhgCTSagwFjL8esl2K8kG9XN4YPnxg0-1xoxCSXDlDNBto03LK9b_jBiqjmCa5oynO/exec";
 let DB = {clients:[],sessions:[],targets:{},notes:{},menoSessions:[],menofit:{activeBlock:null,history:[]},menoCustomExercises:{},customExercises:[],settings:{scriptUrl:"",lastSync:null}};
 let currentClientId = null;
 let currentFilter = "all";
@@ -1085,9 +1087,17 @@ function loadDB(){
   if(!DB.menoSessions) DB.menoSessions = [];
   if(!DB.menoCustomExercises) DB.menoCustomExercises = {};
   if(!DB.customExercises) DB.customExercises = [];
+  // Script URL lives in its own dedicated key so it survives a data reset or a wipe in another app sharing this origin
+  const savedUrl = localStorage.getItem(URL_KEY) || DEFAULT_SCRIPT_URL;
+  if(savedUrl){ DB.settings.scriptUrl = savedUrl; localStorage.setItem(URL_KEY, savedUrl); }
 }
 function saveDB(){ try{ localStorage.setItem(SK, JSON.stringify(DB)); }catch(e){} }
-function resetDemo(){ localStorage.removeItem(SK); loadDB(); renderAll(); toast("Demo data reset"); }
+function resetDemo(){
+  localStorage.removeItem(SK);
+  loadDB();
+  renderAll();
+  toast("Demo data reset — your Script URL was kept");
+}
 
 // ═══════════════════════════════════════════════════════════
 // UTILS
@@ -2553,6 +2563,7 @@ function toggleStatus(id){
 function saveScriptUrl(){
   const url = document.getElementById("script-url-inp").value.trim();
   DB.settings.scriptUrl = url;
+  if(url){ localStorage.setItem(URL_KEY, url); } else { localStorage.removeItem(URL_KEY); }
   saveDB(); renderHeader();
   toast(url ? "Script URL saved" : "No URL set");
 }
