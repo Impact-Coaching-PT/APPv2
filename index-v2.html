@@ -353,6 +353,8 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     </div>
   </div>
   <div class="hdr-actions">
+    <button class="icon-btn" onclick="pullFromDrive()" title="Pull from Drive">⬇️</button>
+    <button class="icon-btn" onclick="saveToDrive()" title="Save to Drive">💾</button>
     <div class="sync-pill" id="sync-pill" onclick="nav('settings')">
       <span class="sync-dot off" id="sync-dot"></span>
       <span id="sync-txt">Not connected</span>
@@ -511,7 +513,13 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 
     <div id="wb-exercise-cards"></div>
 
-    <button class="btn btn-gh" onclick="openExercisePicker()">+ Add Exercise</button>
+    <button class="btn btn-gh" onclick="openExercisePicker('create')">+ Add Exercise</button>
+
+    <div class="meno-radio-row" style="margin:16px 0;">
+      <div class="meno-radio-opt" id="wb-assign-off" onclick="setWbAssign(false)">Save Only</div>
+      <div class="meno-radio-opt" id="wb-assign-on" onclick="setWbAssign(true)">📤 Assign to Client</div>
+    </div>
+
     <button class="btn btn-grad" onclick="saveWorkout()">Save Workout</button>
   </div>
 </div>
@@ -911,7 +919,8 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
       <div class="meno-radio-opt" id="cd-sv-status-completed" onclick="setCdSvStatus('completed')">Completed</div>
     </div>
 
-    <div id="cd-sv-rows" style="margin-bottom:16px;"></div>
+    <div id="cd-sv-rows" style="margin-bottom:12px;"></div>
+    <button class="btn btn-gh" onclick="openExercisePicker('session')">+ Add Exercise</button>
 
     <button class="btn btn-grad" onclick="saveCdSessionView()">💾 Save</button>
     <button class="btn" style="background:#1a0000;border:1.5px solid #e85d3a44;color:var(--red);" onclick="deleteCdSession()">🗑 Delete Workout</button>
@@ -1216,12 +1225,19 @@ function renderBuilderClientArea(){
 }
 
 // ── Create Workout modal ──
+let wbAssign = false;
+function setWbAssign(on){
+  wbAssign = on;
+  document.getElementById("wb-assign-off").classList.toggle("act", !on);
+  document.getElementById("wb-assign-on").classList.toggle("act", on);
+}
 function openCreateWorkoutModal(quickStart){
   if(!builderClientId){ toast("Pick a client first"); return; }
   wbEditingSessionId = null;
   wbDraft = { title: quickStart ? "Quick Workout" : "", date: new Date().toISOString().split("T")[0], exercises: [] };
   document.getElementById("wb-title").value = wbDraft.title;
   document.getElementById("wb-date").value = wbDraft.date;
+  setWbAssign(false);
   renderWbExerciseCards();
   document.getElementById("wb-create-modal").classList.add("show");
 }
@@ -1252,7 +1268,9 @@ function renderWbExerciseCards(){
   }).join("") : '<div class="empty-good" style="margin-bottom:14px;">No exercises yet — tap "+ Add Exercise" below</div>';
 }
 function addWbSetRow(exIdx){
-  wbDraft.exercises[exIdx].sets.push({kg:"",reps:""});
+  const sets = wbDraft.exercises[exIdx].sets;
+  const prev = sets[sets.length-1];
+  sets.push(prev ? {kg:prev.kg, reps:prev.reps} : {kg:"",reps:""});
   renderWbExerciseCards();
 }
 function removeWbSetRow(exIdx, setIdx){
@@ -1267,8 +1285,10 @@ function removeWbExercise(idx){
   renderWbExerciseCards();
 }
 
-// ── Exercise picker (for the create-workout modal) ──
-function openExercisePicker(){
+// ── Exercise picker (shared: Create Workout modal + live session editing) ──
+let exercisePickerCtx = "create";
+function openExercisePicker(ctx){
+  exercisePickerCtx = ctx || "create";
   wbPickCat = null;
   document.getElementById("wb-pick-search").value = "";
   renderWbPickCatChips();
@@ -1299,9 +1319,15 @@ function renderWbPickList(){
 function pickWbExercise(exId){
   const ex = mainLib().find(e=>e.id===exId);
   if(!ex) return;
-  wbDraft.exercises.push({exId:ex.id, name:ex.name, sets:[{kg:"",reps:""}]});
-  closeExercisePicker();
-  renderWbExerciseCards();
+  if(exercisePickerCtx === "session"){
+    svDraft.push({ exerciseName: ex.name, sets:[{kg:"", reps:"", actualKg:""}] });
+    closeExercisePicker();
+    renderCdSvRows();
+  } else {
+    wbDraft.exercises.push({exId:ex.id, name:ex.name, sets:[{kg:"",reps:""}]});
+    closeExercisePicker();
+    renderWbExerciseCards();
+  }
 }
 
 function saveWorkout(){
@@ -1317,12 +1343,12 @@ function saveWorkout(){
   }));
   if(wbEditingSessionId){
     const s = DB.sessions.find(x=>x.id===wbEditingSessionId);
-    if(s){ s.name=title; s.date=date; s.rows=rows; }
+    if(s){ s.name=title; s.date=date; s.rows=rows; s.assignedByCoach=wbAssign; }
   } else {
-    DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows });
+    DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows, assignedByCoach:wbAssign });
   }
   saveDB();
-  toast("Workout saved to "+getClient(builderClientId).name);
+  toast(wbAssign ? "Assigned to "+getClient(builderClientId).name : "Workout saved to "+getClient(builderClientId).name);
   closeCreateWorkoutModal();
   renderBuilderClientArea();
 }
@@ -2248,6 +2274,7 @@ function toggleCollapse(id){
 let cdSvSessionId = null;
 let cdSvStatus = "planned";
 
+let svDraft = null;
 function openCdSessionView(sessId){
   cdSvSessionId = sessId;
   const s = DB.sessions.find(x=>x.id===sessId);
@@ -2257,20 +2284,43 @@ function openCdSessionView(sessId){
   document.getElementById("cd-sv-date").textContent = fmtDate(s.date);
   setCdSvStatus(cdSvStatus);
 
-  const rows = s.rows || [];
-  document.getElementById("cd-sv-rows").innerHTML = rows.length ? rows.map((r,i)=>{
-    const current = r.actual || r.target || "";
+  svDraft = (s.rows||[]).map(r=>{
+    if(r.sets && r.sets.length){
+      return { exerciseName:r.exerciseName, sets: r.sets.map(set=>({kg:set.kg||"", reps:set.reps||"", actualKg:set.actualKg||""})) };
+    }
+    const count = parseInt((r.scheme||"1").split("×")[0])||1;
+    const reps = (r.scheme||"").split("×")[1]||"";
+    const sets = [];
+    for(let i=0;i<count;i++) sets.push({kg:r.target||"", reps, actualKg: i===count-1 ? (r.actual||"") : ""});
+    return { exerciseName:r.exerciseName, sets };
+  });
+  renderCdSvRows();
+  document.getElementById("cd-session-view-modal").classList.add("show");
+}
+function renderCdSvRows(){
+  document.getElementById("cd-sv-rows").innerHTML = svDraft.length ? svDraft.map((r,i)=>{
+    const setsHtml = r.sets.map((set,si)=>`
+      <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-family:var(--font-mono);flex-shrink:0;">${si+1}</div>
+        <div class="pg-sub" style="margin-bottom:0;flex:1;">${set.kg||"—"}kg × ${set.reps||"—"}</div>
+        <input class="plan-field-inp" placeholder="actual kg" value="${set.actualKg}" oninput="updateCdSvActual(${i},${si},this.value)" style="flex:1;">
+      </div>`).join("");
     return `
     <div class="plan-row">
       <div class="plan-row-top">
-        <span class="plan-row-name">${r.exerciseName||"Exercise"}</span>
-        <span class="pg-sub" style="margin-bottom:0;">${r.scheme||""}</span>
+        <span class="plan-row-name">${r.exerciseName}</span>
+        <button class="plan-row-rm" onclick="removeCdSvExercise(${i})">✕</button>
       </div>
-      <div class="plan-field-lbl">Actual weight (kg)</div>
-      <input class="plan-field-inp" id="cd-sv-actual-${i}" value="${current}" placeholder="${r.target?('Planned: '+r.target+'kg'):'—'}">
+      ${setsHtml}
     </div>`;
   }).join("") : '<div class="empty-good">No exercises logged for this session</div>';
-  document.getElementById("cd-session-view-modal").classList.add("show");
+}
+function updateCdSvActual(exIdx, setIdx, val){
+  svDraft[exIdx].sets[setIdx].actualKg = val;
+}
+function removeCdSvExercise(idx){
+  svDraft.splice(idx,1);
+  renderCdSvRows();
 }
 function setCdSvStatus(status){
   cdSvStatus = status;
@@ -2281,9 +2331,15 @@ function saveCdSessionView(){
   const s = DB.sessions.find(x=>x.id===cdSvSessionId);
   if(!s) return;
   s.status = cdSvStatus;
-  (s.rows||[]).forEach((r,i)=>{
-    const el = document.getElementById("cd-sv-actual-"+i);
-    if(el && el.value.trim()!=="") r.actual = el.value.trim();
+  s.rows = svDraft.map(r=>{
+    const lastActual = [...r.sets].reverse().find(set=>set.actualKg)?.actualKg || "";
+    return {
+      exerciseName: r.exerciseName,
+      scheme: r.sets.length+"×"+(r.sets[0]?.reps||"—"),
+      target: r.sets[0]?.kg || "",
+      actual: lastActual,
+      sets: r.sets
+    };
   });
   saveDB();
   closeCdSessionView();
