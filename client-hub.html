@@ -85,6 +85,29 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 
 .back-link{color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-bottom:16px;}
 
+/* FAQ accordion (About) */
+.acc{background:var(--bg2);border:1.5px solid var(--bd);border-radius:12px;margin-bottom:8px;overflow:hidden;}
+.acc-head{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;cursor:pointer;font-family:var(--disp);font-weight:600;font-size:13px;color:var(--t);}
+.acc-chev{color:var(--red2);transition:transform .15s;}
+.acc-head.collapsed .acc-chev{transform:rotate(-90deg);}
+.acc-body{padding:0 14px 14px;font-size:12.5px;color:var(--t2);line-height:1.6;}
+.acc-body.collapsed{display:none;}
+
+/* Messages */
+.msg-strip{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1.5px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:pointer;}
+.msg-strip-left{display:flex;align-items:center;gap:10px;}
+.msg-strip-icon{width:34px;height:34px;border-radius:9px;object-fit:cover;}
+.msg-strip-title{font-family:var(--disp);font-size:13px;font-weight:700;text-transform:uppercase;}
+.msg-strip-sub{font-size:11px;color:var(--t3);font-family:monospace;}
+.msg-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;max-height:55vh;overflow-y:auto;}
+.msg-bubble{max-width:78%;padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.5;}
+.msg-bubble-me{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:4px;}
+.msg-bubble-them{align-self:flex-start;background:var(--bg2);border:1.5px solid var(--bd);color:var(--t);border-bottom-left-radius:4px;}
+.msg-bubble-time{font-size:9.5px;opacity:.7;margin-top:4px;font-family:monospace;}
+.msg-compose{display:flex;gap:8px;position:sticky;bottom:0;background:var(--bg);padding-top:8px;}
+.msg-compose textarea{flex:1;background:var(--bg3);border:1.5px solid var(--bd);color:var(--t);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;resize:none;min-height:44px;max-height:100px;}
+.msg-compose button{background:var(--grad);border:none;color:#fff;border-radius:10px;padding:0 16px;font-weight:700;font-family:var(--disp);cursor:pointer;}
+
 /* Inactive banner */
 .inactive-card{background:var(--cta-bg);border:1.5px solid var(--cta-border);border-radius:16px;padding:22px;text-align:center;margin-top:20px;}
 .inactive-title{font-family:var(--disp);font-size:16px;font-weight:700;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
@@ -114,6 +137,17 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 
   <!-- DASHBOARD (shown after PIN unlock) -->
   <div id="dashboard" class="hidden">
+
+    <div class="msg-strip" onclick="showSection('messages')">
+      <div class="msg-strip-left">
+        <img class="msg-strip-icon" src="icons/icon-ch-messages.png" alt="Messages" onerror="this.style.display='none'">
+        <div>
+          <div class="msg-strip-title">Messages</div>
+          <div class="msg-strip-sub" id="msg-strip-sub">No messages yet</div>
+        </div>
+      </div>
+      <span class="hidden" id="msg-badge" style="background:var(--grad);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;font-family:monospace;">0</span>
+    </div>
 
     <div class="stat-strip">
       <div class="stat-card"><div class="stat-num" id="stat-cals">-</div><div class="stat-lbl">Cals Today</div></div>
@@ -176,14 +210,38 @@ main{max-width:520px;margin:0 auto;padding:16px;}
   <div id="section-links" class="hidden">
     <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
     <div class="sec-hdr" style="margin-top:0;">Links</div>
-    <div class="list-row" onclick="toast('Point this at the free Hub URL')"><div class="list-row-name">🏠 Free Hub</div></div>
+    <div class="list-row" onclick="window.location.href='menofit-hub.html?from=clienthub'">
+      <div class="list-row-name">MenoFit Hub</div>
+      <div class="list-row-sub">Menopause fitness &amp; classes</div>
+    </div>
+    <div class="list-row" onclick="window.location.href='medical-weight-loss-hub.html?from=clienthub'">
+      <div class="list-row-name">MWL Hub</div>
+      <div class="list-row-sub">Medical weight loss support</div>
+    </div>
+    <div class="list-row" onclick="window.location.href='eating-plan.html?from=clienthub'">
+      <div class="list-row-name">Eating Plan</div>
+      <div class="list-row-sub">Simple food guidance</div>
+    </div>
+    <div class="list-row" onclick="window.open('https://www.facebook.com/profile.php?id=61555588884682','_blank')">
+      <div class="list-row-name">Facebook</div>
+      <div class="list-row-sub">Impact Coaching page</div>
+    </div>
   </div>
 
   <!-- ABOUT -->
   <div id="section-about" class="hidden">
     <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
-    <div class="sec-hdr" style="margin-top:0;">About Impact Coaching</div>
-    <div class="notice">Personal training and coaching from Ritchie - lift pounds and lose pounds. Details about services, socials, and contact go here.</div>
+    <div class="sec-hdr" style="margin-top:0;">About Ritchie</div>
+    <div class="notice" style="text-align:left;">
+      <p style="margin:0 0 12px;">I'm Ritchie, and I've been a personal trainer since 2018 - though if you'd told me back then I'd end up doing this for a living, I wouldn't have believed you.</p>
+      <p style="margin:0 0 12px;">I didn't plan any of this. I went through my own weight loss journey, just diet and training, figuring it out for myself. Somewhere along the way people around me started asking what I was doing and how they could do it too. I ended up helping a few friends, then a few more, and eventually someone just said "why don't you do this properly, as a coach?" So I did. I think that's part of why I do this the way I do - I've actually been on the other side of it.</p>
+      <p style="margin:0 0 12px;"><b style="color:var(--t);">Qualifications &amp; experience</b><br>Level 3 Personal Trainer, with specialist training in menopause fitness, GLP-1 and medical weight loss support, adolescent training, group instruction, and strength training.</p>
+      <p style="margin:0 0 12px;"><b style="color:var(--t);">My approach</b><br>I'm not a shouty, drill-sergeant type coach, and I never will be. My job is to support people through what they're doing and push them to their own limits - not mine, not some generic standard. I keep things simple, no confusing exercise jargon or overcomplicated explanations of movements, and I'm autistic myself, which if anything I think helps me explain things clearly and read what a client actually needs rather than following a script.</p>
+      <p style="margin:0;">I've got clients I've worked with for years, and I love that. But if I've done my job properly, you shouldn't need me forever - my real goal with anyone I train is to get them to the point where they've got the knowledge and confidence to do it on their own.</p>
+    </div>
+
+    <div class="sec-hdr">FAQ</div>
+    <div id="about-faq"></div>
   </div>
 
   <!-- SETTINGS -->
@@ -193,16 +251,28 @@ main{max-width:520px;margin:0 auto;padding:16px;}
     <div class="notice">Your data syncs automatically with Ritchie whenever this app is open. Completed workouts, calories, and macros update on his side; nothing else does.</div>
 
     <div class="sec-hdr">Colour Scheme</div>
-    <div class="row gap8" style="margin-bottom:16px;">
+    <div class="row gap8" style="margin-bottom:8px;">
       <button class="btn btn-gh" id="theme-default-btn" style="flex:1;padding:9px 4px;font-size:11px;">Impact</button>
       <button class="btn btn-gh" id="theme-meno-btn" style="flex:1;padding:9px 4px;font-size:11px;">MenoFit</button>
       <button class="btn btn-gh" id="theme-mwl-btn" style="flex:1;padding:9px 4px;font-size:11px;">MWL</button>
     </div>
+    <div style="font-size:11px;color:var(--t3);line-height:1.5;margin-bottom:16px;">Just a look you like - picking a colour here doesn't mean anything about what kind of client you are.</div>
 
     <div class="sec-hdr">Your Data</div>
     <button class="btn btn-gh" onclick="pullMyData()">⬇️ Refresh My Data</button>
     <button class="btn btn-r" onclick="downloadAllMyData()">⬇️ Download My Data</button>
     <button class="btn btn-danger" onclick="toast('Contact Ritchie to reset your PIN')">Forgot PIN?</button>
+  </div>
+
+  <!-- MESSAGES -->
+  <div id="section-messages" class="hidden">
+    <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
+    <div class="sec-hdr" style="margin-top:0;">Messages</div>
+    <div class="msg-list" id="msg-list"></div>
+    <div class="msg-compose">
+      <textarea id="msg-input" placeholder="Message Ritchie..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+      <button onclick="sendMessage()">Send</button>
+    </div>
   </div>
 </main>
 
@@ -391,6 +461,7 @@ function renderDashboardData(){
   const badge = document.getElementById("assigned-badge");
   if(assigned.length){ badge.textContent = assigned.length; badge.classList.remove("hidden"); }
   renderAssignedList();
+  renderMsgStrip();
 }
 function renderAssignedList(){
   const assigned = (clientRecord.sessions||[]).filter(s=>s.status==="planned" && s.assignedByCoach);
@@ -401,10 +472,99 @@ function renderAssignedList(){
     </div>`).join("") : '<div class="empty-note">Nothing assigned right now</div>';
 }
 
+// ═══════════════════════════════════════════════════════════
+// MESSAGES
+// ═══════════════════════════════════════════════════════════
+function getMessages(){
+  return (clientRecord && clientRecord.messages) || [];
+}
+function renderMsgStrip(){
+  const msgs = getMessages();
+  const unread = msgs.filter(m => m.from === "coach" && !m.readByClient).length;
+  const sub = document.getElementById("msg-strip-sub");
+  const badge = document.getElementById("msg-badge");
+  if(msgs.length){
+    const last = msgs[msgs.length-1];
+    sub.textContent = (last.from==="coach" ? "Ritchie: " : "You: ") + last.text.slice(0,40);
+  } else {
+    sub.textContent = "No messages yet";
+  }
+  if(unread){ badge.textContent = unread; badge.classList.remove("hidden"); }
+  else { badge.classList.add("hidden"); }
+}
+function renderMessages(){
+  const msgs = getMessages();
+  const list = document.getElementById("msg-list");
+  list.innerHTML = msgs.length ? msgs.map(m => `
+    <div class="msg-bubble ${m.from==='client' ? 'msg-bubble-me' : 'msg-bubble-them'}">
+      ${(m.text||"").replace(/</g,"&lt;")}
+      <div class="msg-bubble-time">${m.ts ? new Date(m.ts).toLocaleString([], {month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"}) : ""}</div>
+    </div>`).join("") : '<div class="empty-note">No messages yet - say hello!</div>';
+  list.scrollTop = list.scrollHeight;
+}
+async function sendMessage(){
+  const input = document.getElementById("msg-input");
+  const text = input.value.trim();
+  if(!text) return;
+  const msg = { from:"client", text, ts:new Date().toISOString(), readByClient:true };
+  clientRecord.messages = clientRecord.messages || [];
+  clientRecord.messages.push(msg);
+  localStorage.setItem(LOCAL_KEY+"-data", JSON.stringify(clientRecord));
+  input.value = "";
+  renderMessages();
+  renderMsgStrip();
+  if(SCRIPT_URL){
+    try{
+      await fetch(SCRIPT_URL + "?action=sendMessage&id=" + encodeURIComponent(getClientId()) + "&from=client&text=" + encodeURIComponent(text));
+    }catch(e){ toast("Couldn't send - will retry when you're back online"); }
+  }
+}
+function markMessagesRead(){
+  const msgs = getMessages();
+  let changed = false;
+  msgs.forEach(m => { if(m.from==="coach" && !m.readByClient){ m.readByClient = true; changed = true; } });
+  if(changed){
+    localStorage.setItem(LOCAL_KEY+"-data", JSON.stringify(clientRecord));
+    renderMsgStrip();
+    if(SCRIPT_URL){
+      fetch(SCRIPT_URL + "?action=markMessagesRead&id=" + encodeURIComponent(getClientId())).catch(()=>{});
+    }
+  }
+  renderMessages();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ABOUT - FAQ
+// ═══════════════════════════════════════════════════════════
+const ABOUT_FAQ = [
+  {q:"Is this app genuine - is it actually built by you?", a:"Yes, all of it. I built every part of this myself, around what my clients have actually asked me for over the years, not a generic template. It's ongoing too - it'll keep growing as I add more."},
+  {q:"What's actually in this app?", a:"Your assigned workouts, a workout tracker, a calorie tracker, plus quick links to MenoFit Hub, MWL Hub, the eating plan, and my Facebook page - all in one place."},
+  {q:"What type of training do you offer?", a:"Nothing off-the-shelf. Every programme and every session is built entirely around the person in front of me - their goals, their ability, their limits - not a one-size-fits-all plan."},
+  {q:"Do you take photos or videos?", a:"As a rule, no. Most people I train already feel a bit self-conscious, and my priority is helping you feel comfortable and build genuine confidence - not collecting content for social media."},
+  {q:"What if I have a medical condition or injury?", a:"Everything gets planned around what you're actually capable of, including on the day. If something needs to change last-minute because of how you're feeling, we change it. That's normal, not a disruption."}
+];
+function renderAboutFaq(){
+  const el = document.getElementById("about-faq");
+  if(!el) return;
+  el.innerHTML = ABOUT_FAQ.map((f,i) => `
+    <div class="acc">
+      <div class="acc-head collapsed" data-acc="acc-${i}"><span>${f.q}</span><span class="acc-chev">&#9662;</span></div>
+      <div class="acc-body collapsed" id="acc-${i}">${f.a}</div>
+    </div>`).join("");
+  el.querySelectorAll(".acc-head").forEach(head => {
+    head.addEventListener("click", () => {
+      const body = document.getElementById(head.getAttribute("data-acc"));
+      head.classList.toggle("collapsed");
+      body.classList.toggle("collapsed");
+    });
+  });
+}
+
 function showSection(id){
-  ["dashboard","section-assigned","section-links","section-about","section-settings"].forEach(s=>
+  ["dashboard","section-assigned","section-links","section-about","section-settings","section-messages"].forEach(s=>
     document.getElementById(s).classList.add("hidden"));
   document.getElementById(id==="dashboard" ? "dashboard" : "section-"+id).classList.remove("hidden");
+  if(id==="messages") markMessagesRead();
 }
 function showDashboard(){ showSection("dashboard"); }
 
@@ -415,17 +575,30 @@ function showDashboard(){ showSection("dashboard"); }
   applyChTheme();
   renderKeypad();
   renderPinDots();
+  renderAboutFaq();
   const cached = localStorage.getItem(LOCAL_KEY+"-data");
   if(cached){ clientRecord = JSON.parse(cached); }
-  document.getElementById("pin-error").textContent = "Loading your account...";
+
+  const wasUnlocked = sessionStorage.getItem("ic-clienthub-unlocked") === "1";
+  if(wasUnlocked && clientRecord){
+    // Returning to an already-unlocked session - go straight to the dashboard,
+    // no flash of the PIN screen while we refresh in the background
+    unlockDashboard();
+  } else {
+    document.getElementById("pin-error").textContent = "Loading your account...";
+  }
+
   await pullMyData();
+
   if(!clientRecord){
     document.getElementById("pin-error").textContent = "Couldn't load your account - check your link or try again later.";
     return;
   }
-  document.getElementById("pin-error").textContent = "";
-  if(sessionStorage.getItem("ic-clienthub-unlocked") === "1"){
-    unlockDashboard();
+  if(!wasUnlocked){
+    document.getElementById("pin-error").textContent = "";
+    if(sessionStorage.getItem("ic-clienthub-unlocked") === "1"){
+      unlockDashboard();
+    }
   }
 })();
 </script>
