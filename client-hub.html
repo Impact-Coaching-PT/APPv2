@@ -128,12 +128,12 @@ main{max-width:520px;margin:0 auto;padding:16px;}
         <div class="dash-tile-title">Assigned Workouts</div>
         <div class="dash-tile-sub">From Ritchie</div>
       </div>
-      <div class="dash-tile" onclick="toast('Opens the Workout Tracker - coming next')">
+      <div class="dash-tile" onclick="window.location.href='client-workout-tracker.html'">
         <div class="dash-tile-icon">📋</div>
         <div class="dash-tile-title">Workout Tracker</div>
         <div class="dash-tile-sub">Log your training</div>
       </div>
-      <div class="dash-tile" onclick="toast('Opens the Calorie Tracker - coming next')">
+      <div class="dash-tile" onclick="window.location.href='client-calorie-tracker.html'">
         <div class="dash-tile-icon">🍽️</div>
         <div class="dash-tile-title">Calorie Tracker</div>
         <div class="dash-tile-sub">Log food &amp; macros</div>
@@ -201,7 +201,7 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 // ═══════════════════════════════════════════════════════════
 // CONFIG - update SCRIPT_URL once the Apps Script is deployed
 // ═══════════════════════════════════════════════════════════
-const SCRIPT_URL = ""; // <-- paste the same Apps Script deployment URL used in the PT-App
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwhgCTSagwFjL8esl2K8kG9XN4YPnxg0-1xoxCSXDlDNBto03LK9b_jBiqjmCa5oynO/exec";
 
 const LOCAL_KEY = "ic-clienthub-session";
 let clientRecord = null;
@@ -315,9 +315,17 @@ function renderDashboardData(){
   document.querySelector(".dash-grid").classList.toggle("hidden", isInactive);
   document.getElementById("inactive-banner").classList.toggle("hidden", !isInactive);
 
-  // Placeholder stat wiring - real values come from the Workout/Calorie tracker data once those are built
-  document.getElementById("stat-cals").textContent = "-";
-  document.getElementById("stat-streak").textContent = "-";
+  // Cals Today + Day Streak, pulled from what the Calorie Tracker has synced back
+  const cLog = c.calorieLog || {};
+  const todayKey = new Date().toISOString().split("T")[0];
+  document.getElementById("stat-cals").textContent = cLog[todayKey] ? Math.round(cLog[todayKey].kcal) : "-";
+  let streak = 0;
+  for(let i=0;i<60;i++){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const k = d.toISOString().split("T")[0];
+    if(cLog[k] && cLog[k].kcal>0) streak++; else break;
+  }
+  document.getElementById("stat-streak").textContent = streak;
   const assigned = (clientRecord.sessions||[]).filter(s=>s.status==="planned" && s.assignedByCoach);
   document.getElementById("stat-pending").textContent = assigned.length;
   const badge = document.getElementById("assigned-badge");
@@ -327,7 +335,7 @@ function renderDashboardData(){
 function renderAssignedList(){
   const assigned = (clientRecord.sessions||[]).filter(s=>s.status==="planned" && s.assignedByCoach);
   document.getElementById("assigned-list").innerHTML = assigned.length ? assigned.map(s=>`
-    <div class="list-row" onclick="toast('Opens this workout to complete - coming with the Workout Tracker')">
+    <div class="list-row" onclick="window.location.href='client-workout-tracker.html'">
       <div class="list-row-name">${s.name||"Workout"}</div>
       <div class="list-row-sub">${s.date||""}</div>
     </div>`).join("") : '<div class="empty-note">Nothing assigned right now</div>';
