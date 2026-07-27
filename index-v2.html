@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Impact Coaching">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>Impact Coaching — Dashboard 2.0</title>
-<link rel="icon" href="icons/icon-app-logo-square.png">
-<link rel="apple-touch-icon" href="icons/icon-app-logo-square.png">
+<link rel="icon" href="icons/icon-app-logo-solid.png">
+<link rel="apple-touch-icon" href="icons/icon-app-logo-solid.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -386,7 +386,7 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 
   <div class="sec-hdr">
     <div class="sec-title">All Clients <span class="sec-count" id="roster-count">0</span></div>
-    <button class="sec-action" onclick="toast('Add client — coming with Stage 2')">+ Add</button>
+    <button class="sec-action" onclick="openAddClientModal()">+ Add</button>
   </div>
   <input class="search-box" id="search-box" placeholder="Search clients…" oninput="renderRoster()">
   <div class="filter-row" id="filter-row"></div>
@@ -499,21 +499,6 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     <div class="filter-row" id="wb-pick-cat-chips" style="margin-bottom:12px;"></div>
     <div id="wb-pick-list" style="max-height:320px;overflow-y:auto;margin-bottom:14px;"></div>
     <button class="btn btn-gh" onclick="closeExercisePicker()">Cancel</button>
-  </div>
-</div>
-
-<!-- ══════════════ PLANNED WORKOUT VIEW ══════════════ -->
-<div class="modal-ov" id="wb-view-modal">
-  <div class="ms">
-    <div class="ms-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-      <div class="pg-title" style="margin-bottom:0;" id="wb-view-title">—</div>
-      <button class="icon-btn" onclick="closeWbView()">✕</button>
-    </div>
-    <div class="pg-sub" id="wb-view-date"></div>
-    <div id="wb-view-rows" style="margin:14px 0;"></div>
-    <button class="btn btn-grad" onclick="markWbSessionDone()">✓ Mark Completed</button>
-    <button class="btn" style="background:#1a0000;border:1.5px solid #e85d3a44;color:var(--red);" onclick="deleteWbSession()">🗑 Delete Workout</button>
   </div>
 </div>
 
@@ -859,8 +844,8 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
   </div>
 
   <div class="qa-row">
-    <button class="qa-btn primary" onclick="toast('Opens Workout Builder — Stage 2')">Build Session</button>
-    <button class="qa-btn gh" onclick="toast('Portal link / QR — same as v1')">Portal Link</button>
+    <button class="qa-btn primary" onclick="buildSessionForCurrentClient()">Build Session</button>
+    <button class="qa-btn gh" onclick="openEditModal()">Portal Link</button>
   </div>
 
   <div class="save-bar"><button class="save-btn" onclick="saveClientDetail()">💾 Save Changes</button></div>
@@ -884,7 +869,7 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 
 <div id="toast"></div>
 
-<!-- ══════════════ CLIENT SESSION VIEW ══════════════ -->
+<!-- ══════════════ SESSION VIEW / RECORD ACTUALS ══════════════ -->
 <div class="modal-ov" id="cd-session-view-modal">
   <div class="ms">
     <div class="ms-handle"></div>
@@ -892,8 +877,47 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
       <div class="pg-title" style="margin-bottom:0;" id="cd-sv-title">—</div>
       <button class="icon-btn" onclick="closeCdSessionView()">✕</button>
     </div>
-    <div class="pg-sub" id="cd-sv-date"></div>
-    <div id="cd-sv-rows" style="margin-top:14px;"></div>
+    <div class="pg-sub" id="cd-sv-date" style="margin-bottom:12px;"></div>
+
+    <div class="meno-radio-row" style="margin-bottom:16px;">
+      <div class="meno-radio-opt" id="cd-sv-status-planned" onclick="setCdSvStatus('planned')">Planned</div>
+      <div class="meno-radio-opt" id="cd-sv-status-completed" onclick="setCdSvStatus('completed')">Completed</div>
+    </div>
+
+    <div id="cd-sv-rows" style="margin-bottom:16px;"></div>
+
+    <button class="btn btn-grad" onclick="saveCdSessionView()">💾 Save</button>
+    <button class="btn" style="background:#1a0000;border:1.5px solid #e85d3a44;color:var(--red);" onclick="deleteCdSession()">🗑 Delete Workout</button>
+  </div>
+</div>
+
+<!-- ══════════════ ADD CLIENT MODAL ══════════════ -->
+<div class="modal-ov" id="add-client-modal">
+  <div class="ms">
+    <div class="ms-handle"></div>
+    <div class="pg-eyebrow">New Client</div>
+    <div class="pg-title" style="margin-bottom:16px;">Add Client</div>
+
+    <label class="lbl">Name</label>
+    <input class="inp" id="ac-name" placeholder="Client name">
+
+    <label class="lbl">Client Type</label>
+    <select class="inp" id="ac-clienttype">
+      <option value="gym">Gym</option>
+      <option value="online">Online</option>
+    </select>
+
+    <label class="lbl">Training Category</label>
+    <select class="inp" id="ac-cat"></select>
+
+    <label class="lbl">Sessions Left</label>
+    <input class="inp" id="ac-credits" type="number" min="0" placeholder="e.g. 6">
+
+    <label class="lbl">PIN</label>
+    <input class="inp" id="ac-pin" inputmode="numeric" maxlength="6" placeholder="Optional — can set later">
+
+    <button class="btn btn-grad" onclick="createClient()">Add Client</button>
+    <button class="btn btn-gh" onclick="closeAddClientModal()">Cancel</button>
   </div>
 </div>
 
@@ -1101,6 +1125,11 @@ let wbEditingSessionId = null;
 let wbPickCat = null;
 let wbViewingSessionId = null;
 
+function buildSessionForCurrentClient(){
+  if(!currentClientId) return;
+  builderClientId = currentClientId;
+  openBuilder();
+}
 function openBuilder(){
   nav("builder");
   document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("act"));
@@ -1262,35 +1291,7 @@ function saveWorkout(){
 
 // ── Planned workout view/delete ──
 function openWbView(sessId){
-  wbViewingSessionId = sessId;
-  const s = DB.sessions.find(x=>x.id===sessId);
-  if(!s) return;
-  document.getElementById("wb-view-title").textContent = s.name||"Session";
-  document.getElementById("wb-view-date").textContent = fmtDate(s.date);
-  document.getElementById("wb-view-rows").innerHTML = (s.rows||[]).map(r=>`
-    <div class="prog-row">
-      <div><div class="prog-ex">${r.exerciseName}</div><div class="prog-when">${r.scheme||""}</div></div>
-      <div class="prog-wt">${r.target?r.target+"kg":"—"}</div>
-    </div>`).join("") || '<div class="empty-good">No exercises logged</div>';
-  document.getElementById("wb-view-modal").classList.add("show");
-}
-function closeWbView(){ document.getElementById("wb-view-modal").classList.remove("show"); }
-function markWbSessionDone(){
-  const s = DB.sessions.find(x=>x.id===wbViewingSessionId);
-  if(!s) return;
-  s.status = "completed";
-  saveDB();
-  closeWbView();
-  renderBuilderClientArea();
-  toast("Marked completed");
-}
-function deleteWbSession(){
-  if(!confirm("Delete this planned workout?")) return;
-  DB.sessions = DB.sessions.filter(x=>x.id!==wbViewingSessionId);
-  saveDB();
-  closeWbView();
-  renderBuilderClientArea();
-  toast("Workout deleted");
+  openCdSessionView(sessId);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1907,7 +1908,7 @@ const TILES = [
   {ic:"🔢", img:"icons/icon-tdee.png", glow:"#e89a3a", lbl:"TDEE Calculator", sub:"Targets & macros", action:"openTdee()"},
   {ic:"📚", img:"icons/icon-exercise-library.png", glow:"#3ae87a", lbl:"Exercise Library", sub:"Full move list", action:"openExLibrary()"},
   {ic:"🔗", img:"icons/icon-links.png", glow:"#4a90e8", lbl:"Links", sub:"Quick access", action:"openLinks()"},
-  {ic:"⚙️", lbl:"Settings", sub:"Sync & backend", action:"nav('settings')"}
+  {ic:"⚙️", img:"icons/icon-settings.png", lbl:"Settings", sub:"Sync & backend", action:"nav('settings')"}
 ];
 function renderTileGrid(){
   document.getElementById("tile-grid").innerHTML = TILES.map(t=>`
@@ -2206,30 +2207,64 @@ function toggleCollapse(id){
   document.getElementById(id).classList.toggle("open");
 }
 
+let cdSvSessionId = null;
+let cdSvStatus = "planned";
+
 function openCdSessionView(sessId){
+  cdSvSessionId = sessId;
   const s = DB.sessions.find(x=>x.id===sessId);
   if(!s) return;
+  cdSvStatus = s.status || "planned";
   document.getElementById("cd-sv-title").textContent = s.name || "Session";
-  document.getElementById("cd-sv-date").textContent = fmtDate(s.date) + (s.status==='completed' ? " · Completed" : " · Planned");
+  document.getElementById("cd-sv-date").textContent = fmtDate(s.date);
+  setCdSvStatus(cdSvStatus);
+
   const rows = s.rows || [];
-  document.getElementById("cd-sv-rows").innerHTML = rows.length ? rows.map(r=>{
-    let weightLine;
-    if(r.sets && r.sets.length){
-      weightLine = r.sets.map((set,i)=>`Set ${i+1}: ${set.kg||"–"}kg × ${set.reps||"–"}`).join("<br>");
-    } else {
-      const w = r.actual || r.target;
-      weightLine = w ? (w+"kg"+(r.actual?"":" (planned)")) : "—";
-    }
+  document.getElementById("cd-sv-rows").innerHTML = rows.length ? rows.map((r,i)=>{
+    const current = r.actual || r.target || "";
     return `
-    <div class="prog-row" style="align-items:flex-start;">
-      <div>
-        <div class="prog-ex">${r.exerciseName||"Exercise"}</div>
-        <div class="prog-when">${r.scheme||""}</div>
+    <div class="plan-row">
+      <div class="plan-row-top">
+        <span class="plan-row-name">${r.exerciseName||"Exercise"}</span>
+        <span class="pg-sub" style="margin-bottom:0;">${r.scheme||""}</span>
       </div>
-      <div class="prog-wt" style="text-align:right;font-size:13px;">${weightLine}</div>
+      <div class="plan-field-lbl">Actual weight (kg)</div>
+      <input class="plan-field-inp" id="cd-sv-actual-${i}" value="${current}" placeholder="${r.target?('Planned: '+r.target+'kg'):'—'}">
     </div>`;
   }).join("") : '<div class="empty-good">No exercises logged for this session</div>';
   document.getElementById("cd-session-view-modal").classList.add("show");
+}
+function setCdSvStatus(status){
+  cdSvStatus = status;
+  document.getElementById("cd-sv-status-planned").classList.toggle("act", status==="planned");
+  document.getElementById("cd-sv-status-completed").classList.toggle("act", status==="completed");
+}
+function saveCdSessionView(){
+  const s = DB.sessions.find(x=>x.id===cdSvSessionId);
+  if(!s) return;
+  s.status = cdSvStatus;
+  (s.rows||[]).forEach((r,i)=>{
+    const el = document.getElementById("cd-sv-actual-"+i);
+    if(el && el.value.trim()!=="") r.actual = el.value.trim();
+  });
+  saveDB();
+  closeCdSessionView();
+  refreshAfterSessionEdit();
+  toast("Session saved");
+}
+function deleteCdSession(){
+  if(!confirm("Delete this workout? This can't be undone.")) return;
+  DB.sessions = DB.sessions.filter(x=>x.id!==cdSvSessionId);
+  saveDB();
+  closeCdSessionView();
+  refreshAfterSessionEdit();
+  toast("Workout deleted");
+}
+function refreshAfterSessionEdit(){
+  if(document.getElementById("pg-client").classList.contains("active") && currentClientId) renderClientDetail();
+  if(document.getElementById("pg-builder").classList.contains("active")) renderBuilderClientArea();
+  if(document.getElementById("pg-calendar").classList.contains("active")) renderCalendar();
+  if(document.getElementById("pg-dash").classList.contains("active")) renderDash();
 }
 function closeCdSessionView(){
   document.getElementById("cd-session-view-modal").classList.remove("show");
@@ -2261,6 +2296,45 @@ function saveClientDetail(){
 function portalLinkFor(c){
   return "https://impact-coaching-pt.github.io/PT-App/client.html?id="+c.id;
 }
+// ═══════════════════════════════════════════════════════════
+// ADD CLIENT MODAL
+// ═══════════════════════════════════════════════════════════
+function openAddClientModal(){
+  document.getElementById("ac-name").value = "";
+  document.getElementById("ac-credits").value = "";
+  document.getElementById("ac-pin").value = "";
+  document.getElementById("ac-clienttype").value = "gym";
+  const catSel = document.getElementById("ac-cat");
+  catSel.innerHTML = Object.keys(CAT_LABELS).map(k=>`<option value="${k}">${CAT_LABELS[k]}</option>`).join("");
+  document.getElementById("add-client-modal").classList.add("show");
+}
+function closeAddClientModal(){
+  document.getElementById("add-client-modal").classList.remove("show");
+}
+function createClient(){
+  const name = document.getElementById("ac-name").value.trim();
+  if(!name){ toast("Enter a name"); return; }
+  const pin = document.getElementById("ac-pin").value.trim();
+  if(pin && DB.clients.some(c=>c.pin===pin)){ toast("That PIN is already used by another client"); return; }
+  const newClient = {
+    id: "c"+Date.now(),
+    name,
+    clientType: document.getElementById("ac-clienttype").value,
+    trainingCat: document.getElementById("ac-cat").value,
+    ptType: CAT_LABELS[document.getElementById("ac-cat").value],
+    status: "active",
+    archived: false,
+    credits: parseInt(document.getElementById("ac-credits").value)||0,
+    pin: pin,
+    info: ""
+  };
+  DB.clients.push(newClient);
+  saveDB();
+  closeAddClientModal();
+  renderRoster();
+  toast(name+" added ✓");
+}
+
 function openEditModal(){
   const c = getClient(currentClientId);
   if(!c) return;
