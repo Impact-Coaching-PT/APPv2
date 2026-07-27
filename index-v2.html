@@ -115,6 +115,11 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 .link-lbl{font-size:11.5px;font-weight:600;color:var(--t2);}
 .link-tile.add{border-style:dashed;color:var(--t3);}
 .link-tile.add .link-ic{background:transparent;border:1.5px dashed var(--bd2);}
+.hub-link-card{background:linear-gradient(160deg,var(--bg2),var(--bg3));border:1.5px solid var(--bd);border-radius:18px;padding:22px;text-align:center;margin-bottom:18px;}
+.hub-link-logo{width:88px;height:88px;border-radius:20px;margin:0 auto 14px;object-fit:cover;box-shadow:0 8px 24px -6px #e8412c66;}
+.hub-link-name{font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:2px;}
+.hub-link-url{font-size:11px;color:var(--t3);font-family:var(--font-mono);margin-bottom:16px;word-break:break-all;}
+.hub-link-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
 
 /* ============ MENU TILE GRID (main dashboard) ============ */
 .tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:10px;}
@@ -407,10 +412,32 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
   <div class="pg-eyebrow">Quick Access</div>
   <div class="pg-title">Links</div>
   <div class="pg-sub">Shortcuts to your other apps and pages.</div>
+
+  <div class="hub-link-card">
+    <img class="hub-link-logo" src="icons/icon-free-hub.png" alt="Impact Coaching Hub">
+    <div class="hub-link-name">Impact Coaching Hub</div>
+    <div class="hub-link-url">impact-coaching-pt.github.io/Hub/</div>
+    <div class="hub-link-btns">
+      <button class="btn btn-grad" style="margin-bottom:0;" onclick="openFreeHub()">🔗 Open</button>
+      <button class="btn btn-gh" style="margin-bottom:0;" onclick="showFreeHubQR()">▦ Share (QR)</button>
+    </div>
+  </div>
+
   <div class="links-row">
-    <div class="link-tile" onclick="toast('Point this at your free Hub URL')"><div class="link-ic">🏠</div><div class="link-lbl">Free Hub</div></div>
     <div class="link-tile" onclick="toast('Point this at Facebook')"><div class="link-ic">📘</div><div class="link-lbl">Facebook</div></div>
     <div class="link-tile add" onclick="toast('Add more links any time')"><div class="link-ic">+</div><div class="link-lbl">Add Link</div></div>
+  </div>
+</div>
+
+<!-- ══════════════ FREE HUB QR MODAL ══════════════ -->
+<div class="modal-ov" id="hub-qr-modal">
+  <div class="ms" style="text-align:center;">
+    <div class="ms-handle"></div>
+    <div class="pg-eyebrow">Share</div>
+    <div class="pg-title" style="margin-bottom:16px;">Impact Coaching Hub</div>
+    <div id="hub-qr-canvas" style="display:flex;justify-content:center;margin-bottom:12px;padding:16px;background:#fff;border-radius:16px;width:fit-content;margin-left:auto;margin-right:auto;"></div>
+    <div class="hub-link-url" style="margin-bottom:16px;">impact-coaching-pt.github.io/Hub/</div>
+    <button class="btn btn-gh" onclick="document.getElementById('hub-qr-modal').classList.remove('show')">Close</button>
   </div>
 </div>
 
@@ -1085,6 +1112,17 @@ function openClients(){
 function openLinks(){
   nav("links");
   document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("act"));
+}
+const FREE_HUB_URL = "https://impact-coaching-pt.github.io/Hub/";
+function openFreeHub(){
+  window.open(FREE_HUB_URL, "_blank");
+}
+function showFreeHubQR(){
+  const el = document.getElementById("hub-qr-canvas");
+  el.innerHTML = "";
+  try{ new QRCode(el, {text:FREE_HUB_URL, width:200, height:200, colorDark:"#e8412c", colorLight:"#ffffff"}); }
+  catch(e){ el.textContent = "QR unavailable offline"; }
+  document.getElementById("hub-qr-modal").classList.add("show");
 }
 function openCalendar(){
   nav("calendar");
