@@ -72,7 +72,7 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 /* Tile grid */
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 24px;}
 .dash-tile{background:var(--bg2);border:1.5px solid var(--cta-border);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;position:relative;box-shadow:0 0 0 1px var(--cta-bg) inset, 0 6px 18px -6px rgba(0,0,0,.5), 0 0 14px -8px var(--red2);}
-.dash-tile-icon{width:52px;height:52px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px;}
+.dash-tile-icon{width:52px;height:52px;border-radius:14px;object-fit:cover;margin:0 auto 10px;display:block;}
 .dash-tile-title{font-family:var(--disp);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--t);}
 .dash-tile-sub{font-size:10.5px;color:var(--t3);margin-top:3px;font-family:monospace;}
 .dash-tile-badge{position:absolute;top:10px;right:10px;background:var(--grad);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:monospace;}
@@ -125,32 +125,32 @@ main{max-width:520px;margin:0 auto;padding:16px;}
     <div class="dash-grid">
       <div class="dash-tile" onclick="showSection('assigned')">
         <span class="dash-tile-badge hidden" id="assigned-badge">0</span>
-        <div class="dash-tile-icon">🏋️</div>
+        <img class="dash-tile-icon" src="icons/icon-ch-assigned.png" alt="Assigned Workouts">
         <div class="dash-tile-title">Assigned Workouts</div>
         <div class="dash-tile-sub">From Ritchie</div>
       </div>
       <div class="dash-tile" onclick="window.location.href='client-workout-tracker.html'">
-        <div class="dash-tile-icon">📋</div>
+        <img class="dash-tile-icon" src="icons/icon-ch-workout-tracker.png" alt="Workout Tracker">
         <div class="dash-tile-title">Workout Tracker</div>
         <div class="dash-tile-sub">Log your training</div>
       </div>
       <div class="dash-tile" onclick="window.location.href='client-calorie-tracker.html'">
-        <div class="dash-tile-icon">🍽️</div>
+        <img class="dash-tile-icon" src="icons/icon-ch-calorie-tracker.png" alt="Calorie Tracker">
         <div class="dash-tile-title">Calorie Tracker</div>
         <div class="dash-tile-sub">Log food &amp; macros</div>
       </div>
       <div class="dash-tile" onclick="showSection('links')">
-        <div class="dash-tile-icon">🔗</div>
+        <img class="dash-tile-icon" src="icons/icon-ch-links.png" alt="Links">
         <div class="dash-tile-title">Links</div>
         <div class="dash-tile-sub">Quick access</div>
       </div>
       <div class="dash-tile" onclick="showSection('about')">
-        <div class="dash-tile-icon">ℹ️</div>
+        <img class="dash-tile-icon" src="icons/icon-ch-about.png" alt="About">
         <div class="dash-tile-title">About</div>
         <div class="dash-tile-sub">Impact Coaching</div>
       </div>
       <div class="dash-tile" onclick="showSection('settings')">
-        <div class="dash-tile-icon">⚙️</div>
+        <img class="dash-tile-icon" src="icons/icon-ch-settings.png" alt="Settings">
         <div class="dash-tile-title">Settings</div>
         <div class="dash-tile-sub">Sync &amp; info</div>
       </div>
@@ -160,7 +160,7 @@ main{max-width:520px;margin:0 auto;padding:16px;}
     <div id="inactive-banner" class="inactive-card hidden">
       <div class="inactive-title">No Longer an Active Client</div>
       <div class="inactive-body">Ritchie's marked your account as inactive. Your data here is yours to keep - export it below, then head to the free Impact Coaching Hub to keep tracking on your own.</div>
-      <button class="btn btn-r" onclick="exportMyData()">⬇️ Export My Data</button>
+      <button class="btn btn-r" onclick="downloadAllMyData()">⬇️ Export My Data</button>
       <button class="btn btn-gh" onclick="toast('Point this at your free Hub URL')">Go To Free Hub</button>
     </div>
   </div>
@@ -191,7 +191,17 @@ main{max-width:520px;margin:0 auto;padding:16px;}
     <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
     <div class="sec-hdr" style="margin-top:0;">Settings</div>
     <div class="notice">Your data syncs automatically with Ritchie whenever this app is open. Completed workouts, calories, and macros update on his side; nothing else does.</div>
+
+    <div class="sec-hdr">Colour Scheme</div>
+    <div class="row gap8" style="margin-bottom:16px;">
+      <button class="btn btn-gh" id="theme-default-btn" style="flex:1;padding:9px 4px;font-size:11px;">Impact</button>
+      <button class="btn btn-gh" id="theme-meno-btn" style="flex:1;padding:9px 4px;font-size:11px;">MenoFit</button>
+      <button class="btn btn-gh" id="theme-mwl-btn" style="flex:1;padding:9px 4px;font-size:11px;">MWL</button>
+    </div>
+
+    <div class="sec-hdr">Your Data</div>
     <button class="btn btn-gh" onclick="pullMyData()">⬇️ Refresh My Data</button>
+    <button class="btn btn-r" onclick="downloadAllMyData()">⬇️ Download My Data</button>
     <button class="btn btn-danger" onclick="toast('Contact Ritchie to reset your PIN')">Forgot PIN?</button>
   </div>
 </main>
@@ -207,6 +217,65 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwhgCTSagwFjL8esl2K8
 const LOCAL_KEY = "ic-clienthub-session";
 let clientRecord = null;
 let pinBuffer = "";
+
+// ═══════════════════════════════════════════════════════════
+// COLOUR SCHEME - the single source of truth for the whole Client Hub family
+// ═══════════════════════════════════════════════════════════
+const CH_SHARED_KEY = "ic-clienthub-shared-settings";
+const THEME_COLORS = { default: ["#ae231c","#e33d2d"], meno: ["#9a3ae8","#e83ab4"], mwl: ["#b8562c","#e8923a"] };
+function loadChShared(){
+  try{ const raw = localStorage.getItem(CH_SHARED_KEY); return raw ? JSON.parse(raw) : {theme:"default"}; }
+  catch(e){ return {theme:"default"}; }
+}
+function saveChShared(s){ localStorage.setItem(CH_SHARED_KEY, JSON.stringify(s)); }
+function setChTheme(theme){
+  const s = loadChShared();
+  s.theme = theme;
+  saveChShared(s);
+  applyChTheme();
+  toast(theme==="default" ? "Impact Coaching colours" : theme==="meno" ? "MenoFit colours" : "MWL colours");
+}
+function applyChTheme(){
+  const s = loadChShared();
+  const colors = THEME_COLORS[s.theme] || THEME_COLORS.default;
+  document.documentElement.style.setProperty("--red", colors[0]);
+  document.documentElement.style.setProperty("--red2", colors[1]);
+  document.documentElement.style.setProperty("--grad", "linear-gradient(135deg,"+colors[0]+","+colors[1]+")");
+  ["default","meno","mwl"].forEach(key=>{
+    const btn = document.getElementById("theme-"+key+"-btn");
+    if(!btn) return;
+    const active = key === (s.theme||"default");
+    btn.style.borderColor = active ? THEME_COLORS[key][1] : "var(--bd)";
+    btn.style.color = active ? "var(--t)" : "var(--t2)";
+  });
+}
+document.getElementById("theme-default-btn").addEventListener("click", ()=>setChTheme("default"));
+document.getElementById("theme-meno-btn").addEventListener("click", ()=>setChTheme("meno"));
+document.getElementById("theme-mwl-btn").addEventListener("click", ()=>setChTheme("mwl"));
+
+// ═══════════════════════════════════════════════════════════
+// DOWNLOAD MY DATA - bundles the client record plus both trackers' local data into one file
+// ═══════════════════════════════════════════════════════════
+function downloadAllMyData(){
+  const wt = localStorage.getItem("ic-clienthub-workout-tracker-v1");
+  const ct = localStorage.getItem("ic-clienthub-calorie-tracker-v1");
+  const bundle = {
+    app: "Impact Coaching Client Hub",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    client: clientRecord,
+    workoutTracker: wt ? JSON.parse(wt) : null,
+    calorieTracker: ct ? JSON.parse(ct) : null
+  };
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "my-impact-coaching-data.json";
+  a.click();
+  URL.revokeObjectURL(url);
+  toast("Data downloaded");
+}
 
 // ═══════════════════════════════════════════════════════════
 // INIT - resolve client id from URL (?id=) or saved session
@@ -287,21 +356,11 @@ async function pullMyData(){
   }
 }
 
-function exportMyData(){
-  if(!clientRecord){ toast("Nothing to export yet"); return; }
-  const blob = new Blob([JSON.stringify(clientRecord, null, 1)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "my-impact-coaching-data.json";
-  a.click();
-  toast("Downloaded - take this to the free Hub");
-}
-
 // ═══════════════════════════════════════════════════════════
 // UNLOCK / RENDER
 // ═══════════════════════════════════════════════════════════
 function unlockDashboard(){
+  sessionStorage.setItem("ic-clienthub-unlocked", "1");
   document.getElementById("pin-gate").classList.add("hidden");
   document.getElementById("dashboard").classList.remove("hidden");
   const name = (clientRecord.client && clientRecord.client.name) || "";
@@ -353,6 +412,7 @@ function showDashboard(){ showSection("dashboard"); }
 // STARTUP
 // ═══════════════════════════════════════════════════════════
 (async function init(){
+  applyChTheme();
   renderKeypad();
   renderPinDots();
   const cached = localStorage.getItem(LOCAL_KEY+"-data");
@@ -361,8 +421,11 @@ function showDashboard(){ showSection("dashboard"); }
   await pullMyData();
   if(!clientRecord){
     document.getElementById("pin-error").textContent = "Couldn't load your account - check your link or try again later.";
-  } else {
-    document.getElementById("pin-error").textContent = "";
+    return;
+  }
+  document.getElementById("pin-error").textContent = "";
+  if(sessionStorage.getItem("ic-clienthub-unlocked") === "1"){
+    unlockDashboard();
   }
 })();
 </script>

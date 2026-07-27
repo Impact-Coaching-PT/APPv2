@@ -199,28 +199,8 @@ main{max-width:520px;margin:0 auto;padding:16px;}
       <button class="btn btn-r" id="go-to-hub-btn" style="width:100%;margin-top:10px;">Go to Hub</button>
     </div>
     <button id="edit-profile-btn" class="btn btn-gh hidden" style="width:100%;">&#9998; Edit Profile</button>
-    <div class="settings-row" style="margin-top:18px;">
-      <div>
-        <div class="settings-lbl">Colour scheme</div>
-        <div class="settings-sub">Impact Coaching, MenoFit, or MWL colours</div>
-      </div>
-    </div>
-    <div class="row gap8" style="margin-bottom:16px;">
-      <button class="btn btn-gh" id="theme-default-btn" style="flex:1;padding:9px 4px;font-size:11px;">Impact</button>
-      <button class="btn btn-gh" id="theme-meno-btn" style="flex:1;padding:9px 4px;font-size:11px;">MenoFit</button>
-      <button class="btn btn-gh" id="theme-mwl-btn" style="flex:1;padding:9px 4px;font-size:11px;">MWL</button>
-    </div>
     <div class="notice">
       <b>Your data stays on this device.</b> Everything you log is saved in this browser only — nothing is uploaded or backed up automatically. Clearing your browser data will erase it.
-    </div>
-    <div style="margin-top:16px;">
-      <div class="settings-lbl">Backup / move to a new phone</div>
-      <div class="settings-sub" style="margin-bottom:10px;">Saves your name, colours, Calorie Tracker and Workout Tracker data together in one file. Save it here, then load it on your new device.</div>
-      <div class="row gap8">
-        <button class="btn btn-gh" id="export-data-btn" style="flex:1;">&#8595; Save Backup</button>
-        <button class="btn btn-gh" id="import-data-btn" style="flex:1;">&#8593; Load Backup</button>
-      </div>
-      <input type="file" id="import-file-input" accept="application/json,.json" class="hidden">
     </div>
   </div>
 </div>
@@ -249,22 +229,6 @@ main{max-width:520px;margin:0 auto;padding:16px;}
     <div class="row gap8">
       <button class="btn btn-gh" id="input-modal-cancel" style="flex:1;">Cancel</button>
       <button class="btn btn-r" id="input-modal-ok" style="flex:1;">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- FIRST-RUN BACKUP EXPLAINER -->
-<div id="backup-explainer-modal" class="modal-bg center hidden">
-  <div class="modal-panel">
-    <div class="modal-head">
-      <div class="modal-title">Save a backup?</div>
-    </div>
-    <div class="notice" style="margin-bottom:20px;">
-      Your data is saved on this device, in this browser. It isn't backed up anywhere else — if you clear your browser data or switch phones, it's gone. Tap below to save a backup file called <b>Impact Coaching Hub.json</b>. You can do this any time from Settings, and load it back in on a new device.
-    </div>
-    <div class="row gap8">
-      <button class="btn btn-gh" id="backup-explainer-later" style="flex:1;">Not now</button>
-      <button class="btn btn-r" id="backup-explainer-save" style="flex:1;">Save Backup</button>
     </div>
   </div>
 </div>
@@ -1040,15 +1004,12 @@ function saveStore(s){
 var store = loadStore();
 function getHubSharedSettings(){
   try{
-    var raw = localStorage.getItem('ic-hub-shared-settings');
+    var raw = localStorage.getItem('ic-clienthub-shared-settings');
     return raw ? JSON.parse(raw) : null;
   }catch(e){ return null; }
 }
-if(!store.themeManuallySet){
-  var hubSettingsInit = getHubSharedSettings();
-  if(hubSettingsInit && hubSettingsInit.theme) store.theme = hubSettingsInit.theme;
-  else if(!store.theme) store.theme = 'default';
-}
+var hubSettingsInit = getHubSharedSettings();
+store.theme = (hubSettingsInit && hubSettingsInit.theme) || 'default';
 
 function uid(){ return 'p' + Date.now() + Math.floor(Math.random()*1000); }
 
@@ -1082,9 +1043,7 @@ function applyTheme(){
     btn.style.color = isActive ? 'var(--t)' : 'var(--t2)';
   });
 }
-document.getElementById('theme-default-btn').addEventListener('click', function(){ store.theme='default'; store.themeManuallySet=true; saveStore(store); applyTheme(); toast('Impact Coaching colours'); });
-document.getElementById('theme-meno-btn').addEventListener('click', function(){ store.theme='meno'; store.themeManuallySet=true; saveStore(store); applyTheme(); toast('MenoFit colours'); });
-document.getElementById('theme-mwl-btn').addEventListener('click', function(){ store.theme='mwl'; store.themeManuallySet=true; saveStore(store); applyTheme(); toast('MWL colours'); });
+
 
 /* ============ UTIL ============ */
 function escapeHtml(s){
@@ -1269,88 +1228,6 @@ document.getElementById('wipe-btn').addEventListener('click', function(){
 document.getElementById('settings-link').addEventListener('click', function(e){
   e.preventDefault();
   showProfileScreen();
-});
-
-/* ============ FULL HUB BACKUP / RESTORE ============ */
-var HUB_KEY = 'ic-hub-shared-settings';
-var CT_KEY = 'ic-food-tracker-v1';
-var WT_KEY = 'ic-workout-tracker-v1';
-var BACKUP_EXPLAINER_KEY = 'ic-hub-backup-explainer-shown';
-
-function buildBackupObject(){
-  var ctRaw = localStorage.getItem(CT_KEY);
-  var hubRaw = localStorage.getItem(HUB_KEY);
-  return {
-    app: 'Impact Coaching Hub',
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    hubSettings: hubRaw ? JSON.parse(hubRaw) : null,
-    calorieTracker: ctRaw ? JSON.parse(ctRaw) : null,
-    workoutTracker: store
-  };
-}
-function downloadBackup(){
-  var dataStr = JSON.stringify(buildBackupObject(), null, 2);
-  var blob = new Blob([dataStr], {type:'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'Impact Coaching Hub.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast('Backup saved');
-}
-function restoreFromBackup(parsed){
-  if(parsed.hubSettings) localStorage.setItem(HUB_KEY, JSON.stringify(parsed.hubSettings));
-  if(parsed.calorieTracker) localStorage.setItem(CT_KEY, JSON.stringify(parsed.calorieTracker));
-  if(parsed.workoutTracker){
-    store = parsed.workoutTracker;
-    if(!store.theme) store.theme = 'default';
-    (store.profiles || []).forEach(function(p){
-      if(!p.customExercises) p.customExercises = [];
-      if(!p.sessions) p.sessions = [];
-      if(p.activeSession === undefined) p.activeSession = null;
-      if(!p.plannedWorkouts) p.plannedWorkouts = [];
-    });
-    saveStore(store);
-  }
-  applyTheme();
-  showProfileScreen();
-  toast('Backup loaded');
-}
-function maybeShowBackupExplainer(){
-  if(localStorage.getItem(BACKUP_EXPLAINER_KEY)) return;
-  localStorage.setItem(BACKUP_EXPLAINER_KEY, '1');
-  document.getElementById('backup-explainer-modal').classList.remove('hidden');
-}
-document.getElementById('backup-explainer-later').addEventListener('click', function(){
-  document.getElementById('backup-explainer-modal').classList.add('hidden');
-});
-document.getElementById('backup-explainer-save').addEventListener('click', function(){
-  document.getElementById('backup-explainer-modal').classList.add('hidden');
-  downloadBackup();
-});
-document.getElementById('export-data-btn').addEventListener('click', downloadBackup);
-document.getElementById('import-data-btn').addEventListener('click', function(){
-  document.getElementById('import-file-input').click();
-});
-document.getElementById('import-file-input').addEventListener('change', function(e){
-  var file = e.target.files[0];
-  e.target.value = '';
-  if(!file) return;
-  var reader = new FileReader();
-  reader.onload = function(evt){
-    var parsed;
-    try{ parsed = JSON.parse(evt.target.result); }
-    catch(err){ toast('That file could not be read'); return; }
-    if(!parsed || parsed.app !== 'Impact Coaching Hub'){ toast("That doesn't look like an Impact Coaching Hub backup"); return; }
-    showConfirmModal('Load this backup? This replaces everything currently saved on this device (Calorie Tracker, Workout Tracker, and your name/colours).', function(){
-      restoreFromBackup(parsed);
-    });
-  };
-  reader.readAsText(file);
 });
 
 /* ============ DASHBOARD ============ */
@@ -2031,7 +1908,6 @@ if(store.profiles.length > 0 && (!store.activeId || !getActiveProfile())){
 if(store.profiles.length > 0 && getActiveProfile()){
   injectAssignedWorkouts();
   enterApp();
-  if(justProvisioned) maybeShowBackupExplainer();
 } else {
   showProfileScreen();
 }
