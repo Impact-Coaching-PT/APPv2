@@ -425,8 +425,17 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     </div>
   </div>
 
+  <div class="hub-link-card">
+    <img class="hub-link-logo" src="icons/icon-facebook.png" alt="Impact Coaching Facebook">
+    <div class="hub-link-name">Follow on Facebook</div>
+    <div class="hub-link-url">facebook.com/profile.php?id=61555588884682</div>
+    <div class="hub-link-btns">
+      <button class="btn btn-grad" style="margin-bottom:0;" onclick="openFacebook()">🔗 Open</button>
+      <button class="btn btn-gh" style="margin-bottom:0;" onclick="showFacebookQR()">▦ Share (QR)</button>
+    </div>
+  </div>
+
   <div class="links-row">
-    <div class="link-tile" onclick="toast('Point this at Facebook')"><div class="link-ic">📘</div><div class="link-lbl">Facebook</div></div>
     <div class="link-tile add" onclick="toast('Add more links any time')"><div class="link-ic">+</div><div class="link-lbl">Add Link</div></div>
   </div>
 </div>
@@ -440,6 +449,18 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     <div id="hub-qr-canvas" style="display:flex;justify-content:center;margin-bottom:12px;padding:16px;background:#fff;border-radius:16px;width:fit-content;margin-left:auto;margin-right:auto;"></div>
     <div class="hub-link-url" style="margin-bottom:16px;">impact-coaching-pt.github.io/Hub/</div>
     <button class="btn btn-gh" onclick="document.getElementById('hub-qr-modal').classList.remove('show')">Close</button>
+  </div>
+</div>
+
+<!-- ══════════════ FACEBOOK QR MODAL ══════════════ -->
+<div class="modal-ov" id="fb-qr-modal">
+  <div class="ms" style="text-align:center;">
+    <div class="ms-handle"></div>
+    <div class="pg-eyebrow">Share</div>
+    <div class="pg-title" style="margin-bottom:16px;">Follow on Facebook</div>
+    <div id="fb-qr-canvas" style="display:flex;justify-content:center;margin-bottom:12px;padding:16px;background:#fff;border-radius:16px;width:fit-content;margin-left:auto;margin-right:auto;"></div>
+    <div class="hub-link-url" style="margin-bottom:16px;">facebook.com/profile.php?id=61555588884682</div>
+    <button class="btn btn-gh" onclick="document.getElementById('fb-qr-modal').classList.remove('show')">Close</button>
   </div>
 </div>
 
@@ -1133,6 +1154,17 @@ function showFreeHubQR(){
   catch(e){ el.textContent = "QR unavailable offline"; }
   document.getElementById("hub-qr-modal").classList.add("show");
 }
+const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61555588884682";
+function openFacebook(){
+  window.open(FACEBOOK_URL, "_blank");
+}
+function showFacebookQR(){
+  const el = document.getElementById("fb-qr-canvas");
+  el.innerHTML = "";
+  try{ new QRCode(el, {text:FACEBOOK_URL, width:200, height:200, colorDark:"#e8412c", colorLight:"#ffffff"}); }
+  catch(e){ el.textContent = "QR unavailable offline"; }
+  document.getElementById("fb-qr-modal").classList.add("show");
+}
 function openCalendar(){
   nav("calendar");
   document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("act"));
@@ -1310,11 +1342,19 @@ function renderWbPickList(){
   let list = mainLib();
   if(wbPickCat) list = list.filter(e=>e.cat===wbPickCat);
   if(q) list = list.filter(e=>e.name.toLowerCase().includes(q));
-  document.getElementById("wb-pick-list").innerHTML = list.slice(0,150).map(ex=>`
+  const pickerClientId = exercisePickerCtx === "session" ? cdSvClientId : builderClientId;
+  document.getElementById("wb-pick-list").innerHTML = list.slice(0,150).map(ex=>{
+    const lw = pickerClientId && lastWeights(pickerClientId, ex.name)[0];
+    return `
     <div class="ex-row" onclick="pickWbExercise('${ex.id}')">
-      <div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-meta">${EX_CAT_LABELS[ex.cat]||ex.cat} · ${EQ_LABELS[ex.eq]||"Other"}</div></div>
+      <div class="ex-info">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-meta">${EX_CAT_LABELS[ex.cat]||ex.cat} · ${EQ_LABELS[ex.eq]||"Other"}</div>
+        ${lw ? `<div class="ex-lw">Last: ${lw.weight}kg (${fmtDate(lw.date)})</div>` : ""}
+      </div>
       <button class="ex-add-btn">＋</button>
-    </div>`).join("") || '<div class="empty-good">No exercises match</div>';
+    </div>`;
+  }).join("") || '<div class="empty-good">No exercises match</div>';
 }
 function pickWbExercise(exId){
   const ex = mainLib().find(e=>e.id===exId);
@@ -2272,6 +2312,7 @@ function toggleCollapse(id){
 }
 
 let cdSvSessionId = null;
+let cdSvClientId = null;
 let cdSvStatus = "planned";
 
 let svDraft = null;
@@ -2279,6 +2320,7 @@ function openCdSessionView(sessId){
   cdSvSessionId = sessId;
   const s = DB.sessions.find(x=>x.id===sessId);
   if(!s) return;
+  cdSvClientId = s.clientId;
   cdSvStatus = s.status || "planned";
   document.getElementById("cd-sv-title").textContent = s.name || "Session";
   document.getElementById("cd-sv-date").textContent = fmtDate(s.date);
