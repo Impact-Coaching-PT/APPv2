@@ -60,7 +60,8 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;}
 .key{background:var(--bg2);border:1.5px solid var(--bd);border-radius:12px;padding:18px 0;font-size:20px;font-weight:700;color:var(--t);text-align:center;cursor:pointer;font-family:var(--disp);}
 .key.wide{grid-column:span 1;font-size:13px;color:var(--t3);}
-#pin-error{color:var(--red2);font-size:12px;text-align:center;margin-top:10px;min-height:16px;font-family:monospace;}
+#pin-error{color:var(--red2);font-size:13px;text-align:center;margin:14px 0;min-height:16px;font-family:monospace;font-weight:600;}
+#pin-error:not(:empty){background:rgba(227,61,45,.1);border:1px solid rgba(227,61,45,.4);border-radius:10px;padding:12px 14px;}
 
 /* Stat strip */
 .stat-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px;}
@@ -107,8 +108,8 @@ main{max-width:520px;margin:0 auto;padding:16px;}
   <div id="pin-gate">
     <label class="lbl" style="text-align:center;">Enter your PIN</label>
     <div class="pin-dots" id="pin-dots"></div>
-    <div class="keypad" id="keypad"></div>
     <div id="pin-error"></div>
+    <div class="keypad" id="keypad"></div>
   </div>
 
   <!-- DASHBOARD (shown after PIN unlock) -->
@@ -356,9 +357,12 @@ function showDashboard(){ showSection("dashboard"); }
   renderPinDots();
   const cached = localStorage.getItem(LOCAL_KEY+"-data");
   if(cached){ clientRecord = JSON.parse(cached); }
+  document.getElementById("pin-error").textContent = "Loading your account...";
   await pullMyData();
   if(!clientRecord){
     document.getElementById("pin-error").textContent = "Couldn't load your account - check your link or try again later.";
+  } else {
+    document.getElementById("pin-error").textContent = "";
   }
 })();
 </script>
