@@ -75,6 +75,7 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 .attn-row{background:var(--bg2);border:1.5px solid var(--bd);border-left:3px solid var(--yellow);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;}
 .attn-row.hot{border-left-color:var(--red);}
 .attn-row.msg{border-left-color:var(--blue);}
+.attn-row.work{border-left-color:var(--green);}
 .attn-dismiss{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--bg3);border:1px solid var(--bd);color:var(--t3);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;}
 
 /* ============ CLIENT MESSAGES ============ */
@@ -2062,6 +2063,10 @@ function daySessions(dateStr){
   const out = [];
   DB.sessions.forEach(s=>{
     if(s.date!==dateStr) return;
+    // Client-built sessions the client logged themselves don't belong on the calendar -
+    // only sessions the coach actually scheduled/assigned show here. (Missing the field
+    // entirely means an older session logged directly in the PT-App - still shows.)
+    if(s.assignedByCoach === false) return;
     const c = getClient(s.clientId);
     out.push({name:(s.name||"Session")+(c?" — "+c.name:""), status:s.status, tag:c?tagColor(c.trainingCat):"#68687c", meno:false});
   });
@@ -2170,7 +2175,8 @@ function renderDash(){
   const weekSessions = DB.sessions.filter(s=>s.status==="completed" && s.date>=weekAgo);
   document.getElementById("stat-week").textContent = weekSessions.length;
 
-  // Notifications: low credits (<=1), no session in 21+ days, or unread client messages - active clients only
+  // Notifications: low credits (<=1), no session in 21+ days, unread client messages,
+  // or a client completing a workout (assigned or self-built) - active clients only
   const dismissed = loadDismissedAttn();
   const attn = [];
   active.forEach(c=>{
@@ -2185,7 +2191,11 @@ function renderDash(){
     }
     const unread = clientMessages(c.id).filter(m=>m.from==="client" && !m.readByCoach);
     if(unread.length){
-      attn.push({key:c.id+"|messages", c, reason: unread.length+" new message"+(unread.length===1?"":"s"), msg:true});
+      attn.push({key:c.id+"|messages", c, reason: unread.length+" new message"+(unread.length===1?"":"s"), kind:"msg"});
+    }
+    const doneUnseen = sess.filter(s=>s.status==="completed" && s.coachSeen===false);
+    if(doneUnseen.length){
+      attn.push({key:c.id+"|workouts", c, reason: doneUnseen.length+" completed workout"+(doneUnseen.length===1?"":"s"), kind:"work"});
     }
   });
   document.getElementById("stat-attn").textContent = attn.length;
@@ -2195,13 +2205,13 @@ function renderDash(){
   if(!attn.length){ attnEl.innerHTML = '<div class="empty-good">All caught up — nothing needs attention 👍</div>'; }
   else {
     attnEl.innerHTML = attn.map(a=>`
-      <div class="attn-row ${a.hot?'hot':''} ${a.msg?'msg':''}" onclick="openClient('${a.c.id}')">
-        <div class="attn-ic">${a.msg?'💬':a.hot?'🔴':'🟡'}</div>
+      <div class="attn-row ${a.hot?'hot':''} ${a.kind==='msg'?'msg':''} ${a.kind==='work'?'work':''}" onclick="openClient('${a.c.id}')">
+        <div class="attn-ic">${a.kind==='msg'?'💬':a.kind==='work'?'🏋️':a.hot?'🔴':'🟡'}</div>
         <div class="attn-txt">
           <div class="attn-name">${a.c.name}</div>
           <div class="attn-reason">${a.reason}</div>
         </div>
-        <div class="attn-dismiss" onclick="event.stopPropagation();dismissAttn('${a.key}','${a.c.id}',${!!a.msg})">✕</div>
+        <div class="attn-dismiss" onclick="event.stopPropagation();dismissAttn('${a.key}','${a.c.id}','${a.kind||''}')">✕</div>
       </div>`).join("");
   }
 
@@ -2212,14 +2222,19 @@ const ATTN_DISMISS_KEY = "ic-ptapp-dismissed-attn";
 function loadDismissedAttn(){
   try{ return JSON.parse(localStorage.getItem(ATTN_DISMISS_KEY) || "{}"); }catch(e){ return {}; }
 }
-// Dismissing a message notification marks that client's messages as read;
-// dismissing a low-credits/session-gap notification just hides that specific reason
-// until it changes (e.g. the day count moves on, or credits are topped up).
-function dismissAttn(key, clientId, isMsg){
-  if(isMsg){
+// Dismissing a message notification marks that client's messages as read; dismissing a
+// workout notification marks their completed sessions as seen (both local-only, no resync
+// needed for the workout case since coachSeen never leaves this device); dismissing a
+// low-credits/session-gap notification just hides that specific reason until it changes
+// (e.g. the day count moves on, or credits are topped up).
+function dismissAttn(key, clientId, kind){
+  if(kind === "msg"){
     clientMessages(clientId).forEach(m=>{ if(m.from==="client") m.readByCoach = true; });
     saveDB();
     syncClientMessages(clientId);
+  } else if(kind === "work"){
+    clientSessions(clientId).forEach(s=>{ if(s.status==="completed") s.coachSeen = true; });
+    saveDB();
   } else {
     const d = loadDismissedAttn();
     d[key] = true;
@@ -2330,6 +2345,11 @@ function renderClientDetail(){
   document.getElementById("cd-info").value = c.info || "";
 
   renderClientMessagesSection(c.id);
+  var hadUnseen = clientSessions(c.id).some(function(s){ return s.status==="completed" && s.coachSeen===false; });
+  if(hadUnseen){
+    clientSessions(c.id).forEach(function(s){ if(s.status==="completed") s.coachSeen = true; });
+    saveDB();
+  }
 
   // Progress (searchable)
   const progQuery = (document.getElementById("prog-search").value||"").trim();
@@ -2674,8 +2694,25 @@ async function pullFromDrive(){
     const res = await fetch(url + "?action=pullAll");
     const data = await res.json();
     if(!data.ok){ toast("Pull failed: "+(data.error||"unknown error")); setSyncing(false); return; }
+    // coachSeen (has he already noticed this completed session?) is local bookkeeping only -
+    // the backend doesn't store it, so carry it over for sessions that already exist here,
+    // and only flag a session as a fresh notification if it's genuinely new since last pull
+    // (not on the very first-ever pull, which would otherwise flood notifications for all history).
+    const isFirstEverPull = !DB.settings.lastSync;
+    const prevSeenMap = {};
+    const knownIds = {};
+    (DB.sessions||[]).forEach(s=>{ knownIds[s.id] = true; if(s.coachSeen !== undefined) prevSeenMap[s.id] = s.coachSeen; });
     DB.clients = data.clients || [];
-    DB.sessions = data.sessions || [];
+    DB.sessions = (data.sessions || []).map(s=>{
+      if(prevSeenMap[s.id] !== undefined){
+        s.coachSeen = prevSeenMap[s.id];
+      } else if(isFirstEverPull || knownIds[s.id] || s.status !== "completed"){
+        s.coachSeen = true;
+      } else {
+        s.coachSeen = false;
+      }
+      return s;
+    });
     DB.targets = data.targets || {};
     DB.notes = data.notes || {};
     DB.menoSessions = data.menoSessions || [];

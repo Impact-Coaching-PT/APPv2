@@ -867,6 +867,11 @@ const EX_BUILTIN = [
 {id:"CA10",name:"Sled Push",cat:"cardio",m:["Cardio","Legs"],eq:"other"},
 {id:"CA11",name:"Sled Pull",cat:"cardio",m:["Cardio","Back"],eq:"other"},
 {id:"CA12",name:"Burpees",cat:"cardio",m:["Cardio","Full Body"],eq:"bodyweight"},
+{id:"CA16",name:"Outdoor Run / Jog",cat:"cardio",m:["Cardio"],eq:"other"},
+{id:"CA17",name:"Outdoor Bike Ride",cat:"cardio",m:["Cardio"],eq:"other"},
+{id:"CA18",name:"Swimming",cat:"cardio",m:["Cardio","Full Body"],eq:"other"},
+{id:"CA19",name:"Walk / Hike",cat:"cardio",m:["Cardio"],eq:"other"},
+{id:"CA20",name:"Football / 5-a-side",cat:"cardio",m:["Cardio","Full Body"],eq:"other"},
 {id:"FB01",name:"Clean and Jerk",cat:"fullbody",m:["Full Body"],eq:"barbell"},
 {id:"FB02",name:"Power Clean",cat:"fullbody",m:["Full Body"],eq:"barbell"},
 {id:"FB03",name:"Hang Clean",cat:"fullbody",m:["Full Body"],eq:"barbell"},
@@ -982,6 +987,21 @@ async function syncWorkoutCompletion(sess){
       status: 'completed',
       assignedByCoach: false,
       rows: sess.exercises.map(function(ex){
+        if(ex.cat === 'cardio'){
+          // Cardio has its own shape (distance/bpm, not weight/reps) - tagged with cat so
+          // the PT-App can tell the difference; its own cardio-aware display is a follow-up.
+          var bestDist = ex.sets.reduce(function(b, s){
+            return (s.distance && (!b || +s.distance > +b)) ? s.distance : b;
+          }, null);
+          return {
+            exerciseName: ex.name,
+            cat: 'cardio',
+            scheme: ex.sets.length + ' interval' + (ex.sets.length===1?'':'s'),
+            target: '',
+            actual: bestDist ? (bestDist+'km') : '',
+            sets: ex.sets.map(function(s){ return { distance: s.distance||'', bpm: s.bpm||'' }; })
+          };
+        }
         var best = ex.sets.reduce(function(b, s){
           return (s.weight && (!b || +s.weight > +b)) ? s.weight : b;
         }, null);
@@ -1474,10 +1494,22 @@ function renderSessionExercises(){
   var listEl = document.getElementById('session-ex-list');
   listEl.innerHTML = '';
   sess.exercises.forEach(function(exEntry, exIdx){
+    var isCardio = exEntry.cat === 'cardio';
     var card = document.createElement('div');
     card.className = 'session-ex-card';
     var last = lastPerformance(p, exEntry.exerciseId);
-    var lastText = last ? ('Last time: ' + last.bestSet.weight + 'kg × ' + last.bestSet.reps + ' (' + fmtDate(last.date) + ')') : 'First time logging this';
+    var lastText;
+    if(!last){ lastText = 'First time logging this'; }
+    else if(isCardio){ lastText = 'Last time: ' + (last.bestSet.distance ? last.bestSet.distance+'km' : '—') + (last.bestSet.bpm ? ' · '+last.bestSet.bpm+' bpm' : '') + ' (' + fmtDate(last.date) + ')'; }
+    else { lastText = 'Last time: ' + last.bestSet.weight + 'kg × ' + last.bestSet.reps + ' (' + fmtDate(last.date) + ')'; }
+    if(isCardio && exEntry.plannedSets && exEntry.plannedSets.length){
+      var p0 = exEntry.plannedSets[0];
+      var planParts = [];
+      if(p0.time) planParts.push(p0.time);
+      if(p0.split) planParts.push(p0.split);
+      if(p0.level) planParts.push('Level '+p0.level);
+      if(planParts.length) lastText += ' · Plan: ' + planParts.join(' · ');
+    }
     var head = document.createElement('div');
     head.className = 'session-ex-head';
     head.innerHTML = '<div class="session-ex-name">'+escapeHtml(exEntry.name)+'</div>'+
@@ -1490,23 +1522,31 @@ function renderSessionExercises(){
     var setsWrap = document.createElement('div');
     setsWrap.className = 'sets-wrap';
     exEntry.sets.forEach(function(set, setIdx){
-      var planned = (exEntry.plannedSets && exEntry.plannedSets[setIdx]) ? exEntry.plannedSets[setIdx] : null;
-      var wPlaceholder = planned && planned.weight ? ('plan: '+planned.weight+'kg') : 'kg';
-      var rPlaceholder = planned && planned.reps ? ('plan: '+planned.reps) : 'reps';
       var row = document.createElement('div');
       row.className = 'set-row';
-      row.innerHTML =
-        '<div class="set-num">'+(setIdx+1)+'</div>'+
-        '<input class="inp" type="number" inputmode="decimal" placeholder="'+wPlaceholder+'" value="'+(set.weight||'')+'" data-ex="'+exIdx+'" data-set="'+setIdx+'" data-field="weight" style="flex:1;">'+
-        '<input class="inp" type="number" inputmode="numeric" placeholder="'+rPlaceholder+'" value="'+(set.reps||'')+'" data-ex="'+exIdx+'" data-set="'+setIdx+'" data-field="reps" style="flex:1;">'+
-        '<button class="set-del" data-del-ex="'+exIdx+'" data-del-set="'+setIdx+'">&#215;</button>';
+      if(isCardio){
+        row.innerHTML =
+          '<div class="set-num">'+(setIdx+1)+'</div>'+
+          '<input class="inp" type="number" inputmode="decimal" placeholder="distance (km)" value="'+(set.distance||'')+'" data-ex="'+exIdx+'" data-set="'+setIdx+'" data-field="distance" style="flex:1;">'+
+          '<input class="inp" type="number" inputmode="numeric" placeholder="bpm" value="'+(set.bpm||'')+'" data-ex="'+exIdx+'" data-set="'+setIdx+'" data-field="bpm" style="flex:1;">'+
+          '<button class="set-del" data-del-ex="'+exIdx+'" data-del-set="'+setIdx+'">&#215;</button>';
+      } else {
+        var planned = (exEntry.plannedSets && exEntry.plannedSets[setIdx]) ? exEntry.plannedSets[setIdx] : null;
+        var wPlaceholder = planned && planned.weight ? ('plan: '+planned.weight+'kg') : 'kg';
+        var rPlaceholder = planned && planned.reps ? ('plan: '+planned.reps) : 'reps';
+        row.innerHTML =
+          '<div class="set-num">'+(setIdx+1)+'</div>'+
+          '<input class="inp" type="number" inputmode="decimal" placeholder="'+wPlaceholder+'" value="'+(set.weight||'')+'" data-ex="'+exIdx+'" data-set="'+setIdx+'" data-field="weight" style="flex:1;">'+
+          '<input class="inp" type="number" inputmode="numeric" placeholder="'+rPlaceholder+'" value="'+(set.reps||'')+'" data-ex="'+exIdx+'" data-set="'+setIdx+'" data-field="reps" style="flex:1;">'+
+          '<button class="set-del" data-del-ex="'+exIdx+'" data-del-set="'+setIdx+'">&#215;</button>';
+      }
       setsWrap.appendChild(row);
     });
     card.appendChild(setsWrap);
     var addSetBtn = document.createElement('button');
     addSetBtn.className = 'btn btn-gh';
     addSetBtn.style.cssText = 'width:100%;margin-top:6px;padding:9px;font-size:12px;';
-    addSetBtn.textContent = '+ Reps & Sets';
+    addSetBtn.textContent = isCardio ? '+ Interval' : '+ Reps & Sets';
     addSetBtn.setAttribute('data-add-set', exIdx);
     card.appendChild(addSetBtn);
     listEl.appendChild(card);
@@ -1516,9 +1556,14 @@ document.getElementById('session-ex-list').addEventListener('click', function(e)
   var addSetIdx = e.target.getAttribute('data-add-set');
   if(addSetIdx !== null){
     var p = getActiveProfile();
-    var sets = p.activeSession.exercises[parseInt(addSetIdx,10)].sets;
+    var exEntry = p.activeSession.exercises[parseInt(addSetIdx,10)];
+    var sets = exEntry.sets;
     var prevSet = sets.length ? sets[sets.length-1] : null;
-    sets.push({ weight: prevSet ? prevSet.weight : '', reps: prevSet ? prevSet.reps : '' });
+    if(exEntry.cat === 'cardio'){
+      sets.push({ distance: prevSet?prevSet.distance:'', bpm: prevSet?prevSet.bpm:'' });
+    } else {
+      sets.push({ weight: prevSet ? prevSet.weight : '', reps: prevSet ? prevSet.reps : '' });
+    }
     saveStore(store);
     renderSessionExercises();
     return;
@@ -1582,7 +1627,8 @@ function renderPickerResults(){
       if(pickerTarget === 'plan'){
         var alreadyPlan = draftWorkout.exercises.some(function(e2){ return e2.exerciseId === ex.id; });
         if(alreadyPlan){ toast('Already added'); return; }
-        draftWorkout.exercises.push({ exerciseId: ex.id, name: ex.name, cat: ex.cat, sets: [{plannedWeight:'', plannedReps:''}] });
+        var planSet = ex.cat === 'cardio' ? {plannedTime:'', plannedSplit:'', plannedLevel:''} : {plannedWeight:'', plannedReps:''};
+        draftWorkout.exercises.push({ exerciseId: ex.id, name: ex.name, cat: ex.cat, sets: [planSet] });
         closeModal('picker-modal');
         renderPlanExList();
         return;
@@ -1590,7 +1636,8 @@ function renderPickerResults(){
       var p = getActiveProfile();
       var already = p.activeSession.exercises.some(function(e2){ return e2.exerciseId === ex.id; });
       if(already){ toast('Already in this workout'); return; }
-      p.activeSession.exercises.push({ exerciseId: ex.id, name: ex.name, cat: ex.cat, sets: [{weight:'', reps:''}] });
+      var actSet = ex.cat === 'cardio' ? {distance:'', bpm:''} : {weight:'', reps:''};
+      p.activeSession.exercises.push({ exerciseId: ex.id, name: ex.name, cat: ex.cat, sets: [actSet] });
       saveStore(store);
       closeModal('picker-modal');
       renderSessionExercises();
@@ -1637,10 +1684,14 @@ function renderPlanExList(){
   var listEl = document.getElementById('plan-ex-list');
   listEl.innerHTML = '';
   draftWorkout.exercises.forEach(function(exEntry, exIdx){
+    var isCardio = exEntry.cat === 'cardio';
     var card = document.createElement('div');
     card.className = 'session-ex-card';
     var last = lastPerformance(p, exEntry.exerciseId);
-    var lastText = last ? ('Last time: ' + last.bestSet.weight + 'kg × ' + last.bestSet.reps + ' (' + fmtDate(last.date) + ')') : 'No history yet for this exercise';
+    var lastText;
+    if(!last){ lastText = 'No history yet for this exercise'; }
+    else if(isCardio){ lastText = 'Last time: ' + (last.bestSet.distance ? last.bestSet.distance+'km' : '—') + (last.bestSet.bpm ? ' · '+last.bestSet.bpm+' bpm' : '') + ' (' + fmtDate(last.date) + ')'; }
+    else { lastText = 'Last time: ' + last.bestSet.weight + 'kg × ' + last.bestSet.reps + ' (' + fmtDate(last.date) + ')'; }
     var head = document.createElement('div');
     head.className = 'session-ex-head';
     head.innerHTML = '<div class="session-ex-name">'+escapeHtml(exEntry.name)+'</div>'+
@@ -1654,18 +1705,27 @@ function renderPlanExList(){
     exEntry.sets.forEach(function(set, setIdx){
       var row = document.createElement('div');
       row.className = 'plan-set-row';
-      row.innerHTML =
-        '<div class="set-num">'+(setIdx+1)+'</div>'+
-        '<input class="inp" type="number" inputmode="decimal" placeholder="planned kg" value="'+(set.plannedWeight||'')+'" data-plan-ex="'+exIdx+'" data-plan-set="'+setIdx+'" data-plan-field="plannedWeight" style="flex:1;">'+
-        '<input class="inp" type="number" inputmode="numeric" placeholder="planned reps" value="'+(set.plannedReps||'')+'" data-plan-ex="'+exIdx+'" data-plan-set="'+setIdx+'" data-plan-field="plannedReps" style="flex:1;">'+
-        '<button class="set-del" data-plan-del-ex="'+exIdx+'" data-plan-del-set="'+setIdx+'">&#215;</button>';
+      if(isCardio){
+        row.innerHTML =
+          '<div class="set-num">'+(setIdx+1)+'</div>'+
+          '<input class="inp" type="text" placeholder="time (e.g. 30 min)" value="'+(set.plannedTime||'')+'" data-plan-ex="'+exIdx+'" data-plan-set="'+setIdx+'" data-plan-field="plannedTime" style="flex:1;">'+
+          '<input class="inp" type="text" placeholder="split (e.g. 5:00/km)" value="'+(set.plannedSplit||'')+'" data-plan-ex="'+exIdx+'" data-plan-set="'+setIdx+'" data-plan-field="plannedSplit" style="flex:1;">'+
+          '<input class="inp" type="text" placeholder="level" value="'+(set.plannedLevel||'')+'" data-plan-ex="'+exIdx+'" data-plan-set="'+setIdx+'" data-plan-field="plannedLevel" style="flex:1;">'+
+          '<button class="set-del" data-plan-del-ex="'+exIdx+'" data-plan-del-set="'+setIdx+'">&#215;</button>';
+      } else {
+        row.innerHTML =
+          '<div class="set-num">'+(setIdx+1)+'</div>'+
+          '<input class="inp" type="number" inputmode="decimal" placeholder="planned kg" value="'+(set.plannedWeight||'')+'" data-plan-ex="'+exIdx+'" data-plan-set="'+setIdx+'" data-plan-field="plannedWeight" style="flex:1;">'+
+          '<input class="inp" type="number" inputmode="numeric" placeholder="planned reps" value="'+(set.plannedReps||'')+'" data-plan-ex="'+exIdx+'" data-plan-set="'+setIdx+'" data-plan-field="plannedReps" style="flex:1;">'+
+          '<button class="set-del" data-plan-del-ex="'+exIdx+'" data-plan-del-set="'+setIdx+'">&#215;</button>';
+      }
       setsWrap.appendChild(row);
     });
     card.appendChild(setsWrap);
     var addSetBtn = document.createElement('button');
     addSetBtn.className = 'btn btn-gh';
     addSetBtn.style.cssText = 'width:100%;margin-top:6px;padding:9px;font-size:12px;';
-    addSetBtn.textContent = '+ Reps & Sets';
+    addSetBtn.textContent = isCardio ? '+ Interval' : '+ Reps & Sets';
     addSetBtn.setAttribute('data-plan-add-set', exIdx);
     card.appendChild(addSetBtn);
     listEl.appendChild(card);
@@ -1674,9 +1734,14 @@ function renderPlanExList(){
 document.getElementById('plan-ex-list').addEventListener('click', function(e){
   var addSetIdx = e.target.getAttribute('data-plan-add-set');
   if(addSetIdx !== null){
-    var sets = draftWorkout.exercises[parseInt(addSetIdx,10)].sets;
+    var exEntry = draftWorkout.exercises[parseInt(addSetIdx,10)];
+    var sets = exEntry.sets;
     var prevSet = sets.length ? sets[sets.length-1] : null;
-    sets.push({ plannedWeight: prevSet ? prevSet.plannedWeight : '', plannedReps: prevSet ? prevSet.plannedReps : '' });
+    if(exEntry.cat === 'cardio'){
+      sets.push({ plannedTime: prevSet?prevSet.plannedTime:'', plannedSplit: prevSet?prevSet.plannedSplit:'', plannedLevel: prevSet?prevSet.plannedLevel:'' });
+    } else {
+      sets.push({ plannedWeight: prevSet ? prevSet.plannedWeight : '', plannedReps: prevSet ? prevSet.plannedReps : '' });
+    }
     renderPlanExList();
     return;
   }
@@ -1699,7 +1764,8 @@ document.getElementById('plan-ex-list').addEventListener('input', function(e){
   var setIdx = e.target.getAttribute('data-plan-set');
   var field = e.target.getAttribute('data-plan-field');
   if(exIdx === null) return;
-  var val = parseFloat(e.target.value) || 0;
+  var isTextField = field === 'plannedTime' || field === 'plannedSplit' || field === 'plannedLevel';
+  var val = isTextField ? e.target.value : (parseFloat(e.target.value) || 0);
   draftWorkout.exercises[parseInt(exIdx,10)].sets[parseInt(setIdx,10)][field] = val;
 });
 document.getElementById('plan-add-exercise-btn').addEventListener('click', function(){
@@ -1765,6 +1831,13 @@ function openPlanDetail(planId){
     var card = document.createElement('div');
     card.className = 'session-ex-card';
     var setsHtml = ex.sets.map(function(set, i){
+      if(ex.cat === 'cardio'){
+        var parts = [];
+        if(set.plannedTime) parts.push(set.plannedTime);
+        if(set.plannedSplit) parts.push(set.plannedSplit);
+        if(set.plannedLevel) parts.push('Level '+set.plannedLevel);
+        return '<div class="prog-entry"><span>Interval '+(i+1)+'</span><span>'+(parts.length?parts.join(' · '):'—')+'</span></div>';
+      }
       return '<div class="prog-entry"><span>Set '+(i+1)+'</span><span>'+(set.plannedWeight||'—')+'kg × '+(set.plannedReps||'—')+'</span></div>';
     }).join('');
     card.innerHTML = '<div class="session-ex-name" style="margin-bottom:8px;">'+escapeHtml(ex.name)+'</div>' + setsHtml;
@@ -1808,12 +1881,18 @@ function startPlannedWorkout(planId){
     ptSessionId: plan.ptSessionId || null,
     title: plan.title,
     exercises: plan.exercises.map(function(ex){
+      var isCardio = ex.cat === 'cardio';
       return {
         exerciseId: ex.exerciseId,
         name: ex.name,
         cat: ex.cat,
-        plannedSets: ex.sets.map(function(s){ return {weight: s.plannedWeight, reps: s.plannedReps}; }),
+        plannedSets: ex.sets.map(function(s){
+          return isCardio
+            ? { time: s.plannedTime, split: s.plannedSplit, level: s.plannedLevel }
+            : { weight: s.plannedWeight, reps: s.plannedReps };
+        }),
         sets: ex.sets.map(function(s){
+          if(isCardio){ return { distance:'', bpm:'' }; } // no sensible auto-fill from time/split/level
           return plan.assignedByCoach
             ? { weight: s.plannedWeight||'', reps: s.plannedReps||'' }
             : { weight:'', reps:'' };
@@ -1863,6 +1942,9 @@ function openSessionDetail(sessionId){
     var card = document.createElement('div');
     card.className = 'session-ex-card';
     var setsHtml = ex.sets.map(function(set, i){
+      if(ex.cat === 'cardio'){
+        return '<div class="prog-entry"><span>Interval '+(i+1)+'</span><span>'+(set.distance?set.distance+'km':'—')+(set.bpm?' · '+set.bpm+' bpm':'')+'</span></div>';
+      }
       return '<div class="prog-entry"><span>Set '+(i+1)+'</span><span>'+set.weight+'kg × '+set.reps+'</span></div>';
     }).join('');
     card.innerHTML = '<div class="session-ex-name" style="margin-bottom:8px;">'+escapeHtml(ex.name)+'</div>' + setsHtml;
@@ -1923,11 +2005,15 @@ function renderProgressList(){
 document.getElementById('prog-search').addEventListener('input', renderProgressList);
 function openProgressDetail(exerciseId, name){
   var p = getActiveProfile();
+  var exDef = getExercise(exerciseId);
+  var isCardio = exDef && exDef.cat === 'cardio';
   var performances = [];
   (p.sessions||[]).forEach(function(s){
     s.exercises.forEach(function(ex){
       if(ex.exerciseId === exerciseId && ex.sets.length > 0){
-        var best = ex.sets.reduce(function(b, set){ return (!b || set.weight > b.weight) ? set : b; }, null);
+        var best = isCardio
+          ? ex.sets.reduce(function(b, set){ return (!b || (+set.distance||0) > (+b.distance||0)) ? set : b; }, null)
+          : ex.sets.reduce(function(b, set){ return (!b || set.weight > b.weight) ? set : b; }, null);
         performances.push({ date: s.date, best: best, allSets: ex.sets });
       }
     });
@@ -1937,16 +2023,26 @@ function openProgressDetail(exerciseId, name){
   document.getElementById('prog-empty').classList.add('hidden');
   document.getElementById('prog-detail').classList.remove('hidden');
   document.getElementById('prog-ex-title').textContent = name;
-  var overallBest = performances.reduce(function(b, perf){ return (!b || perf.best.weight > b.weight) ? perf.best : b; }, null);
-  document.getElementById('prog-stat-best').textContent = overallBest ? (overallBest.weight+'kg×'+overallBest.reps) : '—';
-  document.getElementById('prog-stat-last').textContent = performances.length ? (performances[0].best.weight+'kg×'+performances[0].best.reps) : '—';
+  if(isCardio){
+    var overallBest = performances.reduce(function(b, perf){ return (!b || (+perf.best.distance||0) > (+b.distance||0)) ? perf.best : b; }, null);
+    document.getElementById('prog-stat-best').textContent = overallBest ? (overallBest.distance+'km'+(overallBest.bpm?' · '+overallBest.bpm+'bpm':'')) : '—';
+    document.getElementById('prog-stat-last').textContent = performances.length ? (performances[0].best.distance+'km'+(performances[0].best.bpm?' · '+performances[0].best.bpm+'bpm':'')) : '—';
+  } else {
+    var overallBestS = performances.reduce(function(b, perf){ return (!b || perf.best.weight > b.weight) ? perf.best : b; }, null);
+    document.getElementById('prog-stat-best').textContent = overallBestS ? (overallBestS.weight+'kg×'+overallBestS.reps) : '—';
+    document.getElementById('prog-stat-last').textContent = performances.length ? (performances[0].best.weight+'kg×'+performances[0].best.reps) : '—';
+  }
   document.getElementById('prog-stat-count').textContent = performances.length;
   var listEl = document.getElementById('prog-history-list');
   listEl.innerHTML = '';
   performances.forEach(function(perf){
     var row = document.createElement('div');
     row.className = 'prog-entry';
-    row.innerHTML = '<span class="prog-entry-date">'+fmtDate(perf.date)+'</span><span>'+perf.best.weight+'kg × '+perf.best.reps+' best</span>';
+    if(isCardio){
+      row.innerHTML = '<span class="prog-entry-date">'+fmtDate(perf.date)+'</span><span>'+(perf.best.distance||'—')+'km'+(perf.best.bpm?' · '+perf.best.bpm+'bpm':'')+' best</span>';
+    } else {
+      row.innerHTML = '<span class="prog-entry-date">'+fmtDate(perf.date)+'</span><span>'+perf.best.weight+'kg × '+perf.best.reps+' best</span>';
+    }
     listEl.appendChild(row);
   });
 }

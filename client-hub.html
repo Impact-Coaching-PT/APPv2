@@ -157,6 +157,11 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 
     <div class="sec-hdr">Menu</div>
     <div class="dash-grid">
+      <div class="dash-tile" onclick="showSection('calendar')">
+        <img class="dash-tile-icon" src="icons/icon-ch-calendar.png" alt="Calendar" onerror="this.style.display='none'">
+        <div class="dash-tile-title">Calendar</div>
+        <div class="dash-tile-sub">Your schedule</div>
+      </div>
       <div class="dash-tile" onclick="showSection('assigned')">
         <span class="dash-tile-badge hidden" id="assigned-badge">0</span>
         <img class="dash-tile-icon" src="icons/icon-ch-assigned.png" alt="Assigned Workouts">
@@ -183,7 +188,7 @@ main{max-width:520px;margin:0 auto;padding:16px;}
         <div class="dash-tile-title">About</div>
         <div class="dash-tile-sub">Impact Coaching</div>
       </div>
-      <div class="dash-tile" onclick="showSection('settings')">
+      <div class="dash-tile" onclick="showSection('settings')" style="grid-column:1 / -1;">
         <img class="dash-tile-icon" src="icons/icon-ch-settings.png" alt="Settings">
         <div class="dash-tile-title">Settings</div>
         <div class="dash-tile-sub">Sync &amp; info</div>
@@ -197,6 +202,13 @@ main{max-width:520px;margin:0 auto;padding:16px;}
       <button class="btn btn-r" onclick="downloadAllMyData()">⬇️ Export My Data</button>
       <button class="btn btn-gh" onclick="toast('Point this at your free Hub URL')">Go To Free Hub</button>
     </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="section-calendar" class="hidden">
+    <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
+    <div class="sec-hdr" style="margin-top:0;">Calendar</div>
+    <div id="calendar-list"></div>
   </div>
 
   <!-- ASSIGNED WORKOUTS -->
@@ -311,12 +323,20 @@ function setChTheme(theme){
   applyChTheme();
   toast(theme==="default" ? "Impact Coaching colours" : theme==="meno" ? "MenoFit colours" : "MWL colours");
 }
+function hexToRgb(hex){
+  const h = hex.replace("#","");
+  const n = parseInt(h.length===3 ? h.split("").map(c=>c+c).join("") : h, 16);
+  return [(n>>16)&255, (n>>8)&255, n&255];
+}
 function applyChTheme(){
   const s = loadChShared();
   const colors = THEME_COLORS[s.theme] || THEME_COLORS.default;
   document.documentElement.style.setProperty("--red", colors[0]);
   document.documentElement.style.setProperty("--red2", colors[1]);
   document.documentElement.style.setProperty("--grad", "linear-gradient(135deg,"+colors[0]+","+colors[1]+")");
+  const [r,g,b] = hexToRgb(colors[1]);
+  document.documentElement.style.setProperty("--cta-bg", `rgba(${r},${g},${b},.08)`);
+  document.documentElement.style.setProperty("--cta-border", `rgba(${r},${g},${b},.4)`);
   ["default","meno","mwl"].forEach(key=>{
     const btn = document.getElementById("theme-"+key+"-btn");
     if(!btn) return;
@@ -481,6 +501,20 @@ function renderAssignedList(){
 }
 
 // ═══════════════════════════════════════════════════════════
+// CALENDAR - a simple schedule view: everything assigned plus everything the client's
+// logged themselves, most recent first. Read-only for now - logging cardio/activities
+// from in here is a follow-up once the workout builders support cardio-style exercises.
+// ═══════════════════════════════════════════════════════════
+function renderCalendarList(){
+  const sessions = (clientRecord.sessions||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  document.getElementById("calendar-list").innerHTML = sessions.length ? sessions.map(s=>`
+    <div class="list-row" onclick="window.location.href='client-workout-tracker.html'">
+      <div class="list-row-name">${s.name||"Workout"}</div>
+      <div class="list-row-sub">${s.date||""} · ${s.assignedByCoach ? "PT Workout" : "Client Workout"} · ${s.status==="completed" ? "Done" : "Planned"}</div>
+    </div>`).join("") : '<div class="empty-note">Nothing on your calendar yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════
 // MESSAGES
 // ═══════════════════════════════════════════════════════════
 function getMessages(){
@@ -573,10 +607,11 @@ function renderAboutFaq(){
 }
 
 function showSection(id){
-  ["dashboard","section-assigned","section-links","section-about","section-settings","section-messages"].forEach(s=>
+  ["dashboard","section-assigned","section-links","section-about","section-settings","section-messages","section-calendar"].forEach(s=>
     document.getElementById(s).classList.add("hidden"));
   document.getElementById(id==="dashboard" ? "dashboard" : "section-"+id).classList.remove("hidden");
   if(id==="messages") markMessagesRead();
+  if(id==="calendar") renderCalendarList();
 }
 function showDashboard(){ showSection("dashboard"); }
 
