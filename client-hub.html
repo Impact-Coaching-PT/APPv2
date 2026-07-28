@@ -210,24 +210,27 @@ main{max-width:520px;margin:0 auto;padding:16px;}
   <div id="section-links" class="hidden">
     <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
     <div class="sec-hdr" style="margin-top:0;">Links</div>
-    <div class="list-row" onclick="window.location.href='menofit-hub.html?from=clienthub'">
-      <div class="list-row-name">MenoFit Hub</div>
-      <div class="list-row-sub">Menopause fitness &amp; classes</div>
-    </div>
-    <div class="list-row" onclick="window.location.href='medical-weight-loss-hub.html?from=clienthub'">
-      <div class="list-row-name">MWL Hub</div>
-      <div class="list-row-sub">Medical weight loss support</div>
-    </div>
-    <div class="list-row" onclick="window.location.href='eating-plan.html?from=clienthub'" style="display:flex;align-items:center;gap:12px;">
-      <img src="icons/icon-eating-plan.png" alt="" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;">
-      <div>
-        <div class="list-row-name">Eating Plan</div>
-        <div class="list-row-sub">Simple food guidance</div>
+    <div class="dash-grid">
+      <div class="dash-tile" onclick="window.location.href='menofit-hub.html?from=clienthub'">
+        <img class="dash-tile-icon" src="icons/icon-menofit.png" alt="MenoFit Hub">
+        <div class="dash-tile-title">MenoFit Hub</div>
+        <div class="dash-tile-sub">Menopause fitness</div>
       </div>
-    </div>
-    <div class="list-row" onclick="window.open('https://www.facebook.com/profile.php?id=61555588884682','_blank')">
-      <div class="list-row-name">Facebook</div>
-      <div class="list-row-sub">Impact Coaching page</div>
+      <div class="dash-tile" onclick="window.location.href='medical-weight-loss-hub.html?from=clienthub'">
+        <img class="dash-tile-icon" src="icons/icon-mwl.png" alt="MWL Hub">
+        <div class="dash-tile-title">MWL Hub</div>
+        <div class="dash-tile-sub">Medical weight loss</div>
+      </div>
+      <div class="dash-tile" onclick="window.location.href='eating-plan.html?from=clienthub'">
+        <img class="dash-tile-icon" src="icons/icon-eating-plan.png" alt="Eating Plan">
+        <div class="dash-tile-title">Eating Plan</div>
+        <div class="dash-tile-sub">Simple food guidance</div>
+      </div>
+      <div class="dash-tile" onclick="window.open('https://www.facebook.com/profile.php?id=61555588884682','_blank')">
+        <img class="dash-tile-icon" src="icons/icon-facebook.png" alt="Facebook">
+        <div class="dash-tile-title">Facebook</div>
+        <div class="dash-tile-sub">Impact Coaching page</div>
+      </div>
     </div>
   </div>
 
