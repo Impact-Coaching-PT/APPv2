@@ -2351,7 +2351,7 @@ function renderClientDetail(){
       <div class="tl-dot-wrap"><div class="tl-dot ${s.status==='completed'?'done':'planned'}"></div>${i<sess.length-1?'<div class="tl-line"></div>':''}</div>
       <div class="tl-body">
         <div class="tl-name">${s.name||"Session"}</div>
-        <div class="tl-meta">${fmtDate(s.date)}</div>
+        <div class="tl-meta">${fmtDate(s.date)} · ${s.assignedByCoach ? 'PT Workout' : 'Client Workout'}</div>
       </div>
       <div class="tl-badge ${s.status==='completed'?'done':'planned'}">${s.status==='completed'?'Done':'Planned'}</div>
     </div>`).join("") : '<div class="empty-good">No sessions logged yet</div>';
@@ -2424,7 +2424,7 @@ function openCdSessionView(sessId){
   cdSvClientId = s.clientId;
   cdSvStatus = s.status || "planned";
   document.getElementById("cd-sv-title").textContent = s.name || "Session";
-  document.getElementById("cd-sv-date").textContent = fmtDate(s.date);
+  document.getElementById("cd-sv-date").textContent = fmtDate(s.date) + " · " + (s.assignedByCoach ? "PT Workout" : "Client Workout");
   setCdSvStatus(cdSvStatus);
 
   svDraft = (s.rows||[]).map(r=>{

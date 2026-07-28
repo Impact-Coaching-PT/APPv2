@@ -935,22 +935,69 @@ if(!getClientHubId() || !getClientHubRecord()){
   window.location.href = 'client-hub.html';
 }
 
-// Push a completed assigned workout's actuals back to the PT-App via the shared backend.
-async function syncAssignedWorkoutCompletion(sess){
+// Push a completed workout back to the PT-App - whether it was one the coach assigned
+// (update that existing session with real per-set actuals) or one the client built and
+// logged entirely themselves (create a fresh session entry so it lands in PT-App history
+// and previous-weights lookups too).
+async function syncWorkoutCompletion(sess){
   var rec = getClientHubRecord();
-  if(!rec || !CLIENTHUB_SCRIPT_URL) return;
-  var ptSession = (rec.sessions||[]).find(function(s){ return s.id === sess.ptSessionId; });
-  if(!ptSession) return;
-  ptSession.status = 'completed';
-  ptSession.rows = (ptSession.rows||[]).map(function(row){
-    var match = sess.exercises.find(function(ex){ return ex.name === row.exerciseName; });
-    if(match && match.sets && match.sets.length){
-      var last = match.sets[match.sets.length-1];
-      if(last.weight) row.actual = last.weight;
+  if(!rec) return;
+  rec.sessions = rec.sessions || [];
+
+  if(sess.assignedByCoach && sess.ptSessionId){
+    var ptSession = rec.sessions.find(function(s){ return s.id === sess.ptSessionId; });
+    if(ptSession){
+      ptSession.status = 'completed';
+      ptSession.rows = (ptSession.rows||[]).map(function(row){
+        var match = sess.exercises.find(function(ex){ return ex.name === row.exerciseName; });
+        if(match && match.sets && match.sets.length){
+          // Carry over every set the client actually logged, not just the last one -
+          // the client's set count is the source of truth here (they can add/remove sets),
+          // keeping the coach's original planned kg/reps at the same position for reference.
+          row.sets = match.sets.map(function(actualSet, i){
+            var planSet = (row.sets && row.sets[i]) || {};
+            return {
+              kg: planSet.kg || '',
+              reps: planSet.reps || '',
+              actualKg: actualSet.weight || ''
+            };
+          });
+          var best = match.sets.reduce(function(b, s){
+            return (s.weight && (!b || +s.weight > +b)) ? s.weight : b;
+          }, null);
+          if(best) row.actual = best;
+        }
+        return row;
+      });
     }
-    return row;
-  });
+  } else {
+    // Client built and logged this one themselves - give it a fresh entry in the PT-App's
+    // session history so it shows up there and feeds previous-weights lookups, same as any
+    // session the coach logs directly - just tagged so both sides can label it correctly.
+    rec.sessions.push({
+      id: 'client-' + sess.id,
+      clientId: (rec.client && rec.client.id) || getClientHubId(),
+      date: sess.date || (sess.startedAt||'').split('T')[0],
+      name: sess.title || 'Workout',
+      status: 'completed',
+      assignedByCoach: false,
+      rows: sess.exercises.map(function(ex){
+        var best = ex.sets.reduce(function(b, s){
+          return (s.weight && (!b || +s.weight > +b)) ? s.weight : b;
+        }, null);
+        return {
+          exerciseName: ex.name,
+          scheme: ex.sets.length + '×' + ((ex.sets[0] && ex.sets[0].reps) || '—'),
+          target: '',
+          actual: best || '',
+          sets: ex.sets.map(function(s){ return { kg: '', reps: '', actualKg: s.weight || '' }; })
+        };
+      })
+    });
+  }
+
   saveClientHubRecord(rec);
+  if(!CLIENTHUB_SCRIPT_URL) return;
   try{
     await fetch(CLIENTHUB_SCRIPT_URL, {
       method: 'POST',
@@ -1404,7 +1451,7 @@ document.getElementById('finish-session-btn').addEventListener('click', function
   }
   p.activeSession = null;
   saveStore(store);
-  if(sess.assignedByCoach && sess.ptSessionId){ syncAssignedWorkoutCompletion(sess); }
+  syncWorkoutCompletion(sess);
   toast('Workout saved');
   showDashboard();
 });
@@ -1797,8 +1844,9 @@ function renderHistory(){
     var item = document.createElement('div');
     item.className = 'session-item';
     var dateLine = fmtDate(s.date) + (s.title ? ' · ' + escapeHtml(s.title) : '');
+    var srcLabel = s.assignedByCoach ? 'PT Workout' : 'Client Workout';
     item.innerHTML = '<div><div class="session-item-date">'+dateLine+'</div>'+
-      '<div class="session-item-sub">'+s.exercises.length+' exercise'+(s.exercises.length===1?'':'s')+' · '+setCount+' set'+(setCount===1?'':'s')+'</div></div>'+
+      '<div class="session-item-sub">'+s.exercises.length+' exercise'+(s.exercises.length===1?'':'s')+' · '+setCount+' set'+(setCount===1?'':'s')+' · '+srcLabel+'</div></div>'+
       '<div class="session-item-count">&#8250;</div>';
     item.addEventListener('click', function(){ openSessionDetail(s.id); });
     listEl.appendChild(item);
