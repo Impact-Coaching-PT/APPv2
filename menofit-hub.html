@@ -188,21 +188,6 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div class="footer-txt">Built by Ritchie — for the women who show up.<br>General guidance only. Always consult your GP for medical advice.</div>
   </div>
 
-  <!-- HOME CTA -->
-  <div style="margin:8px 16px 24px;background:linear-gradient(135deg,#1a0a2e,#1a0a1e);border:1.5px solid #9a3ae855;border-radius:16px;padding:20px;text-align:center;">
-    <div style="font-size:28px;margin-bottom:8px;">💬</div>
-    <div style="font-size:15px;font-weight:800;background:linear-gradient(135deg,#9a3ae8,#e8389a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;">Personal Training Available</div>
-    <div style="font-size:13px;color:#cbb8e0;line-height:1.7;margin-bottom:14px;">
-      Want something more tailored? Ritchie offers <strong style="color:#e8a0d0;">1-to-1</strong> and <strong style="color:#e8a0d0;">2-to-1 personal training</strong> with a full menopause focus — so you can even train with a friend.
-    </div>
-    <div style="font-size:12px;color:#a88fc0;line-height:1.7;margin-bottom:16px;">
-      Sessions built around <em>your</em> symptoms, goals and fitness level. Online PT also available — wherever you are in the UK.
-    </div>
-    <button onclick="showFBConfirm()" style="width:100%;background:linear-gradient(135deg,#9a3ae8,#e8389a);border:none;color:#fff;font-weight:700;font-size:14px;padding:14px 24px;border-radius:10px;letter-spacing:.04em;cursor:pointer;font-family:inherit;">
-      💬 Ask Ritchie about 1:1 &amp; 2:1 PT
-    </button>
-  </div>
-
 </div>
 
 <!-- ══════════════════════════════════════════════ -->
@@ -810,34 +795,6 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       <div class="ib-body">MenoFit is a fitness programme, not a medical service. The guidance in this hub is general and informational. Always speak to your GP about symptoms, treatment options and any changes to your health. Ritchie works alongside your medical care — not instead of it.</div>
     </div>
 
-    <!-- PT AVAILABILITY CARD -->
-    <div style="margin-top:20px;background:linear-gradient(135deg,#1a0a2e 0%,#2d0a3e 50%,#1a0f1a 100%);border:1.5px solid #c4387f66;border-radius:16px;padding:20px;text-align:center;">
-      <div style="font-size:28px;margin-bottom:8px;">🏋️‍♀️</div>
-      <div style="font-size:16px;font-weight:800;background:linear-gradient(90deg,#9a3ae8,#e8389a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;letter-spacing:.02em;">Personal Training Available</div>
-      <div style="font-size:13px;color:#cbb8e0;line-height:1.7;margin-bottom:14px;">
-        Want something more tailored? Ritchie offers <strong style="color:#e8a0d0;">1-to-1</strong> and <strong style="color:#e8a0d0;">2-to-1 personal training</strong> sessions with a full menopause focus — so you can even train with a friend.
-      </div>
-      <div style="font-size:12px;color:#a88fc0;line-height:1.7;margin-bottom:16px;">
-        Sessions are designed around <em>your</em> symptoms, goals and fitness level — not a one-size-fits-all plan. Whether you want to build strength, manage weight, improve energy or just feel better in your body, Ritchie will build a programme around you.
-      </div>
-      <button onclick="showFBConfirm()" style="width:100%;background:linear-gradient(135deg,#9a3ae8,#e8389a);border:none;color:#fff;font-weight:700;font-size:14px;padding:14px 24px;border-radius:10px;letter-spacing:.04em;cursor:pointer;font-family:inherit;">
-        💬 Ask Ritchie about 1:1 &amp; 2:1 PT
-      </button>
-    </div>
-
-  </div>
-</div>
-
-<!-- FB Confirm Popup (lives outside all page containers so it works from any page) -->
-<div id="fb-overlay" onclick="hideFBConfirm()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:center;justify-content:center;padding:24px;">
-  <div onclick="event.stopPropagation()" style="background:#1a0a2e;border:1.5px solid #9a3ae8;border-radius:20px;padding:28px 22px;max-width:340px;width:100%;text-align:center;">
-    <div style="font-size:32px;margin-bottom:12px;">📘</div>
-    <div style="font-size:15px;font-weight:800;color:#e8a0d0;margin-bottom:10px;">Leaving MenoFit Hub</div>
-    <div style="font-size:13px;color:#cbb8e0;line-height:1.6;margin-bottom:22px;">You're about to be taken to <strong style="color:#fff;">Impact Coaching's Facebook page</strong> where you can message Ritchie directly about 1:1 &amp; 2:1 personal training.</div>
-    <div style="display:flex;gap:10px;">
-      <button onclick="hideFBConfirm()" style="flex:1;background:none;border:1.5px solid #9a3ae8;color:#c4a0e8;font-size:13px;font-weight:700;padding:12px;border-radius:10px;cursor:pointer;font-family:inherit;">Cancel</button>
-      <button onclick="goToFB()" style="flex:2;background:linear-gradient(135deg,#9a3ae8,#e8389a);border:none;color:#fff;font-size:13px;font-weight:700;padding:12px;border-radius:10px;cursor:pointer;font-family:inherit;">Continue →</button>
-    </div>
   </div>
 </div>
 
@@ -1006,23 +963,6 @@ function generateWorkout() {
   document.getElementById('wk-circuit').innerHTML = html;
 
   document.getElementById('wk-cooldown').innerHTML = renderCooldown(pick(COOLDOWN_POOL, 4));
-}
-
-var FB_URL = 'https://www.facebook.com/profile.php?id=61555588884682';
-function showFBConfirm() {
-  var el = document.getElementById('fb-overlay');
-  el.style.display = 'flex';
-}
-function hideFBConfirm() {
-  document.getElementById('fb-overlay').style.display = 'none';
-}
-function goToFB() {
-  hideFBConfirm();
-  var win = window.open(FB_URL, '_blank');
-  if (!win || win.closed || typeof win.closed === 'undefined') {
-    // Popup blocked (common in Android WebView/PWA wrappers) - fall back to same-tab nav
-    window.location.href = FB_URL;
-  }
 }
 </script>
 </body>
