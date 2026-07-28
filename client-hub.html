@@ -79,6 +79,22 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 
 .sec-hdr{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;font-family:monospace;font-weight:600;margin:20px 0 10px;}
 .list-row{background:var(--bg2);border:1.5px solid var(--bd);border-radius:12px;padding:13px 14px;margin-bottom:8px;cursor:pointer;}
+
+/* CALENDAR */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-nav-btn{width:38px;height:38px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--bd);color:var(--t);font-size:17px;cursor:pointer;font-family:inherit;}
+.cal-nav-label{font-family:var(--disp);font-size:16px;font-weight:700;letter-spacing:.01em;text-transform:uppercase;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal-day-hdr{text-align:center;font-size:9.5px;color:var(--t3);font-family:monospace;text-transform:uppercase;padding:4px 0 8px;letter-spacing:.06em;}
+.cal-day{background:var(--bg2);border:1.5px solid var(--bd);border-radius:10px;min-height:50px;padding:6px 5px;cursor:pointer;position:relative;display:flex;flex-direction:column;}
+.cal-day.pad{background:transparent;border-color:transparent;cursor:default;}
+.cal-day.today{border-color:var(--red2);}
+.cal-day.selected{border-color:var(--red2);background:var(--bg3);box-shadow:0 0 0 1px var(--cta-bg) inset;}
+.cal-day-num{font-size:11px;color:var(--t3);font-family:monospace;font-weight:600;}
+.cal-day.today .cal-day-num{color:var(--red2);}
+.cal-dots{display:flex;gap:2px;flex-wrap:wrap;margin-top:auto;}
+.cal-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.cal-day-detail-hdr{font-family:var(--disp);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--t2);margin:18px 0 8px;}
 .list-row-name{font-size:14px;font-weight:600;}
 .list-row-sub{font-size:11px;color:var(--t3);margin-top:2px;font-family:monospace;}
 .empty-note{text-align:center;padding:24px 16px;color:var(--t3);font-size:13px;background:var(--bg2);border:1.5px dashed var(--bd);border-radius:12px;}
@@ -158,7 +174,7 @@ main{max-width:520px;margin:0 auto;padding:16px;}
     <div class="sec-hdr">Menu</div>
     <div class="dash-grid">
       <div class="dash-tile" onclick="showSection('calendar')">
-        <img class="dash-tile-icon" src="icons/icon-ch-calendar.png" alt="Calendar" onerror="this.style.display='none'">
+        <img class="dash-tile-icon" src="icons/icon-calendar.png" alt="Calendar" onerror="this.style.display='none'">
         <div class="dash-tile-title">Calendar</div>
         <div class="dash-tile-sub">Your schedule</div>
       </div>
@@ -208,6 +224,14 @@ main{max-width:520px;margin:0 auto;padding:16px;}
   <div id="section-calendar" class="hidden">
     <div class="back-link" onclick="showDashboard()">&lsaquo; Dashboard</div>
     <div class="sec-hdr" style="margin-top:0;">Calendar</div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="chCalPrev()">&#8249;</button>
+      <div class="cal-nav-label" id="ch-cal-nav-label">—</div>
+      <button class="cal-nav-btn" onclick="chCalNext()">&#8250;</button>
+    </div>
+    <div class="cal-grid" id="ch-cal-grid-hdr"></div>
+    <div class="cal-grid" id="ch-cal-grid-body"></div>
+    <div class="cal-day-detail-hdr" id="ch-cal-day-label"></div>
     <div id="calendar-list"></div>
   </div>
 
@@ -501,17 +525,50 @@ function renderAssignedList(){
 }
 
 // ═══════════════════════════════════════════════════════════
-// CALENDAR - a simple schedule view: everything assigned plus everything the client's
-// logged themselves, most recent first. Read-only for now - logging cardio/activities
-// from in here is a follow-up once the workout builders support cardio-style exercises.
+// CALENDAR - month view. Everything assigned plus everything the client's logged
+// themselves shows as a dot on its date; tapping a day lists that day's sessions below.
+// Read-only for now - logging cardio/activities from in here is a follow-up.
 // ═══════════════════════════════════════════════════════════
+let chCalRefDate = new Date();
+let chSelectedDate = new Date().toISOString().split("T")[0];
+function chDateKey(y,m,d){ return new Date(y,m,d).toISOString().split("T")[0]; }
+function chDaySessions(dateStr){
+  return (clientRecord.sessions||[]).filter(s=>s.date===dateStr);
+}
+function chCalPrev(){ chCalRefDate.setMonth(chCalRefDate.getMonth()-1); renderCalendarList(); }
+function chCalNext(){ chCalRefDate.setMonth(chCalRefDate.getMonth()+1); renderCalendarList(); }
+function chCalSelectDay(dateStr){ chSelectedDate = dateStr; renderCalendarList(); }
 function renderCalendarList(){
-  const sessions = (clientRecord.sessions||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
-  document.getElementById("calendar-list").innerHTML = sessions.length ? sessions.map(s=>`
+  const todayStr = new Date().toISOString().split("T")[0];
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const y = chCalRefDate.getFullYear(), m = chCalRefDate.getMonth();
+
+  document.getElementById("ch-cal-nav-label").textContent = chCalRefDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  document.getElementById("ch-cal-grid-hdr").innerHTML = dayNames.map(d=>`<div class="cal-day-hdr">${d}</div>`).join("");
+
+  const firstDow = new Date(y,m,1).getDay();
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  let cells = "";
+  for(let i=0;i<firstDow;i++) cells += `<div class="cal-day pad"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds = chDateKey(y,m,d);
+    const sess = chDaySessions(ds);
+    const dots = sess.slice(0,4).map(s=>`<span class="cal-dot" style="background:${s.assignedByCoach ? 'var(--red2)' : 'var(--t3)'}"></span>`).join("");
+    cells += `<div class="cal-day ${ds===todayStr?'today':''} ${ds===chSelectedDate?'selected':''}" onclick="chCalSelectDay('${ds}')">
+      <span class="cal-day-num">${d}</span>
+      <div class="cal-dots">${dots}</div>
+    </div>`;
+  }
+  document.getElementById("ch-cal-grid-body").innerHTML = cells;
+
+  const selDateObj = new Date(chSelectedDate+"T00:00:00");
+  document.getElementById("ch-cal-day-label").textContent = selDateObj.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+  const daySess = chDaySessions(chSelectedDate);
+  document.getElementById("calendar-list").innerHTML = daySess.length ? daySess.map(s=>`
     <div class="list-row" onclick="window.location.href='client-workout-tracker.html'">
       <div class="list-row-name">${s.name||"Workout"}</div>
-      <div class="list-row-sub">${s.date||""} · ${s.assignedByCoach ? "PT Workout" : "Client Workout"} · ${s.status==="completed" ? "Done" : "Planned"}</div>
-    </div>`).join("") : '<div class="empty-note">Nothing on your calendar yet</div>';
+      <div class="list-row-sub">${s.assignedByCoach ? "PT Workout" : "Client Workout"} · ${s.status==="completed" ? "Done" : "Planned"}</div>
+    </div>`).join("") : '<div class="empty-note">Nothing on this day</div>';
 }
 
 // ═══════════════════════════════════════════════════════════
