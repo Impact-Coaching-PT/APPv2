@@ -419,7 +419,9 @@ async function pullMyData(){
     const res = await fetch(SCRIPT_URL + "?action=client&id=" + encodeURIComponent(id));
     const data = await res.json();
     if(!data.ok){ document.getElementById("pin-error").textContent = "Couldn't find your account."; return; }
+    const previousMessages = (clientRecord && clientRecord.messages) || null;
     clientRecord = data.data;
+    if(!clientRecord.messages && previousMessages) clientRecord.messages = previousMessages;
     localStorage.setItem(LOCAL_KEY+"-data", JSON.stringify(clientRecord));
     if(document.getElementById("dashboard").classList.contains("hidden")===false){
       renderDashboardData();
@@ -512,18 +514,24 @@ async function sendMessage(){
   const input = document.getElementById("msg-input");
   const text = input.value.trim();
   if(!text) return;
-  const msg = { from:"client", text, ts:new Date().toISOString(), readByClient:true };
+  const msg = { from:"client", text, ts:new Date().toISOString(), readByClient:true, readByCoach:false };
   clientRecord.messages = clientRecord.messages || [];
   clientRecord.messages.push(msg);
   localStorage.setItem(LOCAL_KEY+"-data", JSON.stringify(clientRecord));
   input.value = "";
   renderMessages();
   renderMsgStrip();
-  if(SCRIPT_URL){
-    try{
-      await fetch(SCRIPT_URL + "?action=sendMessage&id=" + encodeURIComponent(getClientId()) + "&from=client&text=" + encodeURIComponent(text));
-    }catch(e){ toast("Couldn't send - will retry when you're back online"); }
-  }
+  await syncMessages();
+}
+async function syncMessages(){
+  if(!SCRIPT_URL) return;
+  try{
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify({ action: "saveClient", client: clientRecord.client, sessions: clientRecord.sessions, messages: clientRecord.messages })
+    });
+  }catch(e){ toast("Couldn't send - will retry when you're back online"); }
 }
 function markMessagesRead(){
   const msgs = getMessages();
@@ -532,9 +540,7 @@ function markMessagesRead(){
   if(changed){
     localStorage.setItem(LOCAL_KEY+"-data", JSON.stringify(clientRecord));
     renderMsgStrip();
-    if(SCRIPT_URL){
-      fetch(SCRIPT_URL + "?action=markMessagesRead&id=" + encodeURIComponent(getClientId())).catch(()=>{});
-    }
+    syncMessages();
   }
   renderMessages();
 }
