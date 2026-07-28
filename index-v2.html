@@ -1095,7 +1095,7 @@ let currentClientId = null;
 let currentFilter = "all";
 let calMode = "month";
 let calRefDate = new Date();
-let selectedDate = new Date().toISOString().split("T")[0];
+let selectedDate = todayKey();
 
 function loadDB(){
   try{
@@ -2076,7 +2076,8 @@ function daySessions(dateStr){
   });
   return out;
 }
-function dateKey(y,m,d){ return new Date(y,m,d).toISOString().split("T")[0]; }
+function dateKey(y,m,d){ return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); }
+function todayKey(){ const n=new Date(); return dateKey(n.getFullYear(), n.getMonth(), n.getDate()); }
 
 function setCalMode(mode){ calMode = mode; renderCalendar(); }
 function calPrev(){
@@ -2097,7 +2098,7 @@ function renderCalendar(){
   document.getElementById("cal-month-view").style.display = calMode==="month" ? "block" : "none";
   document.getElementById("cal-week-view").style.display = calMode==="week" ? "block" : "none";
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = todayKey();
   const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
   if(calMode==="month"){
@@ -2125,7 +2126,7 @@ function renderCalendar(){
     const week = [...Array(7)].map((_,i)=>{ const d=new Date(d0); d.setDate(d0.getDate()+i); return d; });
     document.getElementById("cal-nav-label").textContent = week[0].toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" – "+week[6].toLocaleDateString("en-GB",{day:"numeric",month:"short"});
     document.getElementById("cal-week-row").innerHTML = week.map(d=>{
-      const ds = d.toISOString().split("T")[0];
+      const ds = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
       const sess = daySessions(ds);
       const dots = sess.slice(0,4).map(s=>`<span class="cal-dot" style="background:${s.tag}"></span>`).join("");
       return `<div class="cal-week-day ${ds===todayStr?'today':''} ${ds===selectedDate?'selected':''}" onclick="calSelectDay('${ds}')">
