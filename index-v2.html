@@ -47,7 +47,9 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
 .sync-dot.live{background:var(--green);box-shadow:0 0 0 0 var(--green);animation:pulse 2.4s infinite;}
 .sync-dot.stale{background:var(--yellow);}
 .sync-dot.off{background:var(--red);}
+.sync-dot.busy{background:var(--blue);box-shadow:0 0 0 0 var(--blue);animation:pulse-busy 1s infinite;}
 @keyframes pulse{0%{box-shadow:0 0 0 0 #3ae87a55;}70%{box-shadow:0 0 0 6px #3ae87a00;}100%{box-shadow:0 0 0 0 #3ae87a00;}}
+@keyframes pulse-busy{0%{box-shadow:0 0 0 0 #4a90e855;}70%{box-shadow:0 0 0 6px #4a90e800;}100%{box-shadow:0 0 0 0 #4a90e800;}}
 .icon-btn{width:36px;height:36px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--bd);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
 
 /* ============ PAGES ============ */
@@ -366,8 +368,8 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     </div>
   </div>
   <div class="hdr-actions">
-    <button class="icon-btn" onclick="pullFromDrive()" title="Pull from Drive">⬇️</button>
-    <button class="icon-btn" onclick="saveToDrive()" title="Save to Drive">💾</button>
+    <button class="icon-btn" onclick="pullFromDrive()" title="Pull from Drive"><img src="icons/icon-pull.png" alt="Pull" style="width:22px;height:22px;object-fit:contain;"></button>
+    <button class="icon-btn" onclick="saveToDrive()" title="Save to Drive"><img src="icons/icon-save.png" alt="Save" style="width:22px;height:22px;object-fit:contain;"></button>
     <div class="sync-pill" id="sync-pill" onclick="nav('settings')">
       <span class="sync-dot off" id="sync-dot"></span>
       <span id="sync-txt">Not connected</span>
@@ -2158,12 +2160,20 @@ function renderCalendar(){
 // ═══════════════════════════════════════════════════════════
 function renderAll(){ renderHeader(); renderDash(); }
 
+let syncState = "idle"; // idle | pulling | saving | error
 function renderHeader(){
   const dot = document.getElementById("sync-dot");
   const txt = document.getElementById("sync-txt");
-  if(!DB.settings.scriptUrl){ dot.className="sync-dot off"; txt.textContent="Not connected"; }
-  else if(DB.settings.lastSync){ dot.className="sync-dot live"; txt.textContent="Synced"; }
-  else { dot.className="sync-dot stale"; txt.textContent="Connected"; }
+  if(syncState === "pulling"){ dot.className="sync-dot busy"; txt.textContent="Pulling…"; return; }
+  if(syncState === "saving"){ dot.className="sync-dot busy"; txt.textContent="Saving…"; return; }
+  if(syncState === "error"){ dot.className="sync-dot off"; txt.textContent="Sync failed"; return; }
+  if(!DB.settings.scriptUrl){ dot.className="sync-dot off"; txt.textContent="Not connected"; return; }
+  if(DB.settings.lastSync){
+    dot.className = "sync-dot live";
+    txt.textContent = "Synced " + new Date(DB.settings.lastSync).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    return;
+  }
+  dot.className="sync-dot stale"; txt.textContent="Connected";
 }
 
 function renderDash(){
@@ -2679,22 +2689,43 @@ function saveScriptUrl(){
   saveDB(); renderHeader();
   toast(url ? "Script URL saved" : "No URL set");
 }
+// Pull/Save both used to call saveScriptUrl() blindly, which overwrites the saved URL with
+// whatever's in the Settings page's input box - even if that box was never filled in this
+// session (it only gets populated when you actually visit Settings). Hitting Pull/Save from
+// the header on any other page wiped the real URL with that blank value. This only adopts a
+// new URL if something was actually typed there; otherwise it leaves the saved one alone.
+function adoptTypedUrlIfAny(){
+  const inp = document.getElementById("script-url-inp");
+  const typed = inp ? inp.value.trim() : "";
+  if(typed && typed !== DB.settings.scriptUrl){
+    DB.settings.scriptUrl = typed;
+    localStorage.setItem(URL_KEY, typed);
+    saveDB();
+  }
+}
 
-function setSyncing(isSyncing){
+function setSyncing(isSyncing, mode){
   document.getElementById("btn-pull").disabled = isSyncing;
   document.getElementById("btn-save").disabled = isSyncing;
+  if(isSyncing){ syncState = mode; } // "pulling" or "saving"
+  else if(syncState !== "error"){ syncState = "idle"; }
+  renderHeader();
+}
+function flagSyncError(){
+  syncState = "error";
+  renderHeader();
+  setTimeout(()=>{ if(syncState==="error"){ syncState="idle"; renderHeader(); } }, 4000);
 }
 
 async function pullFromDrive(){
-  saveScriptUrl();
+  adoptTypedUrlIfAny();
   const url = DB.settings.scriptUrl;
   if(!url){ toast("Paste your Script URL first"); return; }
-  setSyncing(true);
-  toast("Pulling from Drive…");
+  setSyncing(true, "pulling");
   try{
     const res = await fetch(url + "?action=pullAll");
     const data = await res.json();
-    if(!data.ok){ toast("Pull failed: "+(data.error||"unknown error")); setSyncing(false); return; }
+    if(!data.ok){ toast("Pull failed: "+(data.error||"unknown error")); flagSyncError(); setSyncing(false); return; }
     // coachSeen (has he already noticed this completed session?) is local bookkeeping only -
     // the backend doesn't store it, so carry it over for sessions that already exist here,
     // and only flag a session as a fresh notification if it's genuinely new since last pull
@@ -2727,16 +2758,16 @@ async function pullFromDrive(){
     toast("Pulled "+DB.clients.length+" clients from Drive ✓");
   }catch(err){
     toast("Pull failed — check the Script URL and try again");
+    flagSyncError();
   }
   setSyncing(false);
 }
 
 async function saveToDrive(){
-  saveScriptUrl();
+  adoptTypedUrlIfAny();
   const url = DB.settings.scriptUrl;
   if(!url){ toast("Paste your Script URL first"); return; }
-  setSyncing(true);
-  toast("Saving to Drive…");
+  setSyncing(true, "saving");
   try{
     const payload = {
       action: "pushAll",
@@ -2752,13 +2783,13 @@ async function saveToDrive(){
       body: JSON.stringify(payload)
     });
     const data = await res.json();
-    if(!data.ok){ toast("Save failed: "+(data.error||"unknown error")); setSyncing(false); return; }
+    if(!data.ok){ toast("Save failed: "+(data.error||"unknown error")); flagSyncError(); setSyncing(false); return; }
     DB.settings.lastSync = new Date().toISOString();
     saveDB();
-    renderHeader();
     toast("Saved to Drive ✓");
   }catch(err){
     toast("Save failed — check the Script URL and try again");
+    flagSyncError();
   }
   setSyncing(false);
 }
