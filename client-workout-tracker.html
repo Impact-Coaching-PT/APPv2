@@ -976,11 +976,16 @@ function injectAssignedWorkouts(){
       assignedByCoach: true,
       title: s.name || 'Assigned Workout',
       exercises: (s.rows||[]).map(function(row){
+        // Prefer the coach's real per-set data (row.sets, e.g. 3 sets built in the Workout Builder).
+        // Fall back to synthesizing one set from target/scheme only for older sessions that predate row.sets.
+        var sourceSets = (row.sets && row.sets.length) ? row.sets : [{ kg: row.target||'', reps: (row.scheme||'').split('×')[1]||'' }];
         return {
           exerciseId: 'coach-' + (row.exerciseName||'').replace(/\s+/g,'-').toLowerCase(),
           name: row.exerciseName,
           cat: 'fullbody',
-          sets: [{ plannedWeight: row.target||'', plannedReps: (row.scheme||'').split('×')[1]||'' }]
+          sets: sourceSets.map(function(set){
+            return { plannedWeight: set.kg||'', plannedReps: set.reps||'' };
+          })
         };
       })
     });
@@ -1761,7 +1766,11 @@ function startPlannedWorkout(planId){
         name: ex.name,
         cat: ex.cat,
         plannedSets: ex.sets.map(function(s){ return {weight: s.plannedWeight, reps: s.plannedReps}; }),
-        sets: ex.sets.map(function(){ return {weight:'', reps:''}; })
+        sets: ex.sets.map(function(s){
+          return plan.assignedByCoach
+            ? { weight: s.plannedWeight||'', reps: s.plannedReps||'' }
+            : { weight:'', reps:'' };
+        })
       };
     })
   };
