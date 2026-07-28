@@ -530,8 +530,9 @@ function renderAssignedList(){
 // Read-only for now - logging cardio/activities from in here is a follow-up.
 // ═══════════════════════════════════════════════════════════
 let chCalRefDate = new Date();
-let chSelectedDate = new Date().toISOString().split("T")[0];
-function chDateKey(y,m,d){ return new Date(y,m,d).toISOString().split("T")[0]; }
+function chDateKey(y,m,d){ return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); }
+function chTodayKey(){ const n=new Date(); return chDateKey(n.getFullYear(), n.getMonth(), n.getDate()); }
+let chSelectedDate = chTodayKey();
 function chDaySessions(dateStr){
   return (clientRecord.sessions||[]).filter(s=>s.date===dateStr);
 }
@@ -539,7 +540,7 @@ function chCalPrev(){ chCalRefDate.setMonth(chCalRefDate.getMonth()-1); renderCa
 function chCalNext(){ chCalRefDate.setMonth(chCalRefDate.getMonth()+1); renderCalendarList(); }
 function chCalSelectDay(dateStr){ chSelectedDate = dateStr; renderCalendarList(); }
 function renderCalendarList(){
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = chTodayKey();
   const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   const y = chCalRefDate.getFullYear(), m = chCalRefDate.getMonth();
 
