@@ -986,6 +986,7 @@ async function syncWorkoutCompletion(sess){
       name: sess.title || 'Workout',
       status: 'completed',
       assignedByCoach: false,
+      loggedBy: 'client',
       rows: sess.exercises.map(function(ex){
         if(ex.cat === 'cardio'){
           // Cardio has its own shape (distance/bpm, not weight/reps) - tagged with cat so
@@ -2061,8 +2062,24 @@ if(store.profiles.length > 0 && (!store.activeId || !getActiveProfile())){
 if(store.profiles.length > 0 && getActiveProfile()){
   injectAssignedWorkouts();
   enterApp();
+  openDeepLinkedSessionIfAny();
 } else {
   showProfileScreen();
+}
+// Client Hub's Calendar/Assigned lists link here with ?openSession=<id> so tapping a
+// session actually shows what was done, instead of just landing on the dashboard.
+// The id could be either a PT-App session id (assigned workouts, matched via ptSessionId)
+// or a "client-<localId>" id (self-built ones synced back, per syncWorkoutCompletion).
+function openDeepLinkedSessionIfAny(){
+  var targetId = new URLSearchParams(location.search).get('openSession');
+  if(!targetId) return;
+  var p = getActiveProfile();
+  var localId = targetId.indexOf('client-') === 0 ? targetId.slice(7) : targetId;
+  var sess = (p.sessions||[]).find(function(s){ return s.id === localId || s.ptSessionId === targetId; });
+  if(sess){ openSessionDetail(sess.id); return; }
+  var plan = (p.plannedWorkouts||[]).find(function(pl){ return pl.ptSessionId === targetId; });
+  if(plan){ openPlanDetail(plan.id); return; }
+  toast("Couldn't find that workout on this device");
 }
 </script>
 </body>

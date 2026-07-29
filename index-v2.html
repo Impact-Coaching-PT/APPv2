@@ -1418,9 +1418,9 @@ function saveWorkout(){
   }));
   if(wbEditingSessionId){
     const s = DB.sessions.find(x=>x.id===wbEditingSessionId);
-    if(s){ s.name=title; s.date=date; s.rows=rows; s.assignedByCoach=wbAssign; }
+    if(s){ s.name=title; s.date=date; s.rows=rows; s.assignedByCoach=wbAssign; s.loggedBy="coach"; }
   } else {
-    DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows, assignedByCoach:wbAssign });
+    DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows, assignedByCoach:wbAssign, loggedBy:"coach" });
   }
   saveDB();
   toast(wbAssign ? "Assigned to "+getClient(builderClientId).name : "Workout saved to "+getClient(builderClientId).name);
@@ -2068,7 +2068,7 @@ function daySessions(dateStr){
     // Client-built sessions the client logged themselves don't belong on the calendar -
     // only sessions the coach actually scheduled/assigned show here. (Missing the field
     // entirely means an older session logged directly in the PT-App - still shows.)
-    if(s.assignedByCoach === false) return;
+    if(s.loggedBy === "client") return;
     const c = getClient(s.clientId);
     out.push({name:(s.name||"Session")+(c?" — "+c.name:""), status:s.status, tag:c?tagColor(c.trainingCat):"#68687c", meno:false});
   });
@@ -2382,7 +2382,7 @@ function renderClientDetail(){
       <div class="tl-dot-wrap"><div class="tl-dot ${s.status==='completed'?'done':'planned'}"></div>${i<sess.length-1?'<div class="tl-line"></div>':''}</div>
       <div class="tl-body">
         <div class="tl-name">${s.name||"Session"}</div>
-        <div class="tl-meta">${fmtDate(s.date)} · ${s.assignedByCoach ? 'PT Workout' : 'Client Workout'}</div>
+        <div class="tl-meta">${fmtDate(s.date)} · ${s.loggedBy === "client" ? "Client Workout" : "PT Workout"}</div>
       </div>
       <div class="tl-badge ${s.status==='completed'?'done':'planned'}">${s.status==='completed'?'Done':'Planned'}</div>
     </div>`).join("") : '<div class="empty-good">No sessions logged yet</div>';
@@ -2455,7 +2455,7 @@ function openCdSessionView(sessId){
   cdSvClientId = s.clientId;
   cdSvStatus = s.status || "planned";
   document.getElementById("cd-sv-title").textContent = s.name || "Session";
-  document.getElementById("cd-sv-date").textContent = fmtDate(s.date) + " · " + (s.assignedByCoach ? "PT Workout" : "Client Workout");
+  document.getElementById("cd-sv-date").textContent = fmtDate(s.date) + " · " + (s.loggedBy === "client" ? "Client Workout" : "PT Workout");
   setCdSvStatus(cdSvStatus);
 
   svDraft = (s.rows||[]).map(r=>{

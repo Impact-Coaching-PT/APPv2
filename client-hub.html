@@ -518,7 +518,7 @@ function renderDashboardData(){
 function renderAssignedList(){
   const assigned = (clientRecord.sessions||[]).filter(s=>s.status==="planned" && s.assignedByCoach);
   document.getElementById("assigned-list").innerHTML = assigned.length ? assigned.map(s=>`
-    <div class="list-row" onclick="window.location.href='client-workout-tracker.html'">
+    <div class="list-row" onclick="window.location.href='client-workout-tracker.html?openSession='+encodeURIComponent('${s.id}')">
       <div class="list-row-name">${s.name||"Workout"}</div>
       <div class="list-row-sub">${s.date||""}</div>
     </div>`).join("") : '<div class="empty-note">Nothing assigned right now</div>';
@@ -566,9 +566,9 @@ function renderCalendarList(){
   document.getElementById("ch-cal-day-label").textContent = selDateObj.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
   const daySess = chDaySessions(chSelectedDate);
   document.getElementById("calendar-list").innerHTML = daySess.length ? daySess.map(s=>`
-    <div class="list-row" onclick="window.location.href='client-workout-tracker.html'">
+    <div class="list-row" onclick="window.location.href='client-workout-tracker.html?openSession='+encodeURIComponent('${s.id}')">
       <div class="list-row-name">${s.name||"Workout"}</div>
-      <div class="list-row-sub">${s.assignedByCoach ? "PT Workout" : "Client Workout"} · ${s.status==="completed" ? "Done" : "Planned"}</div>
+      <div class="list-row-sub">${s.loggedBy === "client" ? "Client Workout" : "PT Workout"} · ${s.status==="completed" ? "Done" : "Planned"}</div>
     </div>`).join("") : '<div class="empty-note">Nothing on this day</div>';
 }
 
