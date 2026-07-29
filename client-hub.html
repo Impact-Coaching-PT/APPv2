@@ -116,6 +116,13 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 .msg-strip-title{font-family:var(--disp);font-size:13px;font-weight:700;text-transform:uppercase;}
 .msg-strip-sub{font-size:11px;color:var(--t3);font-family:monospace;}
 .msg-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;max-height:55vh;overflow-y:auto;}
+
+/* SESSION VIEW */
+.sv-ex-card{background:var(--bg2);border:1.5px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:10px;}
+.sv-ex-name{font-family:var(--disp);font-weight:700;font-size:14px;margin-bottom:8px;}
+.sv-set-row{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);padding:6px 0;border-top:1px solid var(--bd2);}
+.sv-set-row:first-of-type{border-top:none;}
+.sv-set-num{color:var(--t3);font-family:monospace;}
 .msg-bubble{max-width:78%;padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.5;}
 .msg-bubble-me{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:4px;}
 .msg-bubble-them{align-self:flex-start;background:var(--bg2);border:1.5px solid var(--bd);color:var(--t);border-bottom-left-radius:4px;}
@@ -315,6 +322,15 @@ main{max-width:520px;margin:0 auto;padding:16px;}
       <textarea id="msg-input" placeholder="Message Ritchie..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
       <button onclick="sendMessage()">Send</button>
     </div>
+  </div>
+
+  <!-- SESSION DETAIL - shows a completed workout straight from the synced record, no
+       dependency on the Workout Tracker app having its own local copy of it -->
+  <div id="section-session-view" class="hidden">
+    <div class="back-link" onclick="showDashboard()">&lsaquo; Back</div>
+    <div class="sec-hdr" style="margin-top:0;" id="session-view-title">Workout</div>
+    <div id="session-view-sub" style="font-size:12px;color:var(--t3);margin:-14px 0 16px;"></div>
+    <div id="session-view-body"></div>
   </div>
 </main>
 
@@ -566,10 +582,41 @@ function renderCalendarList(){
   document.getElementById("ch-cal-day-label").textContent = selDateObj.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
   const daySess = chDaySessions(chSelectedDate);
   document.getElementById("calendar-list").innerHTML = daySess.length ? daySess.map(s=>`
-    <div class="list-row" onclick="window.location.href='client-workout-tracker.html?openSession='+encodeURIComponent('${s.id}')">
+    <div class="list-row" onclick="${s.status==='completed' ? `openSessionDetailModal('${s.id}')` : `window.location.href='client-workout-tracker.html?openSession='+encodeURIComponent('${s.id}')`}">
       <div class="list-row-name">${s.name||"Workout"}</div>
       <div class="list-row-sub">${s.loggedBy === "client" ? "Client Workout" : "PT Workout"} · ${s.status==="completed" ? "Done" : "Planned"}</div>
     </div>`).join("") : '<div class="empty-note">Nothing on this day</div>';
+}
+
+// Shows a completed session straight from the synced record (clientRecord.sessions),
+// whether it was built/logged by the coach or by the client themselves - no dependency
+// on the Workout Tracker app having its own local copy, which it may well not.
+function openSessionDetailModal(id){
+  const s = (clientRecord.sessions||[]).find(x=>x.id===id);
+  if(!s){ toast("Couldn't find that workout"); return; }
+  document.getElementById("session-view-title").textContent = s.name || "Workout";
+  document.getElementById("session-view-sub").textContent =
+    (s.date||"") + " · " + (s.loggedBy === "client" ? "Client Workout" : "PT Workout");
+  const rows = s.rows || [];
+  document.getElementById("session-view-body").innerHTML = rows.length ? rows.map(row=>{
+    const sets = row.sets || [];
+    const setRows = sets.length ? sets.map((set,i)=>`
+      <div class="sv-set-row"><span class="sv-set-num">${i+1}</span><span>${fmtSvSet(row, set)}</span></div>
+    `).join("") : '<div class="sv-set-row"><span>No sets logged</span></div>';
+    return `<div class="sv-ex-card"><div class="sv-ex-name">${row.exerciseName||"Exercise"}</div>${setRows}</div>`;
+  }).join("") : '<div class="empty-note">No exercises recorded for this session</div>';
+  showSection("session-view");
+}
+function fmtSvSet(row, set){
+  if(row.cat === "cardio"){
+    const parts = [];
+    if(set.distance) parts.push(set.distance+"km");
+    if(set.bpm) parts.push(set.bpm+" bpm");
+    return parts.length ? parts.join(" · ") : "—";
+  }
+  const kg = set.actualKg || set.kg || "";
+  const reps = set.reps || "";
+  return (kg || reps) ? (kg+"kg × "+reps) : "—";
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -665,7 +712,7 @@ function renderAboutFaq(){
 }
 
 function showSection(id){
-  ["dashboard","section-assigned","section-links","section-about","section-settings","section-messages","section-calendar"].forEach(s=>
+  ["dashboard","section-assigned","section-links","section-about","section-settings","section-messages","section-calendar","section-session-view"].forEach(s=>
     document.getElementById(s).classList.add("hidden"));
   document.getElementById(id==="dashboard" ? "dashboard" : "section-"+id).classList.remove("hidden");
   if(id==="messages") markMessagesRead();

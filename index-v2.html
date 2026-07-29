@@ -2070,7 +2070,7 @@ function daySessions(dateStr){
     // entirely means an older session logged directly in the PT-App - still shows.)
     if(s.loggedBy === "client") return;
     const c = getClient(s.clientId);
-    out.push({name:(s.name||"Session")+(c?" — "+c.name:""), status:s.status, tag:c?tagColor(c.trainingCat):"#68687c", meno:false});
+    out.push({name:(s.name||"Session")+(c?" — "+c.name:""), status:s.status, tag:c?tagColor(c.trainingCat):"#68687c", meno:false, loggedBy:s.loggedBy});
   });
   (DB.menoSessions||[]).forEach(m=>{
     if(m.date!==dateStr) return;
@@ -2148,7 +2148,7 @@ function renderCalendar(){
         <span class="day-sess-dot" style="background:${s.tag}"></span>
         <div style="flex:1;min-width:0;">
           <div class="day-sess-name">${s.name}</div>
-          <div class="day-sess-meta">${s.meno?'MenoFit small-group block':'Client session'}</div>
+          <div class="day-sess-meta">${s.meno?'MenoFit small-group block':(s.loggedBy==='client'?'Client session':'PT session')}</div>
         </div>
         <span class="day-sess-badge ${s.meno?'meno':s.status==='completed'?'done':'planned'}">${s.meno?'MenoFit':s.status==='completed'?'Done':'Planned'}</span>
       </div>`).join("") : '<div class="empty-good">Nothing booked in</div>'}
