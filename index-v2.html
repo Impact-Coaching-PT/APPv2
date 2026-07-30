@@ -547,11 +547,20 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     <label class="lbl">Date</label>
     <input class="inp" id="wb-date" type="date">
 
+    <div class="meno-radio-row" style="margin:16px 0 10px;">
+      <div class="meno-radio-opt act" id="wb-mode-solo" onclick="setWb2to1(false)">Solo</div>
+      <div class="meno-radio-opt" id="wb-mode-pair" onclick="setWb2to1(true)">👥 2:1 Session</div>
+    </div>
+    <div id="wb-client2-wrap" style="display:none;margin-bottom:16px;">
+      <label class="lbl">Second Client</label>
+      <div class="bld-client-strip" id="wb-client2-strip"></div>
+    </div>
+
     <div id="wb-exercise-cards"></div>
 
     <button class="btn btn-gh" onclick="openExercisePicker('create')">+ Add Exercise</button>
 
-    <div class="meno-radio-row" style="margin:16px 0;">
+    <div class="meno-radio-row" id="wb-assign-row" style="margin:16px 0;">
       <div class="meno-radio-opt" id="wb-assign-off" onclick="setWbAssign(false)">Save Only</div>
       <div class="meno-radio-opt" id="wb-assign-on" onclick="setWbAssign(true)">📤 Assign to Client</div>
     </div>
@@ -1293,10 +1302,37 @@ function renderBuilderClientArea(){
 
 // ── Create Workout modal ──
 let wbAssign = false;
+let wb2to1 = false;
+let builderClientId2 = null;
 function setWbAssign(on){
   wbAssign = on;
   document.getElementById("wb-assign-off").classList.toggle("act", !on);
   document.getElementById("wb-assign-on").classList.toggle("act", on);
+}
+function setWb2to1(on){
+  wb2to1 = on;
+  document.getElementById("wb-mode-solo").classList.toggle("act", !on);
+  document.getElementById("wb-mode-pair").classList.toggle("act", on);
+  document.getElementById("wb-client2-wrap").style.display = on ? "block" : "none";
+  // 2:1 sessions are always logged live, not assigned - hide that choice entirely rather
+  // than leave a selectable option that doesn't apply
+  document.getElementById("wb-assign-row").style.display = on ? "none" : "flex";
+  if(on){ setWbAssign(false); } else { builderClientId2 = null; }
+  renderWbClient2Strip();
+  renderWbExerciseCards();
+}
+function renderWbClient2Strip(){
+  if(!wb2to1) return;
+  const active = DB.clients.filter(c=>!c.archived && c.id!==builderClientId);
+  document.getElementById("wb-client2-strip").innerHTML = active.map(c=>`
+    <div class="bld-client-chip ${c.id===builderClientId2?'act':''}" style="--tag:${tagColor(c.trainingCat)}" onclick="selectBuilderClient2('${c.id}')">
+      <span class="bld-client-av" style="color:${tagColor(c.trainingCat)}">${initials(c.name)}</span>${c.name}
+    </div>`).join("") || '<div class="empty-good">No other clients available</div>';
+}
+function selectBuilderClient2(id){
+  builderClientId2 = id;
+  renderWbClient2Strip();
+  renderWbExerciseCards();
 }
 function openCreateWorkoutModal(quickStart){
   if(!builderClientId){ toast("Pick a client first"); return; }
@@ -1305,6 +1341,7 @@ function openCreateWorkoutModal(quickStart){
   document.getElementById("wb-title").value = wbDraft.title;
   document.getElementById("wb-date").value = wbDraft.date;
   setWbAssign(false);
+  setWb2to1(false);
   renderWbExerciseCards();
   document.getElementById("wb-create-modal").classList.add("show");
 }
@@ -1313,39 +1350,65 @@ function closeCreateWorkoutModal(){
 }
 function renderWbExerciseCards(){
   const el = document.getElementById("wb-exercise-cards");
+  const nameA = getClient(builderClientId)?.name || "Client";
+  const nameB = wb2to1 ? (getClient(builderClientId2)?.name || "Second client") : null;
   el.innerHTML = wbDraft.exercises.length ? wbDraft.exercises.map((ex,i)=>{
-    const lw = lastWeights(builderClientId, ex.name)[0];
-    const setsHtml = ex.sets.map((s,si)=>`
-      <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px;">
-        <div style="width:24px;height:24px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-family:var(--font-mono);flex-shrink:0;">${si+1}</div>
-        <input class="plan-field-inp" placeholder="planned kg" value="${s.kg}" oninput="updateWbSet(${i},${si},'kg',this.value)" style="flex:1;">
-        <input class="plan-field-inp" placeholder="planned reps" value="${s.reps}" oninput="updateWbSet(${i},${si},'reps',this.value)" style="flex:1;">
-        <button class="ex-add-btn" style="background:none;color:var(--red);font-size:14px;" onclick="removeWbSetRow(${i},${si})">✕</button>
-      </div>`).join("");
+    const lwA = lastWeights(builderClientId, ex.name)[0];
+    const lwB = wb2to1 && builderClientId2 ? lastWeights(builderClientId2, ex.name)[0] : null;
+    const setsHtmlA = renderWbSetRows(ex.sets, i, 'A');
+    if(wb2to1){
+      const setsHtmlB = renderWbSetRows(ex.sets2||[], i, 'B');
+      return `
+      <div class="plan-row">
+        <div class="plan-row-top">
+          <span class="plan-row-name">${ex.name}</span>
+          <button class="plan-row-rm" onclick="removeWbExercise(${i})">✕</button>
+        </div>
+        <div class="pg-sub" style="margin-bottom:4px;font-weight:700;">${nameA}${lwA ? " — Last: "+lwA.weight+"kg ("+fmtDate(lwA.date)+")" : " — No history yet"}</div>
+        ${setsHtmlA}
+        <button class="btn btn-gh" style="margin:6px 0 14px;padding:8px;font-size:12.5px;" onclick="addWbSetRow(${i},'A')">+ Reps & Sets (${nameA})</button>
+        <div class="pg-sub" style="margin-bottom:4px;font-weight:700;">${nameB}${lwB ? " — Last: "+lwB.weight+"kg ("+fmtDate(lwB.date)+")" : " — No history yet"}</div>
+        ${setsHtmlB}
+        <button class="btn btn-gh" style="margin-bottom:0;padding:8px;font-size:12.5px;" onclick="addWbSetRow(${i},'B')">+ Reps & Sets (${nameB})</button>
+      </div>`;
+    }
     return `
     <div class="plan-row">
       <div class="plan-row-top">
         <span class="plan-row-name">${ex.name}</span>
         <button class="plan-row-rm" onclick="removeWbExercise(${i})">✕</button>
       </div>
-      <div class="pg-sub" style="margin-bottom:8px;">${lw ? "Last: "+lw.weight+"kg ("+fmtDate(lw.date)+")" : "No history yet for this exercise"}</div>
-      ${setsHtml}
-      <button class="btn btn-gh" style="margin-bottom:0;" onclick="addWbSetRow(${i})">+ Reps & Sets</button>
+      <div class="pg-sub" style="margin-bottom:8px;">${lwA ? "Last: "+lwA.weight+"kg ("+fmtDate(lwA.date)+")" : "No history yet for this exercise"}</div>
+      ${setsHtmlA}
+      <button class="btn btn-gh" style="margin-bottom:0;" onclick="addWbSetRow(${i},'A')">+ Reps & Sets</button>
     </div>`;
   }).join("") : '<div class="empty-good" style="margin-bottom:14px;">No exercises yet — tap "+ Add Exercise" below</div>';
 }
-function addWbSetRow(exIdx){
-  const sets = wbDraft.exercises[exIdx].sets;
+function renderWbSetRows(sets, exIdx, which){
+  return (sets||[]).map((s,si)=>`
+    <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px;">
+      <div style="width:24px;height:24px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-family:var(--font-mono);flex-shrink:0;">${si+1}</div>
+      <input class="plan-field-inp" placeholder="planned kg" value="${s.kg}" oninput="updateWbSet(${exIdx},${si},'kg',this.value,'${which}')" style="flex:1;">
+      <input class="plan-field-inp" placeholder="planned reps" value="${s.reps}" oninput="updateWbSet(${exIdx},${si},'reps',this.value,'${which}')" style="flex:1;">
+      <button class="ex-add-btn" style="background:none;color:var(--red);font-size:14px;" onclick="removeWbSetRow(${exIdx},${si},'${which}')">✕</button>
+    </div>`).join("");
+}
+function addWbSetRow(exIdx, which){
+  const key = which==='B' ? 'sets2' : 'sets';
+  const ex = wbDraft.exercises[exIdx];
+  const sets = ex[key] = ex[key] || [];
   const prev = sets[sets.length-1];
   sets.push(prev ? {kg:prev.kg, reps:prev.reps} : {kg:"",reps:""});
   renderWbExerciseCards();
 }
-function removeWbSetRow(exIdx, setIdx){
-  wbDraft.exercises[exIdx].sets.splice(setIdx,1);
+function removeWbSetRow(exIdx, setIdx, which){
+  const key = which==='B' ? 'sets2' : 'sets';
+  wbDraft.exercises[exIdx][key].splice(setIdx,1);
   renderWbExerciseCards();
 }
-function updateWbSet(exIdx, setIdx, field, val){
-  wbDraft.exercises[exIdx].sets[setIdx][field] = val;
+function updateWbSet(exIdx, setIdx, field, val, which){
+  const key = which==='B' ? 'sets2' : 'sets';
+  wbDraft.exercises[exIdx][key][setIdx][field] = val;
 }
 function removeWbExercise(idx){
   wbDraft.exercises.splice(idx,1);
@@ -1378,14 +1441,17 @@ function renderWbPickList(){
   if(wbPickCat) list = list.filter(e=>e.cat===wbPickCat);
   if(q) list = list.filter(e=>e.name.toLowerCase().includes(q));
   const pickerClientId = exercisePickerCtx === "session" ? cdSvClientId : builderClientId;
+  const showPair = exercisePickerCtx !== "session" && wb2to1 && builderClientId2;
   document.getElementById("wb-pick-list").innerHTML = list.slice(0,150).map(ex=>{
     const lw = pickerClientId && lastWeights(pickerClientId, ex.name)[0];
+    const lw2 = showPair && lastWeights(builderClientId2, ex.name)[0];
     return `
     <div class="ex-row" onclick="pickWbExercise('${ex.id}')">
       <div class="ex-info">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-meta">${EX_CAT_LABELS[ex.cat]||ex.cat} · ${EQ_LABELS[ex.eq]||"Other"}</div>
-        ${lw ? `<div class="ex-lw">Last: ${lw.weight}kg (${fmtDate(lw.date)})</div>` : ""}
+        ${lw ? `<div class="ex-lw">Last${showPair?" ("+(getClient(builderClientId)?.name||"")+")":""}: ${lw.weight}kg (${fmtDate(lw.date)})</div>` : ""}
+        ${lw2 ? `<div class="ex-lw">Last (${getClient(builderClientId2)?.name||"partner"}): ${lw2.weight}kg (${fmtDate(lw2.date)})</div>` : ""}
       </div>
       <button class="ex-add-btn">＋</button>
     </div>`;
@@ -1399,7 +1465,9 @@ function pickWbExercise(exId){
     closeExercisePicker();
     renderCdSvRows();
   } else {
-    wbDraft.exercises.push({exId:ex.id, name:ex.name, sets:[{kg:"",reps:""}]});
+    const entry = {exId:ex.id, name:ex.name, sets:[{kg:"",reps:""}]};
+    if(wb2to1) entry.sets2 = [{kg:"",reps:""}];
+    wbDraft.exercises.push(entry);
     closeExercisePicker();
     renderWbExerciseCards();
   }
@@ -1407,23 +1475,50 @@ function pickWbExercise(exId){
 
 function saveWorkout(){
   if(!builderClientId){ toast("Pick a client first"); return; }
+  if(wb2to1){
+    if(!builderClientId2){ toast("Pick the second client for this 2:1 session"); return; }
+    if(builderClientId2 === builderClientId){ toast("Pick two different clients"); return; }
+  }
   if(!wbDraft.exercises.length){ toast("Add at least one exercise"); return; }
   const title = document.getElementById("wb-title").value.trim() || "Workout";
   const date = document.getElementById("wb-date").value || new Date().toISOString().split("T")[0];
-  const rows = wbDraft.exercises.map(ex=>({
-    exerciseName: ex.name,
-    scheme: ex.sets.length+"×"+(ex.sets[0]?.reps||"—"),
-    target: ex.sets[0]?.kg || "",
-    sets: ex.sets
-  }));
-  if(wbEditingSessionId){
-    const s = DB.sessions.find(x=>x.id===wbEditingSessionId);
-    if(s){ s.name=title; s.date=date; s.rows=rows; s.assignedByCoach=wbAssign; s.loggedBy="coach"; }
+
+  if(!wb2to1){
+    const rows = wbDraft.exercises.map(ex=>({
+      exerciseName: ex.name,
+      scheme: ex.sets.length+"×"+(ex.sets[0]?.reps||"—"),
+      target: ex.sets[0]?.kg || "",
+      sets: ex.sets
+    }));
+    if(wbEditingSessionId){
+      const s = DB.sessions.find(x=>x.id===wbEditingSessionId);
+      if(s){ s.name=title; s.date=date; s.rows=rows; s.assignedByCoach=wbAssign; s.loggedBy="coach"; }
+    } else {
+      DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows, assignedByCoach:wbAssign, loggedBy:"coach" });
+    }
+    saveDB();
+    toast(wbAssign ? "Assigned to "+getClient(builderClientId).name : "Workout saved to "+getClient(builderClientId).name);
   } else {
-    DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows, assignedByCoach:wbAssign, loggedBy:"coach" });
+    // 2:1 session - same exercise list, each client's own sets, two independent session
+    // records so each client's own history/Recent Progress/sync all just work unchanged -
+    // linked via clientId2 (matches the existing v1 convention for a shared session) plus
+    // an explicit linkedSessionId so the pair can be found precisely, not just by guessing.
+    const rowsFor = key => wbDraft.exercises.map(ex=>{
+      const sets = ex[key] || [{kg:"",reps:""}];
+      return {
+        exerciseName: ex.name,
+        scheme: sets.length+"×"+(sets[0]?.reps||"—"),
+        target: sets[0]?.kg || "",
+        sets: sets
+      };
+    });
+    const idA = "s"+Date.now()+"a";
+    const idB = "s"+Date.now()+"b";
+    DB.sessions.push({ id:idA, clientId:builderClientId, clientId2:builderClientId2, linkedSessionId:idB, date, name:title, status:"planned", rows:rowsFor("sets"), assignedByCoach:false, loggedBy:"coach" });
+    DB.sessions.push({ id:idB, clientId:builderClientId2, clientId2:builderClientId, linkedSessionId:idA, date, name:title, status:"planned", rows:rowsFor("sets2"), assignedByCoach:false, loggedBy:"coach" });
+    saveDB();
+    toast("Workout saved to "+getClient(builderClientId).name+" & "+getClient(builderClientId2).name);
   }
-  saveDB();
-  toast(wbAssign ? "Assigned to "+getClient(builderClientId).name : "Workout saved to "+getClient(builderClientId).name);
   closeCreateWorkoutModal();
   renderBuilderClientArea();
 }
