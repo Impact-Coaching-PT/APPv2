@@ -312,7 +312,7 @@ main{max-width:520px;margin:0 auto;padding:16px;}
     <div style="font-size:11px;color:var(--t3);line-height:1.5;margin-bottom:16px;">Just a look you like - picking a colour here doesn't mean anything about what kind of client you are.</div>
 
     <div class="sec-hdr">Your Data</div>
-    <button class="btn btn-gh" onclick="pullMyData()">⬇️ Refresh My Data</button>
+    <button class="btn btn-gh" onclick="forceFullRefresh()">⬇️ Refresh My Data</button>
     <button class="btn btn-r" onclick="downloadAllMyData()">⬇️ Download My Data</button>
     <button class="btn btn-danger" onclick="toast('Contact Ritchie to reset your PIN')">Forgot PIN?</button>
   </div>
@@ -475,6 +475,17 @@ function checkPin(){
 // ═══════════════════════════════════════════════════════════
 // DATA - pull this client's record from the shared backend
 // ═══════════════════════════════════════════════════════════
+// The button calls this, not pullMyData() directly — pullMyData() also runs
+// automatically on every app open (see the unlock flow below), so a hard reload
+// inside it would loop forever. This does the same data pull, then forces a
+// genuinely fresh reload of the page itself (bypassing any cached HTML/JS),
+// so "Refresh My Data" actually refreshes everything, not just the JSON.
+async function forceFullRefresh(){
+  toast("Refreshing…");
+  await pullMyData();
+  window.location.href = window.location.pathname + "?refresh=" + Date.now();
+}
+
 async function pullMyData(){
   const id = getClientId();
   if(!id){ document.getElementById("pin-error").textContent = "No client link found - ask Ritchie to resend your link."; return; }

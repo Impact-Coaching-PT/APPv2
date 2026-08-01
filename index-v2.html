@@ -1306,9 +1306,10 @@ function openSoon(title, sub){
 // ═══════════════════════════════════════════════════════════
 let EX_LIBRARY = [];
 function mainLib(){ return EX_LIBRARY.concat(DB.customExercises||[]); }
+const LIBRARY_VERSION = 4; // bump whenever exercises.json changes, forces a fresh fetch
 async function loadExerciseLibrary(){
   try{
-    const res = await fetch('exercises.json');
+    const res = await fetch('exercises.json?v=' + LIBRARY_VERSION, { cache: 'no-store' });
     if(!res.ok) throw new Error('not ok');
     EX_LIBRARY = await res.json();
   }catch(e){
