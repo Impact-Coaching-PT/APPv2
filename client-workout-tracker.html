@@ -733,192 +733,20 @@ function showInputModal(labelText, defaultValue, onSave){
 }
 
 /* ============ EXERCISE LIBRARY ============ */
-const EX_BUILTIN = [
-{id:"L01",name:"Barbell Back Squat",cat:"legs",m:["Quads","Glutes"],eq:"barbell"},
-{id:"L02",name:"Front Squat",cat:"legs",m:["Quads"],eq:"barbell"},
-{id:"L03",name:"Goblet Squat",cat:"legs",m:["Quads","Glutes"],eq:"dumbbell"},
-{id:"L04",name:"Leg Press",cat:"legs",m:["Quads","Glutes"],eq:"machine_plate"},
-{id:"L05",name:"Hack Squat",cat:"legs",m:["Quads"],eq:"machine_plate"},
-{id:"L06",name:"Bulgarian Split Squat",cat:"legs",m:["Quads","Glutes"],eq:"dumbbell"},
-{id:"L07",name:"Walking Lunges",cat:"legs",m:["Full Leg","Glutes"],eq:"dumbbell"},
-{id:"L08",name:"Reverse Lunges",cat:"legs",m:["Quads","Glutes"],eq:"dumbbell"},
-{id:"L09",name:"Step Ups",cat:"legs",m:["Quads","Glutes"],eq:"dumbbell"},
-{id:"L10",name:"Romanian Deadlift",cat:"legs",m:["Hamstrings","Glutes"],eq:"barbell"},
-{id:"L11",name:"Conventional Deadlift",cat:"legs",m:["Hamstrings","Glutes","Back"],eq:"barbell"},
-{id:"L12",name:"Sumo Deadlift",cat:"legs",m:["Glutes","Hamstrings","Adductors"],eq:"barbell"},
-{id:"L13",name:"Leg Extension",cat:"legs",m:["Quads"],eq:"machine_pin"},
-{id:"L14",name:"Leg Curl (Seated)",cat:"legs",m:["Hamstrings"],eq:"machine_pin"},
-{id:"L15",name:"Leg Curl (Lying)",cat:"legs",m:["Hamstrings"],eq:"machine_pin"},
-{id:"L16",name:"Hip Thrust",cat:"legs",m:["Glutes","Hamstrings"],eq:"barbell"},
-{id:"L17",name:"Glute Bridge",cat:"legs",m:["Glutes"],eq:"bodyweight"},
-{id:"L18",name:"Cable Kickback",cat:"legs",m:["Glutes"],eq:"cable"},
-{id:"L19",name:"Standing Calf Raise",cat:"legs",m:["Calves"],eq:"machine_plate"},
-{id:"L20",name:"Seated Calf Raise",cat:"legs",m:["Calves"],eq:"machine_plate"},
-{id:"L21",name:"Adductor Machine",cat:"legs",m:["Adductors"],eq:"machine_pin"},
-{id:"L22",name:"Abductor Machine",cat:"legs",m:["Abductors"],eq:"machine_pin"},
-{id:"L23",name:"Box Jumps",cat:"legs",m:["Quads","Glutes"],eq:"bodyweight"},
-{id:"L24",name:"Nordic Curl",cat:"legs",m:["Hamstrings"],eq:"bodyweight"},
-{id:"L25",name:"Sissy Squat",cat:"legs",m:["Quads"],eq:"bodyweight"},
-{id:"B01",name:"Deadlift (Trap Bar)",cat:"back",m:["Back","Glutes","Hamstrings"],eq:"barbell"},
-{id:"B02",name:"Pull Up",cat:"back",m:["Lats","Biceps"],eq:"bodyweight"},
-{id:"B03",name:"Chin Up",cat:"back",m:["Lats","Biceps"],eq:"bodyweight"},
-{id:"B04",name:"Lat Pulldown (Wide)",cat:"back",m:["Lats"],eq:"cable"},
-{id:"B05",name:"Lat Pulldown (Close)",cat:"back",m:["Lats"],eq:"cable"},
-{id:"B06",name:"Seated Cable Row",cat:"back",m:["Mid Back"],eq:"cable"},
-{id:"B07",name:"Bent Over Barbell Row",cat:"back",m:["Mid Back","Lats"],eq:"barbell"},
-{id:"B08",name:"One Arm Dumbbell Row",cat:"back",m:["Lats"],eq:"dumbbell"},
-{id:"B09",name:"T-Bar Row",cat:"back",m:["Mid Back"],eq:"machine_plate"},
-{id:"B10",name:"Chest Supported Row",cat:"back",m:["Mid Back"],eq:"machine_plate"},
-{id:"B11",name:"Face Pull",cat:"back",m:["Rear Delts","Upper Back"],eq:"cable"},
-{id:"B12",name:"Straight Arm Pulldown",cat:"back",m:["Lats"],eq:"cable"},
-{id:"B13",name:"Rack Pull",cat:"back",m:["Back","Traps"],eq:"barbell"},
-{id:"B14",name:"Barbell Shrug",cat:"back",m:["Traps"],eq:"barbell"},
-{id:"B15",name:"Dumbbell Shrug",cat:"back",m:["Traps"],eq:"dumbbell"},
-{id:"B16",name:"Hyperextension",cat:"back",m:["Lower Back"],eq:"bodyweight"},
-{id:"B17",name:"Good Morning",cat:"back",m:["Lower Back","Hamstrings"],eq:"barbell"},
-{id:"B18",name:"Meadows Row",cat:"back",m:["Lats"],eq:"barbell"},
-{id:"B19",name:"Cable Pullover",cat:"back",m:["Lats"],eq:"cable"},
-{id:"B20",name:"Inverted Row",cat:"back",m:["Mid Back"],eq:"bodyweight"},
-{id:"C01",name:"Barbell Bench Press",cat:"chest",m:["Chest","Triceps"],eq:"barbell"},
-{id:"C02",name:"Incline Barbell Bench Press",cat:"chest",m:["Upper Chest"],eq:"barbell"},
-{id:"C03",name:"Decline Barbell Bench Press",cat:"chest",m:["Lower Chest"],eq:"barbell"},
-{id:"C04",name:"Dumbbell Bench Press",cat:"chest",m:["Chest"],eq:"dumbbell"},
-{id:"C05",name:"Incline Dumbbell Press",cat:"chest",m:["Upper Chest"],eq:"dumbbell"},
-{id:"C06",name:"Chest Press Machine",cat:"chest",m:["Chest"],eq:"machine_pin"},
-{id:"C07",name:"Push Up",cat:"chest",m:["Chest","Triceps"],eq:"bodyweight"},
-{id:"C08",name:"Incline Push Up",cat:"chest",m:["Upper Chest"],eq:"bodyweight"},
-{id:"C09",name:"Dumbbell Fly",cat:"chest",m:["Chest"],eq:"dumbbell"},
-{id:"C10",name:"Incline Dumbbell Fly",cat:"chest",m:["Upper Chest"],eq:"dumbbell"},
-{id:"C11",name:"Cable Fly (Mid)",cat:"chest",m:["Chest"],eq:"cable"},
-{id:"C12",name:"Cable Fly (Low to High)",cat:"chest",m:["Upper Chest"],eq:"cable"},
-{id:"C13",name:"Cable Fly (High to Low)",cat:"chest",m:["Lower Chest"],eq:"cable"},
-{id:"C14",name:"Pec Deck Machine",cat:"chest",m:["Chest"],eq:"machine_pin"},
-{id:"C15",name:"Dips (Chest Focus)",cat:"chest",m:["Chest","Triceps"],eq:"bodyweight"},
-{id:"C16",name:"Landmine Press",cat:"chest",m:["Chest","Shoulders"],eq:"barbell"},
-{id:"C17",name:"Svend Press",cat:"chest",m:["Chest"],eq:"other"},
-{id:"C18",name:"Smith Machine Bench Press",cat:"chest",m:["Chest"],eq:"smith"},
-{id:"S01",name:"Overhead Barbell Press",cat:"shoulders",m:["Shoulders","Triceps"],eq:"barbell"},
-{id:"S02",name:"Seated Dumbbell Press",cat:"shoulders",m:["Shoulders"],eq:"dumbbell"},
-{id:"S03",name:"Arnold Press",cat:"shoulders",m:["Shoulders"],eq:"dumbbell"},
-{id:"S04",name:"Push Press",cat:"shoulders",m:["Shoulders","Traps"],eq:"barbell"},
-{id:"S05",name:"Lateral Raise (Dumbbell)",cat:"shoulders",m:["Side Delts"],eq:"dumbbell"},
-{id:"S06",name:"Lateral Raise (Cable)",cat:"shoulders",m:["Side Delts"],eq:"cable"},
-{id:"S07",name:"Front Raise (Dumbbell)",cat:"shoulders",m:["Front Delts"],eq:"dumbbell"},
-{id:"S08",name:"Front Raise (Plate)",cat:"shoulders",m:["Front Delts"],eq:"other"},
-{id:"S09",name:"Rear Delt Fly (Dumbbell)",cat:"shoulders",m:["Rear Delts"],eq:"dumbbell"},
-{id:"S10",name:"Rear Delt Fly (Machine)",cat:"shoulders",m:["Rear Delts"],eq:"machine_pin"},
-{id:"S11",name:"Cable Rear Delt Fly",cat:"shoulders",m:["Rear Delts"],eq:"cable"},
-{id:"S12",name:"Upright Row",cat:"shoulders",m:["Shoulders","Traps"],eq:"barbell"},
-{id:"S13",name:"Machine Shoulder Press",cat:"shoulders",m:["Shoulders"],eq:"machine_pin"},
-{id:"S14",name:"Smith Machine Shoulder Press",cat:"shoulders",m:["Shoulders"],eq:"smith"},
-{id:"S15",name:"Bradford Press",cat:"shoulders",m:["Shoulders"],eq:"barbell"},
-{id:"S16",name:"Cuban Press",cat:"shoulders",m:["Shoulders","Rotator Cuff"],eq:"dumbbell"},
-{id:"S17",name:"Plate Front Raise",cat:"shoulders",m:["Front Delts"],eq:"other"},
-{id:"S18",name:"Behind the Neck Press",cat:"shoulders",m:["Shoulders"],eq:"barbell"},
-{id:"BI01",name:"Barbell Curl",cat:"biceps",m:["Biceps"],eq:"barbell"},
-{id:"BI02",name:"EZ Bar Curl",cat:"biceps",m:["Biceps"],eq:"barbell"},
-{id:"BI03",name:"Dumbbell Curl",cat:"biceps",m:["Biceps"],eq:"dumbbell"},
-{id:"BI04",name:"Hammer Curl",cat:"biceps",m:["Biceps","Forearms"],eq:"dumbbell"},
-{id:"BI05",name:"Incline Dumbbell Curl",cat:"biceps",m:["Biceps"],eq:"dumbbell"},
-{id:"BI06",name:"Preacher Curl",cat:"biceps",m:["Biceps"],eq:"barbell"},
-{id:"BI07",name:"Cable Curl",cat:"biceps",m:["Biceps"],eq:"cable"},
-{id:"BI08",name:"Concentration Curl",cat:"biceps",m:["Biceps"],eq:"dumbbell"},
-{id:"BI09",name:"Spider Curl",cat:"biceps",m:["Biceps"],eq:"dumbbell"},
-{id:"BI10",name:"21s Curl",cat:"biceps",m:["Biceps"],eq:"barbell"},
-{id:"BI11",name:"Reverse Curl",cat:"biceps",m:["Forearms","Biceps"],eq:"barbell"},
-{id:"BI12",name:"Drag Curl",cat:"biceps",m:["Biceps"],eq:"barbell"},
-{id:"TR01",name:"Close Grip Bench Press",cat:"triceps",m:["Triceps","Chest"],eq:"barbell"},
-{id:"TR02",name:"Tricep Pushdown (Rope)",cat:"triceps",m:["Triceps"],eq:"cable"},
-{id:"TR03",name:"Tricep Pushdown (Bar)",cat:"triceps",m:["Triceps"],eq:"cable"},
-{id:"TR04",name:"Overhead Tricep Extension (Dumbbell)",cat:"triceps",m:["Triceps"],eq:"dumbbell"},
-{id:"TR05",name:"Overhead Tricep Extension (Cable)",cat:"triceps",m:["Triceps"],eq:"cable"},
-{id:"TR06",name:"Skull Crushers",cat:"triceps",m:["Triceps"],eq:"barbell"},
-{id:"TR07",name:"Dips (Tricep Focus)",cat:"triceps",m:["Triceps"],eq:"bodyweight"},
-{id:"TR08",name:"Tricep Kickback",cat:"triceps",m:["Triceps"],eq:"dumbbell"},
-{id:"TR09",name:"Diamond Push Up",cat:"triceps",m:["Triceps","Chest"],eq:"bodyweight"},
-{id:"TR10",name:"JM Press",cat:"triceps",m:["Triceps"],eq:"barbell"},
-{id:"TR11",name:"Bench Dips",cat:"triceps",m:["Triceps"],eq:"bodyweight"},
-{id:"TR12",name:"Single Arm Pushdown",cat:"triceps",m:["Triceps"],eq:"cable"},
-{id:"CO01",name:"Plank",cat:"core",m:["Core"],eq:"bodyweight"},
-{id:"CO02",name:"Side Plank",cat:"core",m:["Obliques"],eq:"bodyweight"},
-{id:"CO03",name:"Hanging Leg Raise",cat:"core",m:["Lower Abs"],eq:"bodyweight"},
-{id:"CO04",name:"Hanging Knee Raise",cat:"core",m:["Lower Abs"],eq:"bodyweight"},
-{id:"CO05",name:"Cable Crunch",cat:"core",m:["Abs"],eq:"cable"},
-{id:"CO06",name:"Machine Crunch",cat:"core",m:["Abs"],eq:"machine_pin"},
-{id:"CO07",name:"Sit Up",cat:"core",m:["Abs"],eq:"bodyweight"},
-{id:"CO08",name:"Crunch",cat:"core",m:["Abs"],eq:"bodyweight"},
-{id:"CO09",name:"Russian Twist",cat:"core",m:["Obliques"],eq:"bodyweight"},
-{id:"CO10",name:"Bicycle Crunch",cat:"core",m:["Abs","Obliques"],eq:"bodyweight"},
-{id:"CO11",name:"Ab Wheel Rollout",cat:"core",m:["Core"],eq:"other"},
-{id:"CO12",name:"Mountain Climbers",cat:"core",m:["Core"],eq:"bodyweight"},
-{id:"CO13",name:"Toe Touches",cat:"core",m:["Abs"],eq:"bodyweight"},
-{id:"CO14",name:"Reverse Crunch",cat:"core",m:["Lower Abs"],eq:"bodyweight"},
-{id:"CO15",name:"Woodchopper (Cable)",cat:"core",m:["Obliques"],eq:"cable"},
-{id:"CO16",name:"Pallof Press",cat:"core",m:["Core","Obliques"],eq:"cable"},
-{id:"CO17",name:"Dead Bug",cat:"core",m:["Core"],eq:"bodyweight"},
-{id:"CO18",name:"V-Ups",cat:"core",m:["Abs"],eq:"bodyweight"},
-{id:"CA01",name:"Treadmill Run",cat:"cardio",m:["Cardio"],eq:"cardio_machine"},
-{id:"CA02",name:"Treadmill Incline Walk",cat:"cardio",m:["Cardio"],eq:"cardio_machine"},
-{id:"CA03",name:"Stationary Bike",cat:"cardio",m:["Cardio"],eq:"cardio_machine"},
-{id:"CA04",name:"Rowing Machine",cat:"cardio",m:["Cardio","Back"],eq:"cardio_machine"},
-{id:"CA05",name:"Stair Climber",cat:"cardio",m:["Cardio","Legs"],eq:"cardio_machine"},
-{id:"CA06",name:"Elliptical",cat:"cardio",m:["Cardio"],eq:"cardio_machine"},
-{id:"CA07",name:"Jump Rope",cat:"cardio",m:["Cardio"],eq:"other"},
-{id:"CA08",name:"Battle Ropes",cat:"cardio",m:["Cardio","Shoulders"],eq:"other"},
-{id:"CA09",name:"Assault Bike",cat:"cardio",m:["Cardio"],eq:"cardio_machine"},
-{id:"CA10",name:"Sled Push",cat:"cardio",m:["Cardio","Legs"],eq:"other"},
-{id:"CA11",name:"Sled Pull",cat:"cardio",m:["Cardio","Back"],eq:"other"},
-{id:"CA12",name:"Burpees",cat:"cardio",m:["Cardio","Full Body"],eq:"bodyweight"},
-{id:"CA16",name:"Outdoor Run / Jog",cat:"cardio",m:["Cardio"],eq:"other"},
-{id:"CA17",name:"Outdoor Bike Ride",cat:"cardio",m:["Cardio"],eq:"other"},
-{id:"CA18",name:"Swimming",cat:"cardio",m:["Cardio","Full Body"],eq:"other"},
-{id:"CA19",name:"Walk / Hike",cat:"cardio",m:["Cardio"],eq:"other"},
-{id:"CA20",name:"Football / 5-a-side",cat:"cardio",m:["Cardio","Full Body"],eq:"other"},
-{id:"FB01",name:"Clean and Jerk",cat:"fullbody",m:["Full Body"],eq:"barbell"},
-{id:"FB02",name:"Power Clean",cat:"fullbody",m:["Full Body"],eq:"barbell"},
-{id:"FB03",name:"Hang Clean",cat:"fullbody",m:["Full Body"],eq:"barbell"},
-{id:"FB04",name:"Snatch",cat:"fullbody",m:["Full Body"],eq:"barbell"},
-{id:"FB05",name:"Kettlebell Swing",cat:"fullbody",m:["Glutes","Hamstrings","Core"],eq:"kettlebell"},
-{id:"FB06",name:"Thruster",cat:"fullbody",m:["Full Body"],eq:"barbell"},
-{id:"FB07",name:"Farmers Carry",cat:"fullbody",m:["Grip","Core","Traps"],eq:"dumbbell"},
-{id:"FB08",name:"Man Maker",cat:"fullbody",m:["Full Body"],eq:"dumbbell"},
-{id:"FB09",name:"Turkish Get Up",cat:"fullbody",m:["Full Body","Core"],eq:"kettlebell"},
-{id:"FB10",name:"Wall Ball",cat:"fullbody",m:["Full Body"],eq:"bag_ball"},
-{id:"FB11",name:"Devil Press",cat:"fullbody",m:["Full Body"],eq:"dumbbell"},
-{id:"FB12",name:"Bear Crawl",cat:"fullbody",m:["Full Body","Core"],eq:"bodyweight"},
-{id:"L26",name:"Kettlebell Goblet Squat",cat:"legs",m:["Quads","Glutes"],eq:"kettlebell"},
-{id:"L27",name:"Kettlebell Reverse Lunge",cat:"legs",m:["Quads","Glutes"],eq:"kettlebell"},
-{id:"L28",name:"Dumbbell Romanian Deadlift",cat:"legs",m:["Hamstrings","Glutes"],eq:"dumbbell"},
-{id:"L29",name:"Smith Machine Squat",cat:"legs",m:["Quads","Glutes"],eq:"smith"},
-{id:"L30",name:"Kettlebell Front Rack Squat",cat:"legs",m:["Quads","Glutes"],eq:"kettlebell"},
-{id:"B21",name:"Kettlebell Row",cat:"back",m:["Lats","Mid Back"],eq:"kettlebell"},
-{id:"B22",name:"Dumbbell Pullover",cat:"back",m:["Lats"],eq:"dumbbell"},
-{id:"B23",name:"Smith Machine Row",cat:"back",m:["Mid Back"],eq:"smith"},
-{id:"B24",name:"Seated Row Machine",cat:"back",m:["Mid Back"],eq:"machine_pin"},
-{id:"C19",name:"Kettlebell Floor Press",cat:"chest",m:["Chest","Triceps"],eq:"kettlebell"},
-{id:"C20",name:"Medicine Ball Push Up",cat:"chest",m:["Chest","Triceps"],eq:"bag_ball"},
-{id:"S19",name:"Kettlebell Overhead Press",cat:"shoulders",m:["Shoulders"],eq:"kettlebell"},
-{id:"S20",name:"Kettlebell Lateral Raise",cat:"shoulders",m:["Side Delts"],eq:"kettlebell"},
-{id:"BI13",name:"Kettlebell Curl",cat:"biceps",m:["Biceps"],eq:"kettlebell"},
-{id:"TR13",name:"Kettlebell Overhead Extension",cat:"triceps",m:["Triceps"],eq:"kettlebell"},
-{id:"CO19",name:"Kettlebell Windmill",cat:"core",m:["Core","Obliques"],eq:"kettlebell"},
-{id:"CO20",name:"Medicine Ball Slam",cat:"core",m:["Core","Full Body"],eq:"bag_ball"},
-{id:"CO21",name:"Medicine Ball Russian Twist",cat:"core",m:["Obliques"],eq:"bag_ball"},
-{id:"CO22",name:"Sandbag Rotational Lift",cat:"core",m:["Core","Obliques"],eq:"bag_ball"},
-{id:"CO23",name:"Weighted Plank",cat:"core",m:["Core"],eq:"other"},
-{id:"CA13",name:"Ski Erg",cat:"cardio",m:["Cardio"],eq:"cardio_machine"},
-{id:"CA14",name:"VersaClimber",cat:"cardio",m:["Cardio"],eq:"cardio_machine"},
-{id:"CA15",name:"Spin Bike Intervals",cat:"cardio",m:["Cardio"],eq:"cardio_machine"},
-{id:"FB13",name:"Kettlebell Clean",cat:"fullbody",m:["Full Body"],eq:"kettlebell"},
-{id:"FB14",name:"Kettlebell Clean and Press",cat:"fullbody",m:["Full Body"],eq:"kettlebell"},
-{id:"FB15",name:"Sandbag Carry",cat:"fullbody",m:["Grip","Core","Full Body"],eq:"bag_ball"},
-{id:"FB16",name:"Sandbag Clean",cat:"fullbody",m:["Full Body"],eq:"bag_ball"},
-{id:"FB17",name:"Medicine Ball Chest Pass",cat:"fullbody",m:["Chest","Full Body"],eq:"bag_ball"},
-{id:"FB18",name:"Weighted Vest Step Ups",cat:"fullbody",m:["Legs","Full Body"],eq:"other"}
-];
+let SHARED_LIB = [];
+async function loadSharedLibrary(){
+  try{
+    const res = await fetch('exercises.json');
+    SHARED_LIB = await res.json();
+  }catch(e){
+    console.warn('exercises.json not reachable', e);
+    SHARED_LIB = [];
+  }
+}
+loadSharedLibrary();
 
-var CAT_LABELS = {legs:'Legs', back:'Back', chest:'Chest', shoulders:'Shoulders', biceps:'Biceps', triceps:'Triceps', core:'Core', cardio:'Cardio', fullbody:'Full Body'};
-var CAT_ORDER = ['legs','back','chest','shoulders','biceps','triceps','core','cardio','fullbody'];
+var CAT_LABELS = {legs:'Legs', chest:'Chest', back:'Back', shoulders:'Shoulders', arms:'Arms', core:'Core', cardio:'Cardio', combination:'Combination'};
+var CAT_ORDER = ['legs','chest','back','shoulders','arms','core','cardio','combination'];
 var EQ_LABELS = {barbell:'Barbell', dumbbell:'Dumbbell', kettlebell:'Kettlebell', cable:'Cable Machine', machine_plate:'Plate-Loaded Machine', machine_pin:'Pin-Loaded Machine', smith:'Smith Machine', bodyweight:'Bodyweight', bag_ball:'Bag / Ball', cardio_machine:'Cardio Machine', other:'Other'};
 var EQ_ORDER = ['barbell','dumbbell','kettlebell','cable','machine_plate','machine_pin','smith','bodyweight','bag_ball','cardio_machine','other'];
 
@@ -1061,6 +889,46 @@ function injectAssignedWorkouts(){
     });
   });
   saveStore(store);
+}
+
+// BUGFIX: the History screen (renderHistory) only ever reads from p.sessions, the profile's
+// own LOCAL session store — which only grows going forward from sessions completed ON THIS
+// DEVICE via this tracker. It was never backfilled from the client's real synced history, so
+// a client logging in on a new device (or for the first time) sees an empty History screen
+// even though the dashboard calendar correctly shows everything (it reads the synced record
+// directly). This pulls any COMPLETED session from the synced record into the local shape
+// renderHistory expects, deduped via ptSessionId so it never double-imports.
+function injectCompletedHistory(){
+  var rec = getClientHubRecord();
+  var p = getActiveProfile();
+  if(!rec || !p) return;
+  if(!p.sessions) p.sessions = [];
+  var completed = (rec.sessions||[]).filter(function(s){ return s.status === 'completed'; });
+  var changed = false;
+  completed.forEach(function(s){
+    var already = p.sessions.some(function(ps){ return ps.ptSessionId === s.id; });
+    if(already) return;
+    p.sessions.push({
+      id: 'hist-' + s.id,
+      ptSessionId: s.id,
+      date: s.date,
+      finishedAt: s.date,
+      title: s.name || 'Workout',
+      assignedByCoach: !!s.assignedByCoach,
+      exercises: (s.rows||[]).map(function(row){
+        var sourceSets = (row.sets && row.sets.length) ? row.sets : [{ kg: row.actual||row.target||'', reps: (row.scheme||'').split('×')[1]||'' }];
+        return {
+          name: row.exerciseName,
+          cat: 'fullbody',
+          sets: sourceSets.map(function(set){
+            return { weight: set.actualKg || set.kg || '', reps: set.reps || '' };
+          })
+        };
+      })
+    });
+    changed = true;
+  });
+  if(changed) saveStore(store);
 }
 
 var STORE_KEY = 'ic-clienthub-workout-tracker-v1';
@@ -1325,7 +1193,7 @@ document.getElementById('tile-links').addEventListener('click', showLinksScreen)
 function allExercises(){
   var p = getActiveProfile();
   var custom = (p && p.customExercises) ? p.customExercises : [];
-  return EX_BUILTIN.concat(custom);
+  return SHARED_LIB.concat(custom);
 }
 function getExercise(id){
   return allExercises().find(function(e){ return e.id === id; });
@@ -1620,11 +1488,16 @@ function renderPickerResults(){
   var results = filterExercises(query, pickerFilterCat, pickerFilterEq);
   var el = document.getElementById('picker-results');
   el.innerHTML = '';
+  var rec = getClientHubRecord();
+  var myContra = (rec && rec.client && rec.client.contraindications) ? rec.client.contraindications : [];
   results.forEach(function(ex){
     var row = document.createElement('div');
     row.className = 'ex-row';
+    var flagged = myContra.length && ex.contraindications && ex.contraindications.some(function(c){ return myContra.indexOf(c) !== -1; });
     row.innerHTML = '<div class="ex-info"><div class="ex-name">'+escapeHtml(ex.name)+'</div>'+
-      '<div class="ex-meta">'+ex.m.join(' · ')+' · '+(EQ_LABELS[ex.eq]||'Other')+'</div></div>'+
+      '<div class="ex-meta">'+ex.m.join(' · ')+' · '+(EQ_LABELS[ex.eq]||'Other')+'</div>'+
+      (flagged ? '<div style="color:#e8a53d;font-size:11.5px;margin-top:3px;">&#9888; This involves movement flagged on your profile — worth a quick check with your PT if not sure it is right for you</div>' : '')+
+      '</div>'+
       '<div class="ex-cat-badge">'+CAT_LABELS[ex.cat]+'</div>';
     row.addEventListener('click', function(){
       if(pickerTarget === 'plan'){
@@ -2063,6 +1936,7 @@ if(store.profiles.length > 0 && (!store.activeId || !getActiveProfile())){
 }
 if(store.profiles.length > 0 && getActiveProfile()){
   injectAssignedWorkouts();
+  injectCompletedHistory();
   enterApp();
   openDeepLinkedSessionIfAny();
 } else {

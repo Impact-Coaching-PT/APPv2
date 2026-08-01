@@ -584,6 +584,7 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     <label class="lbl">Training Type</label>
     <select class="inp" id="sg-tt" onchange="sgOnTrainingTypeChange()"></select>
     <div class="pg-sub" id="sg-tt-desc" style="margin-bottom:12px;"></div>
+    <div id="sg-cat-warning" style="display:none;background:#e8a53d1a;border:1.5px solid #e8a53d;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#e8a53d;margin-bottom:12px;"></div>
 
     <div id="sg-circuit-wrap" style="display:none;">
       <label class="lbl">Circuit Protocol</label>
@@ -1103,6 +1104,9 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     <label class="lbl">Training Category</label>
     <select class="inp" id="edit-cat"></select>
 
+    <label class="lbl">Contraindications (excludes matching exercises from SetSmith generation)</label>
+    <div class="meno-radio-row" style="margin-bottom:16px;flex-wrap:wrap;gap:7px;" id="edit-contra-chips"></div>
+
     <label class="lbl">PIN</label>
     <input class="inp" id="edit-pin" inputmode="numeric" maxlength="6">
 
@@ -1509,7 +1513,9 @@ const SG_TRAINING_TYPES = [
   { id:"strength", name:"Strength", defaultSetsReps:{compound:{sets:5,reps:"3-6"},accessory:{sets:3,reps:"6-8"}}, desc:"Low reps, heavier loads, longer rest." },
   { id:"hypertrophy", name:"Hypertrophy / Muscle Build", defaultSetsReps:{compound:{sets:4,reps:"6-10"},accessory:{sets:3,reps:"10-12"}}, desc:"Moderate reps, shorter rest, volume-focused." },
   { id:"fatloss", name:"Fat Loss", defaultSetsReps:{compound:{sets:3,reps:"10-15"},accessory:{sets:3,reps:"12-15"}}, desc:"Higher reps, minimal rest, density-focused." },
-  { id:"menopause", name:"Menopause", defaultSetsReps:{compound:{sets:3,reps:"8-10"},accessory:{sets:3,reps:"10-12"}}, desc:"Resistance-focused, bone-density priority. Impact work included by design." },
+  { id:"menopause", name:"Menopause", defaultSetsReps:{compound:{sets:3,reps:"8-10"},accessory:{sets:3,reps:"10-12"}},
+    compoundPatternOverrides:{squat:{sets:4,reps:"6-8"}, hinge:{sets:4,reps:"6-8"}, pull:{sets:4,reps:"6-8"}},
+    desc:"Resistance-focused, bone-density priority. Lower body and back compounds loaded heavier (4x6-8) — evidence favours strength-level loading at the hip/spine sites and back-extensor strengthening reduces kyphosis and fracture risk. Impact work included by design." },
   { id:"mwl", name:"Medical Weight Loss", defaultSetsReps:{compound:{sets:3,reps:"10-12"},accessory:{sets:3,reps:"12-15"}}, excludeHighImpact:true, desc:"Sustainable, joint-friendly, consistency-focused." },
   { id:"general", name:"General Fitness", defaultSetsReps:{compound:{sets:3,reps:"8-12"},accessory:{sets:3,reps:"10-12"}}, desc:"Balanced middle ground across goals." },
   { id:"junior", name:"Junior", defaultSetsReps:{compound:{sets:3,reps:"8-12"},accessory:{sets:2,reps:"10-12"}}, desc:"Conservative loading, technique priority." },
@@ -1643,13 +1649,15 @@ function openSmartGen(){
   sgHistory = sgBuildHistory(builderClientId);
   document.getElementById("sg-tt").innerHTML = SG_TRAINING_TYPES.map(t=>`<option value="${t.id}">${t.name}</option>`).join("");
   document.getElementById("sg-protocol").innerHTML = SG_PROTOCOLS.map(p=>`<option value="${p.id}">${p.name} (${p.workSeconds}s/${p.stationRestSeconds}s)</option>`).join("");
-  sgContra = []; sgLowImpact = false; sgCardioFinisher = false; sgMode = 'preset'; sgMuscleSelect = [];
+  const client = getClient(builderClientId);
+  sgContra = [...(client && client.contraindications ? client.contraindications : [])];
+  sgLowImpact = false; sgCardioFinisher = false; sgMode = 'preset'; sgMuscleSelect = [];
   document.getElementById("sg-lowimpact").classList.remove("act");
   document.getElementById("sg-cardio-fin").classList.remove("act");
   document.getElementById("sg-mode-preset").classList.add("act");
   document.getElementById("sg-mode-muscle").classList.remove("act");
   document.getElementById("sg-contra-chips").innerHTML = SG_CONTRA_TAGS.map(c=>
-    `<div class="meno-radio-opt" style="flex:none;padding:8px 12px;" onclick="sgToggleContra('${c}')">${c}</div>`).join("");
+    `<div class="meno-radio-opt ${sgContra.includes(c)?'act':''}" style="flex:none;padding:8px 12px;" onclick="sgToggleContra('${c}')">${c}</div>`).join("");
   document.getElementById("sg-muscle-chips").innerHTML = SG_MUSCLES.map(m=>
     `<div class="meno-radio-opt" style="flex:none;padding:8px 12px;" onclick="sgToggleMuscle('${m}')">${m}</div>`).join("");
   document.getElementById("sg-format").innerHTML = SG_FORMATS.map(f=>`<option value="${f.id}">${f.name}</option>`).join("");
@@ -1661,11 +1669,21 @@ function openSmartGen(){
   document.getElementById("sg-modal").classList.add("show");
 }
 function closeSmartGen(){ document.getElementById("sg-modal").classList.remove("show"); }
+const CAT_TO_SG_TT = {strength:"strength", fatloss:"fatloss", medweight:"mwl", menopause:"menopause",
+  general:"general", musclebuild:"hypertrophy", junior:"junior", paired:"general"};
 function sgOnTrainingTypeChange(){
   const t = sgGetTT();
   document.getElementById("sg-tt-desc").textContent = t.desc;
   document.getElementById("sg-circuit-wrap").style.display = t.isCircuit ? "block" : "none";
   document.getElementById("sg-format-wrap").style.display = t.isCircuit ? "none" : "block";
+  const client = getClient(builderClientId);
+  const warnEl = document.getElementById("sg-cat-warning");
+  if(client && client.trainingCat && CAT_TO_SG_TT[client.trainingCat] && CAT_TO_SG_TT[client.trainingCat] !== t.id){
+    warnEl.textContent = `⚠ ${client.name} is set up under "${CAT_LABELS[client.trainingCat]}" — this isn't the training type we'd default to for their programming category. Worth double-checking it still fits before assigning.`;
+    warnEl.style.display = "block";
+  } else {
+    warnEl.style.display = "none";
+  }
   sgUpdateSuggestion();
 }
 function sgOnCircuitChange(){ sgUpdateSuggestion(); }
@@ -1740,6 +1758,12 @@ function sgGenerateCircuit(tt, countInput){
   }
   sgBuildSlots(slots, tt, `${protocol.name} Circuit`, {isCircuit:true, protocol});
 }
+function sgGetSetsReps(tt, slot, chosenEx){
+  if(chosenEx && slot.role==='compound' && tt.compoundPatternOverrides && tt.compoundPatternOverrides[chosenEx.movementPattern]){
+    return tt.compoundPatternOverrides[chosenEx.movementPattern];
+  }
+  return tt.defaultSetsReps ? tt.defaultSetsReps[slot.role] : {sets:3,reps:'10'};
+}
 function sgBuildSlots(slots, tt, formatName, circuitInfo){
   const pickedMuscles = [], pickedIds = new Set();
   const preferPatterns = circuitInfo && ['tabata','vo2max'].includes(circuitInfo.protocol.id) ? ['cardio','combo'] : null;
@@ -1747,9 +1771,10 @@ function sgBuildSlots(slots, tt, formatName, circuitInfo){
     let candidates = sgHardFilter(slot, tt).filter(e=>!pickedIds.has(e.id));
     if(!candidates.length) candidates = sgHardFilter(slot, tt);
     const ranked = sgScoreCandidates(candidates, pickedMuscles, preferPatterns);
-    const setsReps = circuitInfo ? null : (tt.defaultSetsReps ? tt.defaultSetsReps[slot.role] : {sets:3,reps:'10'});
-    if(ranked.length){ pickedMuscles.push(...(ranked[0].ex.m||[])); pickedIds.add(ranked[0].ex.id); }
-    return { ...slot, ranked, rerollIndex:0, chosen: ranked.length?ranked[0].ex:null,
+    const chosenEx = ranked.length ? ranked[0].ex : null;
+    const setsReps = circuitInfo ? null : sgGetSetsReps(tt, slot, chosenEx);
+    if(chosenEx){ pickedMuscles.push(...(chosenEx.m||[])); pickedIds.add(chosenEx.id); }
+    return { ...slot, ranked, rerollIndex:0, chosen: chosenEx,
       chosenReasons: ranked.length?ranked[0].reasons:[], setsReps, manualOverride:false };
   });
   if(!circuitInfo) built = sgOrderCompoundFirst(built);
@@ -1816,6 +1841,10 @@ function sgReroll(i){
   s.rerollIndex = (s.rerollIndex+1) % s.ranked.length;
   const pick = s.ranked[s.rerollIndex];
   s.chosen = pick.ex; s.chosenReasons = pick.reasons; s.manualOverride=false;
+  if(!sgWorkout.isCircuit){
+    const tt = SG_TRAINING_TYPES.find(t=>t.id===sgWorkout.trainingTypeId);
+    if(tt) s.setsReps = sgGetSetsReps(tt, s, s.chosen);
+  }
   sgRenderResults();
 }
 function openSgPicker(i){
@@ -1838,6 +1867,10 @@ function sgPickExercise(id){
   const ex = mainLib().find(e=>e.id===id);
   const s = sgWorkout.slots[sgPickerSlotIndex];
   s.chosen = ex; s.chosenReasons = ['manually selected']; s.manualOverride = true;
+  if(!sgWorkout.isCircuit){
+    const tt = SG_TRAINING_TYPES.find(t=>t.id===sgWorkout.trainingTypeId);
+    if(tt) s.setsReps = sgGetSetsReps(tt, s, ex);
+  }
   closeSgPicker();
   sgRenderResults();
 }
@@ -1896,11 +1929,15 @@ function renderWbPickList(){
   document.getElementById("wb-pick-list").innerHTML = list.slice(0,150).map(ex=>{
     const lw = pickerClientId && lastWeights(pickerClientId, ex.name)[0];
     const lw2 = showPair && lastWeights(builderClientId2, ex.name)[0];
+    const pickerClient = pickerClientId && getClient(pickerClientId);
+    const flagged = pickerClient && pickerClient.contraindications && ex.contraindications &&
+      ex.contraindications.some(c=>pickerClient.contraindications.includes(c));
     return `
     <div class="ex-row" onclick="pickWbExercise('${ex.id}')">
       <div class="ex-info">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-meta">${EX_CAT_LABELS[ex.cat]||ex.cat} · ${EQ_LABELS[ex.eq]||"Other"}</div>
+        ${flagged ? `<div class="ex-lw" style="color:#e8a53d;">⚠ Flagged for ${pickerClient.name}'s contraindications — check before adding</div>` : ""}
         ${lw ? `<div class="ex-lw">Last${showPair?" ("+(getClient(builderClientId)?.name||"")+")":""}: ${lw.weight}kg (${fmtDate(lw.date)})</div>` : ""}
         ${lw2 ? `<div class="ex-lw">Last (${getClient(builderClientId2)?.name||"partner"}): ${lw2.weight}kg (${fmtDate(lw2.date)})</div>` : ""}
       </div>
@@ -1911,6 +1948,12 @@ function renderWbPickList(){
 function pickWbExercise(exId){
   const ex = mainLib().find(e=>e.id===exId);
   if(!ex) return;
+  const pickerClientId = exercisePickerCtx === "session" ? cdSvClientId : builderClientId;
+  const pickerClient = pickerClientId && getClient(pickerClientId);
+  if(pickerClient && pickerClient.contraindications && ex.contraindications &&
+     ex.contraindications.some(c=>pickerClient.contraindications.includes(c))){
+    toast(`⚠ Added — flagged for ${pickerClient.name}'s contraindications, worth a second look`);
+  }
   if(exercisePickerCtx === "session"){
     svDraft.push({ exerciseName: ex.name, sets:[{kg:"", reps:"", actualKg:""}] });
     closeExercisePicker();
@@ -3149,6 +3192,7 @@ function createClient(){
   toast(name+" added ✓");
 }
 
+let ecContraDraft = [];
 function openEditModal(){
   const c = getClient(currentClientId);
   if(!c) return;
@@ -3158,7 +3202,18 @@ function openEditModal(){
     `<option value="${k}" ${c.trainingCat===k?'selected':''}>${CAT_LABELS[k]}</option>`).join("");
   document.getElementById("edit-pin").value = c.pin||"";
   document.getElementById("edit-portal-link").textContent = portalLinkFor(c);
+  ecContraDraft = [...(c.contraindications||[])];
+  renderEditContraChips();
   document.getElementById("edit-modal-ov").classList.add("show");
+}
+function renderEditContraChips(){
+  document.getElementById("edit-contra-chips").innerHTML = SG_CONTRA_TAGS.map(t=>
+    `<div class="meno-radio-opt ${ecContraDraft.includes(t)?'act':''}" style="flex:none;padding:8px 12px;" onclick="ecToggleContra('${t}')">${t}</div>`).join("");
+}
+function ecToggleContra(tag){
+  const i = ecContraDraft.indexOf(tag);
+  if(i>-1) ecContraDraft.splice(i,1); else ecContraDraft.push(tag);
+  renderEditContraChips();
 }
 function closeEditModal(){ document.getElementById("edit-modal-ov").classList.remove("show"); }
 function saveEditModal(){
@@ -3173,6 +3228,7 @@ function saveEditModal(){
   c.clientType = document.getElementById("edit-clienttype").value;
   c.trainingCat = document.getElementById("edit-cat").value;
   c.pin = pin;
+  c.contraindications = [...ecContraDraft];
   saveDB();
   closeEditModal();
   renderClientDetail();
