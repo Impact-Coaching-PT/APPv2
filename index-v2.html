@@ -1599,6 +1599,7 @@ function sgHardFilter(slot, ttForImpact){
   return mainLib().filter(e=>{
     if(slot.role==='compound' && !e.compound) return false;
     if(slot.role==='accessory' && e.compound) return false;
+    if(slot.role==='compound' && e.movementPattern==='combo' && slot.movementPattern!=='combo') return false;
     if(slot.movementPattern && e.movementPattern!==slot.movementPattern) return false;
     if(slot.muscleGroup && !(e.m||[]).includes(slot.muscleGroup)) return false;
     if(e.contraindications && e.contraindications.some(c=>sgContra.includes(c))) return false;
@@ -1610,6 +1611,7 @@ function sgScoreCandidates(candidates, pickedMuscles, preferPatterns){
   return candidates.map(e=>{
     let score=0, reasons=[];
     if(preferPatterns && preferPatterns.includes(e.movementPattern)){ score+=12; reasons.push('conditioning-style'); }
+    if(e.compound && e.compoundTier==='primary'){ score+=18; reasons.push('primary compound lift'); }
     const hist = sgHistory.filter(h=>h.exerciseId===e.id);
     if(!hist.length){ score+=50; reasons.push('not in logged history'); }
     else {
