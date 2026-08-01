@@ -1048,6 +1048,15 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
       <div class="meno-radio-opt" id="cd-sv-status-completed" onclick="setCdSvStatus('completed')">Completed</div>
     </div>
 
+    <div class="pg-sub">How did it feel? (optional)</div>
+    <div class="meno-radio-row" style="margin-bottom:16px;" id="cd-sv-difficulty-row">
+      <div class="meno-radio-opt" onclick="setCdSvDifficulty(1)" data-diff="1">1</div>
+      <div class="meno-radio-opt" onclick="setCdSvDifficulty(2)" data-diff="2">2</div>
+      <div class="meno-radio-opt" onclick="setCdSvDifficulty(3)" data-diff="3">3</div>
+      <div class="meno-radio-opt" onclick="setCdSvDifficulty(4)" data-diff="4">4</div>
+      <div class="meno-radio-opt" onclick="setCdSvDifficulty(5)" data-diff="5">5</div>
+    </div>
+
     <div id="cd-sv-rows" style="margin-bottom:12px;"></div>
     <button class="btn btn-gh" onclick="openExercisePicker('session')">+ Add Exercise</button>
 
@@ -1551,8 +1560,12 @@ const SG_FORMATS = [
     {role:"accessory",movementPattern:"isolation",muscleGroup:"Quads"},{role:"accessory",movementPattern:"isolation",muscleGroup:"Hamstrings"},
     {role:"accessory",movementPattern:"core"} ]},
   { id:"upper-superset", name:"Upper Body Superset", suitableFor:["hypertrophy","fatloss","general"], slots:[
-    {role:"compound",movementPattern:"push"},{role:"compound",movementPattern:"pull"},
-    {role:"accessory",movementPattern:"isolation",muscleGroup:"Biceps"},{role:"accessory",movementPattern:"isolation",muscleGroup:"Triceps"} ]},
+    {role:"compound",movementPattern:"push",supersetGroup:1},{role:"compound",movementPattern:"pull",supersetGroup:1},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Biceps",supersetGroup:2},{role:"accessory",movementPattern:"isolation",muscleGroup:"Triceps",supersetGroup:2} ]},
+  { id:"antagonist-superset", name:"Antagonist Superset — Full Body", suitableFor:["hypertrophy","fatloss","general"], slots:[
+    {role:"compound",movementPattern:"squat",supersetGroup:1},{role:"compound",movementPattern:"hinge",supersetGroup:1},
+    {role:"compound",movementPattern:"push",supersetGroup:2},{role:"compound",movementPattern:"pull",supersetGroup:2},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Biceps",supersetGroup:3},{role:"accessory",movementPattern:"isolation",muscleGroup:"Triceps",supersetGroup:3} ]},
 ];
 
 function sgGetTT(){ return SG_TRAINING_TYPES.find(t=>t.id===document.getElementById("sg-tt").value); }
@@ -1599,8 +1612,75 @@ function sgBuildHistory(clientId){
 function sgSuggestedWeight(exercise){
   const entries = sgHistory.filter(h=>h.exerciseId===exercise.id && h.weight!==undefined).sort((a,b)=>b.date.localeCompare(a.date));
   if(!entries.length) return null;
-  const inc = exercise.compound ? 2.5 : 1.25;
+  let inc = exercise.compound ? 2.5 : 1.25;
+  // Progressive overload nudge from post-session feedback (Phase 6): if the client rated the
+  // last time they did this exercise as easy, push the increment further than the flat
+  // default; if they rated it hard, hold at the same weight instead of adding more load.
+  const diff = sgRecentDifficulty(exercise.id, builderClientId);
+  if(diff !== null){
+    if(diff <= 2) inc = inc * 2;
+    else if(diff >= 4) inc = 0;
+  }
   return Math.round((entries[0].weight+inc)*4)/4;
+}
+function sgLastWeight(exercise){
+  const entries = sgHistory.filter(h=>h.exerciseId===exercise.id && h.weight!==undefined).sort((a,b)=>b.date.localeCompare(a.date));
+  return entries.length ? entries[0].weight : null;
+}
+function sgRecentDifficulty(exerciseId, clientId){
+  const rated = [];
+  clientSessions(clientId).forEach(session=>{
+    if(!session.difficulty) return;
+    (session.rows||[]).forEach(row=>{
+      const matched = sgMatchExercise(row.exerciseName);
+      if(matched && matched.id === exerciseId) rated.push({ date: session.date, difficulty: session.difficulty });
+    });
+  });
+  if(!rated.length) return null;
+  rated.sort((a,b)=>b.date.localeCompare(a.date));
+  return rated[0].difficulty;
+}
+/* Weekly cross-session volume tracking per muscle group (Phase 6) - see client-workout-tracker.html's
+   copy of this same function for the volume-landmark rationale (MEV/MAV/MRV), kept in sync here. */
+function sgWeeklyVolumeByMuscle(clientId){
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-7);
+  const counts = {};
+  clientSessions(clientId).forEach(session=>{
+    if(new Date(session.date) < cutoff) return;
+    (session.rows||[]).forEach(row=>{
+      if(row.cat === 'cardio') return;
+      const matched = sgMatchExercise(row.exerciseName);
+      if(!matched) return;
+      const setCount = (row.sets||[]).length;
+      (matched.m||[]).forEach(m=>{ counts[m] = (counts[m]||0) + setCount; });
+    });
+  });
+  return counts;
+}
+/* Unilateral vs bilateral balance check (Phase 6). No explicit tag for this in exercises.json,
+   so infer from the exercise name - checked against a sample of the real library and it catches
+   genuine unilateral variants cleanly (split squats, lunges, single-arm/leg work, step-ups etc).
+   Kept in sync with client-workout-tracker.html / advanced-workout-builder.html. */
+const SG_UNILATERAL_PATTERN = /single|unilateral|1-arm|1-leg|one arm|one leg|alternating|bulgarian|split squat|step-up|step up|pistol|lunge/i;
+function sgIsUnilateral(exercise){ return SG_UNILATERAL_PATTERN.test(exercise.name); }
+
+function sgComputeProgrammingWarnings(built, circuitInfo, clientId){
+  if(circuitInfo) return [];
+  const warnings = [];
+  const projected = sgWeeklyVolumeByMuscle(clientId);
+  const strengthSlots = built.filter(s=>s.chosen && s.role!=='finisher');
+  strengthSlots.forEach(s=>{
+    (s.chosen.m||[]).forEach(m=>{ projected[m] = (projected[m]||0) + (s.setsReps?s.setsReps.sets:0); });
+  });
+  Object.keys(projected).forEach(m=>{
+    if(projected[m] >= 26) warnings.push(`${m}: ${projected[m]} sets this week — above the typical recoverable range for most trainees`);
+    else if(projected[m] >= 20) warnings.push(`${m}: ${projected[m]} sets this week — nearing the top of the productive range`);
+  });
+  if(strengthSlots.length >= 3){
+    const unilateralCount = strengthSlots.filter(s=>sgIsUnilateral(s.chosen)).length;
+    if(unilateralCount === 0) warnings.push('All exercises are bilateral this session — consider swapping one in for a unilateral move (lunge, split squat, single-arm row) to help address side-to-side imbalances');
+  }
+  return warnings;
 }
 
 function sgHardFilter(slot, ttForImpact){
@@ -1644,6 +1724,39 @@ function sgOrderCompoundFirst(slots){
   return slots.map((s,i)=>({s,i})).sort((a,b)=>(sgRoleWeight(a.s.role)-sgRoleWeight(b.s.role))||(a.i-b.i)).map(x=>x.s);
 }
 function sgRoleWeight(role){ return role==='compound' ? 0 : 1; }
+
+/* Warm-up slot auto-suggestion (Phase 6) - curated general guidance per movement pattern,
+   not pulled from the exercise library. Kept in sync with client-workout-tracker.html /
+   advanced-workout-builder.html. */
+const SG_WARMUP_SUGGESTIONS = {
+  squat: "5-8 bodyweight squats + hip circles, then 1-2 light ramp-up sets before working weight",
+  hinge: "10 glute bridges, then a light Romanian deadlift or good morning ramp-up set",
+  push: "Arm circles + 10-15 push-ups or light band presses",
+  pull: "Band pull-aparts + a couple of light lat pulldowns or scap pulls",
+  core: "Dead bugs or plank holds, 2 x 20-30s",
+  cardio: "2-3 min easy pace to raise heart rate before the main work"
+};
+function sgSuggestWarmup(built){
+  const seen = {}, lines = [];
+  built.forEach(s=>{
+    if(!s.chosen || !s.chosen.movementPattern) return;
+    const pat = s.chosen.movementPattern;
+    if(SG_WARMUP_SUGGESTIONS[pat] && !seen[pat]){ seen[pat]=true; lines.push(SG_WARMUP_SUGGESTIONS[pat]); }
+  });
+  return lines;
+}
+
+/* Agonist-antagonist auto-pairing (Phase 6) - some formats (Upper Body Superset, Antagonist
+   Superset - Full Body) tag slots with a shared supersetGroup number; this labels consecutive
+   same-group slots A/B/C... so results can show which exercises to pair back-to-back. */
+function sgAnnotateSupersets(built){
+  let lastGroup = null, letter = 64;
+  built.forEach(s=>{
+    if(s.supersetGroup == null){ lastGroup = null; return; }
+    if(s.supersetGroup !== lastGroup){ letter++; lastGroup = s.supersetGroup; }
+    s.supersetLabel = String.fromCharCode(letter);
+  });
+}
 
 /* UI wiring */
 function openSmartGen(){
@@ -1779,7 +1892,7 @@ function sgBuildSlots(slots, tt, formatName, circuitInfo){
     return { ...slot, ranked, rerollIndex:0, chosen: chosenEx,
       chosenReasons: ranked.length?ranked[0].reasons:[], setsReps, manualOverride:false };
   });
-  if(!circuitInfo) built = sgOrderCompoundFirst(built);
+  if(!circuitInfo){ built = sgOrderCompoundFirst(built); sgAnnotateSupersets(built); }
   if(sgCardioFinisher && !circuitInfo){
     const fSlot = {role:null, movementPattern:'cardio'};
     let cand = sgHardFilter(fSlot, tt).filter(e=>!pickedIds.has(e.id));
@@ -1790,14 +1903,26 @@ function sgBuildSlots(slots, tt, formatName, circuitInfo){
         chosenReasons:[...ranked[0].reasons,'cardio finisher'], setsReps:{sets:1,reps:'60-90s'}, manualOverride:false });
     }
   }
-  sgWorkout = { slots: built, trainingTypeId: tt.id, formatName, isCircuit: !!circuitInfo, protocol: circuitInfo?circuitInfo.protocol:null };
+  sgWorkout = { slots: built, trainingTypeId: tt.id, formatName, isCircuit: !!circuitInfo, protocol: circuitInfo?circuitInfo.protocol:null,
+    programmingWarnings: sgComputeProgrammingWarnings(built, circuitInfo, builderClientId), warmupSuggestions: circuitInfo ? [] : sgSuggestWarmup(built) };
 }
 
 function sgRenderResults(){
   const el = document.getElementById("sg-results");
   if(!sgWorkout){ el.innerHTML=""; return; }
-  el.innerHTML = `<div class="pg-sub" style="font-weight:700;margin:10px 0;">${sgWorkout.formatName}</div>` +
-    sgWorkout.slots.map((s,i)=>sgRenderSlot(s,i)).join("");
+  const warmupHtml = (sgWorkout.warmupSuggestions && sgWorkout.warmupSuggestions.length)
+    ? `<div style="background:#4ade801a;border:1.5px solid #4ade80;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#4ade80;margin-bottom:12px;">
+        &#128161; Suggested warm-up:<br>${sgWorkout.warmupSuggestions.join('<br>')}
+      </div>` : '';
+  const warningsHtml = (sgWorkout.programmingWarnings && sgWorkout.programmingWarnings.length)
+    ? `<div style="background:#e8a53d1a;border:1.5px solid #e8a53d;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#e8a53d;margin-bottom:12px;">
+        &#9888; Programming check:<br>${sgWorkout.programmingWarnings.join('<br>')}
+      </div>` : '';
+  const hasSupersets = sgWorkout.slots.some(s=>s.supersetLabel);
+  const supersetNote = hasSupersets
+    ? `<div class="pg-sub" style="margin-bottom:10px;">&#128279; Same letter = superset — do the pair back-to-back with minimal rest between, rest after completing both.</div>` : '';
+  el.innerHTML = warmupHtml + warningsHtml + `<div class="pg-sub" style="font-weight:700;margin:10px 0;">${sgWorkout.formatName}</div>` +
+    supersetNote + sgWorkout.slots.map((s,i)=>sgRenderSlot(s,i)).join("");
 }
 function sgRenderSlot(s,i){
   if(!s.chosen){
@@ -1805,15 +1930,22 @@ function sgRenderSlot(s,i){
   }
   const ex = s.chosen;
   const suggested = !sgWorkout.isCircuit ? sgSuggestedWeight(ex) : null;
+  const lastWt = !sgWorkout.isCircuit ? sgLastWeight(ex) : null;
+  const supersetBadge = s.supersetLabel ? ` <span style="font-family:monospace;font-weight:700;font-size:11px;color:#e8412c;">[Superset ${s.supersetLabel}]</span>` : '';
   const badge = sgWorkout.isCircuit ? `${sgWorkout.protocol.workSeconds}s/${sgWorkout.protocol.stationRestSeconds}s`
     : `${s.setsReps.sets}×${s.setsReps.reps}`;
   const isFinisher = s.role==='finisher';
+  const weightLine = suggested!==null
+    ? (lastWt!==null && lastWt!==suggested
+        ? `<div class="pg-sub" style="color:#4ade80;margin-bottom:6px;">Last time: ${lastWt}kg &rarr; Try: ${suggested}kg</div>`
+        : `<div class="pg-sub" style="color:#4ade80;margin-bottom:6px;">Suggested: ${suggested}kg</div>`)
+    : '';
   return `<div class="plan-row">
     <div class="plan-row-top">
-      <span class="plan-row-name">${ex.name} <span class="pg-sub" style="display:inline;">(${badge})</span></span>
+      <span class="plan-row-name">${ex.name} <span class="pg-sub" style="display:inline;">(${badge})</span>${supersetBadge}</span>
     </div>
     <div class="pg-sub" style="margin-bottom:4px;">${(ex.m||[]).join(', ')} · ${s.chosenReasons.join(' · ')}</div>
-    ${suggested!==null ? `<div class="pg-sub" style="color:#4ade80;margin-bottom:6px;">Suggested: ${suggested}kg</div>` : ''}
+    ${weightLine}
     <div style="display:flex;gap:7px;flex-wrap:wrap;">
       <button class="btn btn-gh" style="padding:7px 10px;font-size:12px;" onclick="sgReroll(${i})">↻ Re-roll (${s.rerollIndex+1}/${s.ranked.length||1})</button>
       <button class="btn btn-gh" style="padding:7px 10px;font-size:12px;" onclick="openSgPicker(${i})">Swap</button>
@@ -3047,6 +3179,7 @@ function toggleCollapse(id){
 let cdSvSessionId = null;
 let cdSvClientId = null;
 let cdSvStatus = "planned";
+let cdSvDifficulty = null;
 
 let svDraft = null;
 function openCdSessionView(sessId){
@@ -3058,6 +3191,8 @@ function openCdSessionView(sessId){
   document.getElementById("cd-sv-title").textContent = s.name || "Session";
   document.getElementById("cd-sv-date").textContent = fmtDate(s.date) + " · " + (s.loggedBy === "client" ? "Client Workout" : "PT Workout");
   setCdSvStatus(cdSvStatus);
+  cdSvDifficulty = s.difficulty || null;
+  renderCdSvDifficulty();
 
   svDraft = (s.rows||[]).map(r=>{
     if(r.sets && r.sets.length){
@@ -3102,10 +3237,20 @@ function setCdSvStatus(status){
   document.getElementById("cd-sv-status-planned").classList.toggle("act", status==="planned");
   document.getElementById("cd-sv-status-completed").classList.toggle("act", status==="completed");
 }
+function setCdSvDifficulty(val){
+  cdSvDifficulty = (cdSvDifficulty === val) ? null : val; // tap again to clear - it's optional
+  renderCdSvDifficulty();
+}
+function renderCdSvDifficulty(){
+  document.querySelectorAll('#cd-sv-difficulty-row [data-diff]').forEach(el=>{
+    el.classList.toggle('act', parseInt(el.getAttribute('data-diff'),10) === cdSvDifficulty);
+  });
+}
 function saveCdSessionView(){
   const s = DB.sessions.find(x=>x.id===cdSvSessionId);
   if(!s) return;
   s.status = cdSvStatus;
+  s.difficulty = cdSvDifficulty || null;
   s.rows = svDraft.map(r=>{
     const lastActual = [...r.sets].reverse().find(set=>set.actualKg)?.actualKg || "";
     return {

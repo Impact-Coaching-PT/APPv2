@@ -786,6 +786,24 @@ main{max-width:520px;margin:0 auto;padding:16px;}
   </div>
 </div>
 
+<!-- POST-SESSION DIFFICULTY RATING (optional, shown after Finish - never blocks the save) -->
+<div id="difficulty-modal" class="modal-bg hidden">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <div class="modal-title">How did that feel?</div>
+    </div>
+    <div class="chip-row" id="difficulty-chips" style="justify-content:space-between;margin-bottom:6px;">
+      <div class="chip" data-difficulty="1">1</div>
+      <div class="chip" data-difficulty="2">2</div>
+      <div class="chip" data-difficulty="3">3</div>
+      <div class="chip" data-difficulty="4">4</div>
+      <div class="chip" data-difficulty="5">5</div>
+    </div>
+    <div class="session-ex-last" style="margin-bottom:16px;">1 = Too easy &middot; 5 = Too hard</div>
+    <button class="btn btn-gh" id="difficulty-skip-btn" style="width:100%;">Skip</button>
+  </div>
+</div>
+
 <script>
 /* ============ MODAL DIALOGS (replace native confirm()/prompt(), which silently no-op in iOS home-screen apps) ============ */
 function showConfirmModal(message, onConfirm){
@@ -908,7 +926,10 @@ async function syncWorkoutCompletion(sess){
     // Client built and logged this one themselves - give it a fresh entry in the PT-App's
     // session history so it shows up there and feeds previous-weights lookups, same as any
     // session the coach logs directly - just tagged so both sides can label it correctly.
-    rec.sessions.push({
+    // Upsert by id rather than always pushing: this function gets called again after a
+    // post-session difficulty rating is added (see openDifficultyPrompt), and would otherwise
+    // duplicate the history entry on that second call.
+    var newEntry = {
       id: 'client-' + sess.id,
       clientId: (rec.client && rec.client.id) || getClientHubId(),
       date: sess.date || (sess.startedAt||'').split('T')[0],
@@ -917,6 +938,7 @@ async function syncWorkoutCompletion(sess){
       assignedByCoach: false,
       loggedBy: 'client',
       isActivityLog: !!sess.isActivityLog,
+      difficulty: sess.difficulty || null,
       rows: sess.exercises.map(function(ex){
         if(ex.cat === 'cardio'){
           // Cardio has its own shape (distance/bpm, not weight/reps) - tagged with cat so
@@ -946,7 +968,9 @@ async function syncWorkoutCompletion(sess){
           sets: ex.sets.map(function(s){ return { kg: '', reps: '', actualKg: s.weight || '' }; })
         };
       })
-    });
+    };
+    var existingIdx = rec.sessions.findIndex(function(s){ return s.id === newEntry.id; });
+    if(existingIdx !== -1) rec.sessions[existingIdx] = newEntry; else rec.sessions.push(newEntry);
   }
 
   saveClientHubRecord(rec);
@@ -1447,7 +1471,30 @@ document.getElementById('finish-session-btn').addEventListener('click', function
   syncWorkoutCompletion(sess);
   toast('Workout saved');
   showDashboard();
+  openDifficultyPrompt(sess.id);
 });
+
+/* Post-session difficulty rating (Phase 6) - decoupled from the save above so there's zero
+   risk of a workout getting lost if this prompt is skipped/dismissed; it just patches
+   `difficulty` onto the already-saved session afterwards and re-syncs. */
+function openDifficultyPrompt(sessionId){
+  document.getElementById('difficulty-modal').setAttribute('data-session-id', sessionId);
+  openModal('difficulty-modal');
+}
+document.getElementById('difficulty-chips').addEventListener('click', function(e){
+  var val = e.target.getAttribute('data-difficulty');
+  if(!val) return;
+  var sessionId = document.getElementById('difficulty-modal').getAttribute('data-session-id');
+  var p = getActiveProfile();
+  var sess = (p.sessions||[]).find(function(s){ return s.id === sessionId; });
+  if(sess){
+    sess.difficulty = parseInt(val,10);
+    saveStore(store);
+    syncWorkoutCompletion(sess);
+  }
+  closeModal('difficulty-modal');
+});
+document.getElementById('difficulty-skip-btn').addEventListener('click', function(){ closeModal('difficulty-modal'); });
 
 function lastPerformance(p, exerciseId){
   var past = (p.sessions||[]).filter(function(s){
@@ -1833,8 +1880,12 @@ var SG_FORMATS = [
     {role:"accessory",movementPattern:"isolation",muscleGroup:"Quads"},{role:"accessory",movementPattern:"isolation",muscleGroup:"Hamstrings"},
     {role:"accessory",movementPattern:"core"} ]},
   { id:"upper-superset", name:"Upper Body Superset", slots:[
-    {role:"compound",movementPattern:"push"},{role:"compound",movementPattern:"pull"},
-    {role:"accessory",movementPattern:"isolation",muscleGroup:"Biceps"},{role:"accessory",movementPattern:"isolation",muscleGroup:"Triceps"} ]}
+    {role:"compound",movementPattern:"push",supersetGroup:1},{role:"compound",movementPattern:"pull",supersetGroup:1},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Biceps",supersetGroup:2},{role:"accessory",movementPattern:"isolation",muscleGroup:"Triceps",supersetGroup:2} ]},
+  { id:"antagonist-superset", name:"Antagonist Superset — Full Body", slots:[
+    {role:"compound",movementPattern:"squat",supersetGroup:1},{role:"compound",movementPattern:"hinge",supersetGroup:1},
+    {role:"compound",movementPattern:"push",supersetGroup:2},{role:"compound",movementPattern:"pull",supersetGroup:2},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Biceps",supersetGroup:3},{role:"accessory",movementPattern:"isolation",muscleGroup:"Triceps",supersetGroup:3} ]}
 ];
 
 function sgGetTT(){ return SG_TRAINING_TYPES.find(function(t){ return t.id===document.getElementById("sg-tt").value; }); }
@@ -1896,7 +1947,82 @@ function sgSuggestedWeight(exercise){
     .sort(function(a,b){ return b.date.localeCompare(a.date); });
   if(!entries.length) return null;
   var inc = exercise.compound ? 2.5 : 1.25;
+  // Progressive overload nudge from post-session feedback (Phase 6): if the last time this
+  // exercise was logged the client rated it easy, push the increment further than the flat
+  // default; if it was rated hard, hold at the same weight rather than adding more load on top.
+  var diff = sgRecentDifficulty(exercise.id);
+  if(diff !== null){
+    if(diff <= 2) inc = inc * 2;
+    else if(diff >= 4) inc = 0;
+  }
   return Math.round((entries[0].weight+inc)*4)/4;
+}
+function sgLastWeight(exercise){
+  var entries = sgHistory.filter(function(h){ return h.exerciseId===exercise.id && h.weight!==undefined; })
+    .sort(function(a,b){ return b.date.localeCompare(a.date); });
+  return entries.length ? entries[0].weight : null;
+}
+function sgRecentDifficulty(exerciseId){
+  var p = getActiveProfile();
+  var rated = [];
+  (p.sessions||[]).forEach(function(session){
+    if(session.isActivityLog || !session.difficulty) return;
+    (session.exercises||[]).forEach(function(exEntry){
+      var matched = exEntry.exerciseId ? getExercise(exEntry.exerciseId) : sgMatchExercise(exEntry.name);
+      if(matched && matched.id === exerciseId) rated.push({ date: session.date, difficulty: session.difficulty });
+    });
+  });
+  if(!rated.length) return null;
+  rated.sort(function(a,b){ return b.date.localeCompare(a.date); });
+  return rated[0].difficulty;
+}
+/* Weekly cross-session volume tracking per muscle group (Phase 6) - rolling 7 days, sets-based.
+   Landmarks used (Renaissance Periodization-style MEV/MAV/MRV, generalised for population use
+   since we don't have per-client RPE/recovery data to individualise them): most muscles' MAV
+   (productive range) tops out around 20 sets/week, MRV (recoverable ceiling) around 26+. These
+   are advisory only, same pattern as the training-type mismatch warning elsewhere - never block
+   generation on them, just flag before volume stacks up rather than after. */
+function sgWeeklyVolumeByMuscle(){
+  var p = getActiveProfile();
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate()-7);
+  var counts = {};
+  (p.sessions||[]).forEach(function(session){
+    if(session.isActivityLog) return;
+    if(new Date(session.date) < cutoff) return;
+    (session.exercises||[]).forEach(function(exEntry){
+      if(exEntry.cat === 'cardio') return;
+      var matched = exEntry.exerciseId ? getExercise(exEntry.exerciseId) : sgMatchExercise(exEntry.name);
+      if(!matched) return;
+      var setCount = (exEntry.sets||[]).length;
+      (matched.m||[]).forEach(function(m){ counts[m] = (counts[m]||0) + setCount; });
+    });
+  });
+  return counts;
+}
+/* Unilateral vs bilateral balance check (Phase 6). No explicit tag for this in exercises.json,
+   so infer from the exercise name - checked against a sample of the real library and it catches
+   genuine unilateral variants cleanly (split squats, lunges, single-arm/leg work, step-ups etc).
+   Kept in sync with index-v2.html / advanced-workout-builder.html. */
+var SG_UNILATERAL_PATTERN = /single|unilateral|1-arm|1-leg|one arm|one leg|alternating|bulgarian|split squat|step-up|step up|pistol|lunge/i;
+function sgIsUnilateral(exercise){ return SG_UNILATERAL_PATTERN.test(exercise.name); }
+
+function sgComputeProgrammingWarnings(built, circuitInfo){
+  if(circuitInfo) return []; // conditioning-based, not tracked the same way as muscle-group sets/balance
+  var warnings = [];
+  var projected = sgWeeklyVolumeByMuscle();
+  var strengthSlots = built.filter(function(s){ return s.chosen && s.role!=='finisher'; });
+  strengthSlots.forEach(function(s){
+    (s.chosen.m||[]).forEach(function(m){ projected[m] = (projected[m]||0) + (s.setsReps?s.setsReps.sets:0); });
+  });
+  Object.keys(projected).forEach(function(m){
+    if(projected[m] >= 26) warnings.push(m+': '+projected[m]+' sets this week — above the typical recoverable range for most trainees');
+    else if(projected[m] >= 20) warnings.push(m+': '+projected[m]+' sets this week — nearing the top of the productive range');
+  });
+  if(strengthSlots.length >= 3){
+    var unilateralCount = strengthSlots.filter(function(s){ return sgIsUnilateral(s.chosen); }).length;
+    if(unilateralCount === 0) warnings.push('All exercises are bilateral this session — consider swapping one in for a unilateral move (lunge, split squat, single-arm row) to help address side-to-side imbalances');
+  }
+  return warnings;
 }
 
 function sgHardFilter(slot, ttForImpact){
@@ -1942,6 +2068,42 @@ function sgOrderCompoundFirst(slots){
     .map(function(x){ return x.s; });
 }
 function sgRoleWeight(role){ return role==='compound' ? 0 : 1; }
+
+/* Warm-up slot auto-suggestion (Phase 6) - curated general guidance per movement pattern,
+   not pulled from the exercise library (this is standard prep advice, not a scored exercise
+   choice). Kept in sync with index-v2.html / advanced-workout-builder.html. */
+var SG_WARMUP_SUGGESTIONS = {
+  squat: "5-8 bodyweight squats + hip circles, then 1-2 light ramp-up sets before working weight",
+  hinge: "10 glute bridges, then a light Romanian deadlift or good morning ramp-up set",
+  push: "Arm circles + 10-15 push-ups or light band presses",
+  pull: "Band pull-aparts + a couple of light lat pulldowns or scap pulls",
+  core: "Dead bugs or plank holds, 2 x 20-30s",
+  cardio: "2-3 min easy pace to raise heart rate before the main work"
+};
+function sgSuggestWarmup(built){
+  var seen = {}, lines = [];
+  built.forEach(function(s){
+    if(!s.chosen || !s.chosen.movementPattern) return;
+    var pat = s.chosen.movementPattern;
+    if(SG_WARMUP_SUGGESTIONS[pat] && !seen[pat]){
+      seen[pat] = true;
+      lines.push(SG_WARMUP_SUGGESTIONS[pat]);
+    }
+  });
+  return lines;
+}
+
+/* Agonist-antagonist auto-pairing (Phase 6) - some formats (Upper Body Superset, Antagonist
+   Superset - Full Body) tag slots with a shared supersetGroup number; this labels consecutive
+   same-group slots A/B/C... so the results view can show which exercises to pair back-to-back. */
+function sgAnnotateSupersets(built){
+  var lastGroup = null, letter = 64; // 'A' - 1, so first increment lands on 'A'
+  built.forEach(function(s){
+    if(s.supersetGroup == null){ lastGroup = null; return; }
+    if(s.supersetGroup !== lastGroup){ letter++; lastGroup = s.supersetGroup; }
+    s.supersetLabel = String.fromCharCode(letter);
+  });
+}
 
 /* UI wiring */
 function openSmartGen(){
@@ -2087,7 +2249,7 @@ function sgBuildSlots(slots, tt, formatName, circuitInfo){
     return Object.assign({}, slot, { ranked:ranked, rerollIndex:0, chosen:chosenEx,
       chosenReasons: ranked.length?ranked[0].reasons:[], setsReps:setsReps, manualOverride:false });
   });
-  if(!circuitInfo) built = sgOrderCompoundFirst(built);
+  if(!circuitInfo){ built = sgOrderCompoundFirst(built); sgAnnotateSupersets(built); }
   if(sgCardioFinisher && !circuitInfo){
     var fSlot = {role:null, movementPattern:'cardio'};
     var cand = sgHardFilter(fSlot, tt).filter(function(e){ return !pickedIds[e.id]; });
@@ -2098,14 +2260,26 @@ function sgBuildSlots(slots, tt, formatName, circuitInfo){
         chosenReasons: ranked2[0].reasons.concat(['cardio finisher']), setsReps:{sets:1,reps:'60-90s'}, manualOverride:false });
     }
   }
-  sgWorkout = { slots: built, trainingTypeId: tt.id, formatName: formatName, isCircuit: !!circuitInfo, protocol: circuitInfo?circuitInfo.protocol:null };
+  sgWorkout = { slots: built, trainingTypeId: tt.id, formatName: formatName, isCircuit: !!circuitInfo, protocol: circuitInfo?circuitInfo.protocol:null,
+    programmingWarnings: sgComputeProgrammingWarnings(built, circuitInfo), warmupSuggestions: circuitInfo ? [] : sgSuggestWarmup(built) };
 }
 
 function sgRenderResults(){
   var el = document.getElementById("sg-results");
   if(!sgWorkout){ el.innerHTML=""; return; }
-  el.innerHTML = '<div class="session-ex-last" style="font-weight:700;margin:10px 0;">'+sgWorkout.formatName+'</div>' +
-    sgWorkout.slots.map(function(s,i){ return sgRenderSlot(s,i); }).join("");
+  var warmupHtml = (sgWorkout.warmupSuggestions && sgWorkout.warmupSuggestions.length)
+    ? '<div style="background:#4ade801a;border:1.5px solid #4ade80;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#4ade80;margin-bottom:12px;">'+
+        '&#128161; Suggested warm-up:<br>'+sgWorkout.warmupSuggestions.map(function(w){ return escapeHtml(w); }).join('<br>')+
+      '</div>' : '';
+  var warningsHtml = (sgWorkout.programmingWarnings && sgWorkout.programmingWarnings.length)
+    ? '<div style="background:#e8a53d1a;border:1.5px solid #e8a53d;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#e8a53d;margin-bottom:12px;">'+
+        '&#9888; Programming check:<br>'+sgWorkout.programmingWarnings.map(function(w){ return escapeHtml(w); }).join('<br>')+
+      '</div>' : '';
+  var hasSupersets = sgWorkout.slots.some(function(s){ return s.supersetLabel; });
+  var supersetNote = hasSupersets
+    ? '<div class="session-ex-last" style="margin-bottom:10px;">&#128279; Same letter = superset — do the pair back-to-back with minimal rest between, rest after completing both.</div>' : '';
+  el.innerHTML = warmupHtml + warningsHtml + '<div class="session-ex-last" style="font-weight:700;margin:10px 0;">'+sgWorkout.formatName+'</div>' +
+    supersetNote + sgWorkout.slots.map(function(s,i){ return sgRenderSlot(s,i); }).join("");
 }
 function sgRenderSlot(s,i){
   if(!s.chosen){
@@ -2113,12 +2287,20 @@ function sgRenderSlot(s,i){
   }
   var ex = s.chosen;
   var suggested = !sgWorkout.isCircuit ? sgSuggestedWeight(ex) : null;
+  var lastWt = !sgWorkout.isCircuit ? sgLastWeight(ex) : null;
+  var supersetBadge = s.supersetLabel ? ' <span style="font-family:monospace;font-weight:700;font-size:11px;color:#e8412c;">[Superset '+s.supersetLabel+']</span>' : '';
   var badge = sgWorkout.isCircuit ? (sgWorkout.protocol.workSeconds+'s/'+sgWorkout.protocol.stationRestSeconds+'s') : (s.setsReps.sets+'&times;'+s.setsReps.reps);
   var isFinisher = s.role==='finisher';
+  var weightLine = '';
+  if(suggested!==null){
+    weightLine = lastWt!==null && lastWt!==suggested
+      ? '<div class="session-ex-last" style="color:#4ade80;">Last time: '+lastWt+'kg &rarr; Try: '+suggested+'kg</div>'
+      : '<div class="session-ex-last" style="color:#4ade80;">Suggested: '+suggested+'kg</div>';
+  }
   return '<div class="session-ex-card">'+
-    '<div class="session-ex-head"><div class="session-ex-name">'+escapeHtml(ex.name)+' <span style="font-family:monospace;font-weight:400;text-transform:none;font-size:12px;color:var(--t4);">('+badge+')</span></div></div>'+
+    '<div class="session-ex-head"><div class="session-ex-name">'+escapeHtml(ex.name)+' <span style="font-family:monospace;font-weight:400;text-transform:none;font-size:12px;color:var(--t4);">('+badge+')</span>'+supersetBadge+'</div></div>'+
     '<div class="session-ex-last">'+(ex.m||[]).join(', ')+' &middot; '+s.chosenReasons.join(' &middot; ')+'</div>'+
-    (suggested!==null ? '<div class="session-ex-last" style="color:#4ade80;">Suggested: '+suggested+'kg</div>' : '')+
+    weightLine+
     '<div class="row gap8" style="flex-wrap:wrap;margin-bottom:8px;">'+
       '<button class="btn btn-gh" style="padding:7px 10px;font-size:12px;" data-sg-reroll="'+i+'">&#8635; Re-roll ('+(s.rerollIndex+1)+'/'+(s.ranked.length||1)+')</button>'+
       '<button class="btn btn-gh" style="padding:7px 10px;font-size:12px;" data-sg-swap="'+i+'">Swap</button>'+
