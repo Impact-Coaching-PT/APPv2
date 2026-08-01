@@ -9614,5 +9614,83 @@
   ],
   "highImpact": false,
   "compoundTier": "primary"
+ },
+ {
+  "id": "CV45",
+  "name": "Outdoor Run / Jog",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "other",
+  "compound": false,
+  "movementPattern": "cardio",
+  "contraindications": [],
+  "highImpact": false
+ },
+ {
+  "id": "CV46",
+  "name": "Outdoor Bike Ride",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "other",
+  "compound": false,
+  "movementPattern": "cardio",
+  "contraindications": [],
+  "highImpact": false
+ },
+ {
+  "id": "CV47",
+  "name": "Swimming",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "other",
+  "compound": false,
+  "movementPattern": "cardio",
+  "contraindications": [],
+  "highImpact": false
+ },
+ {
+  "id": "CV48",
+  "name": "Walk / Hike",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "other",
+  "compound": false,
+  "movementPattern": "cardio",
+  "contraindications": [],
+  "highImpact": false
+ },
+ {
+  "id": "CV49",
+  "name": "Football / 5-a-side",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "other",
+  "compound": false,
+  "movementPattern": "cardio",
+  "contraindications": [],
+  "highImpact": true
+ },
+ {
+  "id": "CV50",
+  "name": "Fitness Class",
+  "cat": "cardio",
+  "m": [
+   "Cardio"
+  ],
+  "eq": "other",
+  "compound": false,
+  "movementPattern": "cardio",
+  "contraindications": [],
+  "highImpact": false
  }
 ]
