@@ -119,6 +119,7 @@ main{max-width:520px;margin:0 auto;padding:16px;}
 /* Modals */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:flex;align-items:flex-end;justify-content:center;}
 #picker-modal{z-index:60;}
+#sg-pick-modal{z-index:60;}
 #custom-ex-modal{z-index:70;}
 #confirm-modal{z-index:90;} /* always on top - it's a dialog over whatever else is open, incl. other modals */
 #input-modal{z-index:90;}
@@ -334,6 +335,10 @@ main{max-width:520px;margin:0 auto;padding:16px;}
       <div class="row gap10" style="margin-bottom:18px;">
         <button class="btn btn-r" id="create-workout-btn" style="flex:1;">&#43; Create Workout</button>
         <button class="btn btn-blk" id="start-session-btn" style="flex:1;">&#9889; Quick Start</button>
+      </div>
+      <div class="row gap10" style="margin-bottom:18px;">
+        <button class="btn btn-gh" id="setsmith-generate-btn" style="flex:1;background:linear-gradient(135deg,#e33d2d,#ae231c);border:none;color:#fff;">&#129302; SetSmith Generate</button>
+        <button class="btn btn-gh" id="log-activity-btn" style="flex:1;">&#127939; Log Activity</button>
       </div>
 
       <div class="section-title">Planned Workouts</div>
@@ -691,6 +696,96 @@ main{max-width:520px;margin:0 auto;padding:16px;}
   </div>
 </div>
 
+<!-- SETSMITH SMART GENERATE MODAL -->
+<div id="sg-modal" class="modal-bg hidden">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <div class="modal-title">&#129302; SetSmith Generate</div>
+      <button class="modal-x" data-close="sg-modal">&#215;</button>
+    </div>
+
+    <span class="lbl">Training Type</span>
+    <select class="inp" id="sg-tt" style="margin-bottom:4px;"></select>
+    <div class="session-ex-last" id="sg-tt-desc" style="margin-bottom:14px;"></div>
+
+    <div id="sg-circuit-wrap" class="hidden">
+      <span class="lbl">Circuit Protocol</span>
+      <select class="inp" id="sg-protocol" style="margin-bottom:14px;"></select>
+      <span class="lbl">Area Focus</span>
+      <select class="inp" id="sg-area" style="margin-bottom:14px;">
+        <option value="full">Full Body</option>
+        <option value="upper">Upper Body</option>
+        <option value="lower">Lower Body</option>
+      </select>
+      <div class="chip-row" style="margin-bottom:14px;">
+        <div class="chip" id="sg-lowimpact">Low-impact only</div>
+      </div>
+    </div>
+
+    <div id="sg-format-wrap">
+      <div class="chip-row" style="margin-bottom:12px;">
+        <div class="chip active" id="sg-mode-preset">Preset Formats</div>
+        <div class="chip" id="sg-mode-muscle">Select by Muscles</div>
+      </div>
+      <div id="sg-preset-wrap">
+        <select class="inp" id="sg-format" style="margin-bottom:14px;"></select>
+      </div>
+      <div id="sg-muscle-wrap" class="hidden">
+        <div class="chip-row" id="sg-muscle-chips" style="margin-bottom:14px;"></div>
+      </div>
+    </div>
+
+    <span class="lbl">Contraindications (excludes matching exercises)</span>
+    <div class="chip-row" id="sg-contra-chips" style="margin-bottom:14px;"></div>
+
+    <span class="lbl">Number of Exercises</span>
+    <input class="inp" id="sg-count" type="number" inputmode="numeric" placeholder="e.g. 6" style="margin-bottom:4px;">
+    <div class="session-ex-last" id="sg-count-hint" style="margin-bottom:14px;"></div>
+
+    <div class="chip-row" style="margin-bottom:16px;">
+      <div class="chip" id="sg-cardio-fin">&#43; Cardio finisher</div>
+    </div>
+
+    <button class="btn btn-r" id="sg-generate-btn" style="width:100%;margin-bottom:16px;">Generate Workout</button>
+
+    <div id="sg-results"></div>
+
+    <button class="btn btn-r" id="sg-use-btn" style="width:100%;margin-top:10px;display:none;">&#10003; Use This Workout</button>
+  </div>
+</div>
+
+<!-- SETSMITH EXERCISE PICKER (swap, within Generate) -->
+<div id="sg-pick-modal" class="modal-bg hidden">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <div class="modal-title">Swap Exercise</div>
+      <button class="modal-x" data-close="sg-pick-modal">&#215;</button>
+    </div>
+    <input class="inp" id="sg-pick-search" placeholder="Search exercises..." style="margin-bottom:12px;">
+    <div id="sg-pick-list" style="max-height:50vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- LOG ACTIVITY MODAL (non-gym activity/class - simple entry, separate from the exercise-based flow) -->
+<div id="activity-modal" class="modal-bg hidden">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <div class="modal-title">Log Activity</div>
+      <button class="modal-x" data-close="activity-modal">&#215;</button>
+    </div>
+    <span class="lbl">Activity</span>
+    <div class="chip-row" id="activity-preset-chips" style="margin-bottom:10px;"></div>
+    <input class="inp" id="activity-name-input" placeholder="e.g. Swimming, Yoga class, 5-a-side" style="margin-bottom:16px;">
+    <span class="lbl">Date</span>
+    <input class="inp" id="activity-date-input" type="date" style="margin-bottom:16px;">
+    <span class="lbl">Duration</span>
+    <input class="inp" id="activity-duration-input" placeholder="e.g. 45 min" style="margin-bottom:16px;">
+    <span class="lbl">Notes (optional)</span>
+    <textarea class="inp" id="activity-notes-input" placeholder="How it went, effort, anything worth remembering..." style="margin-bottom:16px;min-height:70px;"></textarea>
+    <button class="btn btn-r" id="activity-save-btn" style="width:100%;">Save Activity</button>
+  </div>
+</div>
+
 <script>
 /* ============ MODAL DIALOGS (replace native confirm()/prompt(), which silently no-op in iOS home-screen apps) ============ */
 function showConfirmModal(message, onConfirm){
@@ -821,10 +916,13 @@ async function syncWorkoutCompletion(sess){
       status: 'completed',
       assignedByCoach: false,
       loggedBy: 'client',
+      isActivityLog: !!sess.isActivityLog,
       rows: sess.exercises.map(function(ex){
         if(ex.cat === 'cardio'){
           // Cardio has its own shape (distance/bpm, not weight/reps) - tagged with cat so
           // the PT-App can tell the difference; its own cardio-aware display is a follow-up.
+          // Activity-log entries (see client-workout-tracker.html's Log Activity feature)
+          // reuse this same cardio shape but carry duration/notes instead of distance/bpm.
           var bestDist = ex.sets.reduce(function(b, s){
             return (s.distance && (!b || +s.distance > +b)) ? s.distance : b;
           }, null);
@@ -833,8 +931,8 @@ async function syncWorkoutCompletion(sess){
             cat: 'cardio',
             scheme: ex.sets.length + ' interval' + (ex.sets.length===1?'':'s'),
             target: '',
-            actual: bestDist ? (bestDist+'km') : '',
-            sets: ex.sets.map(function(s){ return { distance: s.distance||'', bpm: s.bpm||'' }; })
+            actual: bestDist ? (bestDist+'km') : ((ex.sets[0] && ex.sets[0].duration) || ''),
+            sets: ex.sets.map(function(s){ return { distance: s.distance||'', bpm: s.bpm||'', duration: s.duration||'', notes: s.notes||'' }; })
           };
         }
         var best = ex.sets.reduce(function(b, s){
@@ -1678,6 +1776,532 @@ document.getElementById('plan-save-btn').addEventListener('click', function(){
   toast('Workout saved');
 });
 
+/* ============ SETSMITH SMART GENERATE ENGINE ============
+   Ported from index-v2.html's PT-App copy of the same engine - kept in sync whenever
+   generation logic changes, always edit both. Adapted for this file's model: there's no
+   client picker here (this app IS the client's own device), so every "which client" lookup
+   in the PT-App version collapses to getActiveProfile()/getExercise()/allExercises(). */
+var SG_MUSCLES = ["Quads","Glutes","Hamstrings","Adductors","Abductors","Chest","Triceps","Shoulders",
+  "Lats","Upper Back","Biceps","Core"];
+var SG_CONTRA_TAGS = ["shoulder","lower-back","knee","wrist"];
+var sgContra = [];
+var sgLowImpact = false;
+var sgCardioFinisher = false;
+var sgMode = 'preset';
+var sgMuscleSelect = [];
+var sgWorkout = null; // { slots:[...], trainingTypeId, formatName, isCircuit, protocol }
+var sgHistory = []; // matched real history: [{date, exerciseId, weight}]
+var sgPickerSlotIndex = null;
+
+var SG_TRAINING_TYPES = [
+  { id:"strength", name:"Strength", defaultSetsReps:{compound:{sets:5,reps:"3-6"},accessory:{sets:3,reps:"6-8"}}, desc:"Low reps, heavier loads, longer rest." },
+  { id:"hypertrophy", name:"Hypertrophy / Muscle Build", defaultSetsReps:{compound:{sets:4,reps:"6-10"},accessory:{sets:3,reps:"10-12"}}, desc:"Moderate reps, shorter rest, volume-focused." },
+  { id:"fatloss", name:"Fat Loss", defaultSetsReps:{compound:{sets:3,reps:"10-15"},accessory:{sets:3,reps:"12-15"}}, desc:"Higher reps, minimal rest, density-focused." },
+  { id:"menopause", name:"Menopause", defaultSetsReps:{compound:{sets:3,reps:"8-10"},accessory:{sets:3,reps:"10-12"}},
+    compoundPatternOverrides:{squat:{sets:4,reps:"6-8"}, hinge:{sets:4,reps:"6-8"}, pull:{sets:4,reps:"6-8"}},
+    desc:"Resistance-focused, bone-density priority. Lower body and back compounds loaded heavier (4x6-8). Impact work included by design." },
+  { id:"mwl", name:"Medical Weight Loss", defaultSetsReps:{compound:{sets:3,reps:"10-12"},accessory:{sets:3,reps:"12-15"}}, excludeHighImpact:true, desc:"Sustainable, joint-friendly, consistency-focused." },
+  { id:"general", name:"General Fitness", defaultSetsReps:{compound:{sets:3,reps:"8-12"},accessory:{sets:3,reps:"10-12"}}, desc:"Balanced middle ground across goals." },
+  { id:"junior", name:"Junior", defaultSetsReps:{compound:{sets:3,reps:"8-12"},accessory:{sets:2,reps:"10-12"}}, desc:"Conservative loading, technique priority." },
+  { id:"circuit", name:"Circuit", isCircuit:true, desc:"Time-based station rotation." }
+];
+var SG_PROTOCOLS = [
+  { id:"40-20", name:"40/20", workSeconds:40, stationRestSeconds:20, rounds:3, roundRestSeconds:75, suggestedCount:7, desc:"Classic conditioning circuit." },
+  { id:"30-30", name:"30/30", workSeconds:30, stationRestSeconds:30, rounds:3, roundRestSeconds:60, suggestedCount:7, desc:"1:1 work-rest, beginner-friendly." },
+  { id:"vo2max", name:"VO2 Max", workSeconds:180, stationRestSeconds:60, rounds:4, roundRestSeconds:120, suggestedCount:3, desc:"Longer efforts, fewer stations." },
+  { id:"tabata", name:"Tabata", workSeconds:20, stationRestSeconds:10, rounds:8, roundRestSeconds:60, suggestedCount:2, desc:"Max-intensity short bursts." }
+];
+var SG_AREA_FOCUS = {
+  full: null,
+  upper: ["Chest","Triceps","Shoulders","Lats","Upper Back","Biceps"],
+  lower: ["Quads","Glutes","Hamstrings","Adductors","Abductors"]
+};
+var SG_FORMATS = [
+  { id:"fb-strength", name:"Full Body — Straight Sets", slots:[
+    {role:"compound",movementPattern:"squat"},{role:"compound",movementPattern:"hinge"},
+    {role:"compound",movementPattern:"push"},{role:"compound",movementPattern:"pull"},
+    {role:"accessory",movementPattern:"core"} ]},
+  { id:"upper-push", name:"Upper Push Day", slots:[
+    {role:"compound",movementPattern:"push",muscleGroup:"Chest"},{role:"compound",movementPattern:"push",muscleGroup:"Shoulders"},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Chest"},{role:"accessory",movementPattern:"isolation",muscleGroup:"Shoulders"},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Triceps"} ]},
+  { id:"upper-pull", name:"Upper Pull Day", slots:[
+    {role:"compound",movementPattern:"pull",muscleGroup:"Lats"},{role:"compound",movementPattern:"pull",muscleGroup:"Upper Back"},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Biceps"},{role:"accessory",movementPattern:"isolation"} ]},
+  { id:"leg-day", name:"Leg Day", slots:[
+    {role:"compound",movementPattern:"squat"},{role:"compound",movementPattern:"hinge"},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Quads"},{role:"accessory",movementPattern:"isolation",muscleGroup:"Hamstrings"},
+    {role:"accessory",movementPattern:"core"} ]},
+  { id:"upper-superset", name:"Upper Body Superset", slots:[
+    {role:"compound",movementPattern:"push"},{role:"compound",movementPattern:"pull"},
+    {role:"accessory",movementPattern:"isolation",muscleGroup:"Biceps"},{role:"accessory",movementPattern:"isolation",muscleGroup:"Triceps"} ]}
+];
+
+function sgGetTT(){ return SG_TRAINING_TYPES.find(function(t){ return t.id===document.getElementById("sg-tt").value; }); }
+function sgGetProtocol(){ return SG_PROTOCOLS.find(function(p){ return p.id===document.getElementById("sg-protocol").value; }); }
+function sgGetArea(){ return document.getElementById("sg-area").value; }
+
+function sgNormTokens(name){
+  var SYN = {db:'dumbbell',bb:'barbell',kb:'kettlebell',oh:'overhead',ohp:'overhead',curls:'curl',presses:'press',raises:'raise',rows:'row',extensions:'extension'};
+  var toks = (name||'').toLowerCase().replace(/[()]/g,' ').replace(/[^a-z0-9\s]/g,' ')
+    .split(/\s+/).filter(function(t){ return t && ['the','with','a','on','to','of','and'].indexOf(t)===-1; });
+  return toks.map(function(t){ return SYN[t]||t; });
+}
+function sgNameSim(a,b){
+  var ta = {}, tb = {};
+  sgNormTokens(a).forEach(function(t){ ta[t]=true; });
+  sgNormTokens(b).forEach(function(t){ tb[t]=true; });
+  var taKeys = Object.keys(ta), tbKeys = Object.keys(tb);
+  if(!taKeys.length || !tbKeys.length) return 0;
+  var inter = 0; taKeys.forEach(function(t){ if(tb[t]) inter++; });
+  var union = {}; taKeys.concat(tbKeys).forEach(function(t){ union[t]=true; });
+  return inter/Object.keys(union).length;
+}
+function sgMatchExercise(name){
+  var best=null, bestScore=0;
+  allExercises().forEach(function(e){ var s=sgNameSim(name,e.name); if(s>bestScore){bestScore=s;best=e;} });
+  return bestScore>=0.4 ? best : null;
+}
+function sgBestSetWeight(exEntry){
+  // exEntry is a logged session's exercise entry: {exerciseId?, name, cat, sets:[...]}. Cardio
+  // entries (incl. non-gym activity logs) don't carry a weight and are skipped for strength history.
+  if(exEntry.cat === 'cardio') return null;
+  var best = null;
+  (exEntry.sets||[]).forEach(function(s){
+    var w = parseFloat(s.weight || s.actualKg || 0);
+    if(w>0 && (best===null || w>best)) best = w;
+  });
+  return best;
+}
+function sgBuildHistory(){
+  var p = getActiveProfile();
+  var history = [];
+  (p.sessions||[]).forEach(function(session){
+    if(session.isActivityLog) return;
+    (session.exercises||[]).forEach(function(exEntry){
+      // Self-built/logged entries already carry exerciseId; older backfilled history entries
+      // (injectCompletedHistory) only have a name, same fuzzy-match fallback as the PT-App.
+      var matched = exEntry.exerciseId ? getExercise(exEntry.exerciseId) : sgMatchExercise(exEntry.name);
+      if(!matched) return;
+      var entry = { date: session.date, exerciseId: matched.id };
+      var w = sgBestSetWeight(exEntry);
+      if(w!==null) entry.weight = w;
+      history.push(entry);
+    });
+  });
+  return history;
+}
+function sgSuggestedWeight(exercise){
+  var entries = sgHistory.filter(function(h){ return h.exerciseId===exercise.id && h.weight!==undefined; })
+    .sort(function(a,b){ return b.date.localeCompare(a.date); });
+  if(!entries.length) return null;
+  var inc = exercise.compound ? 2.5 : 1.25;
+  return Math.round((entries[0].weight+inc)*4)/4;
+}
+
+function sgHardFilter(slot, ttForImpact){
+  return allExercises().filter(function(e){
+    if(slot.role==='compound' && !e.compound) return false;
+    if(slot.role==='accessory' && e.compound) return false;
+    if(slot.role==='compound' && e.movementPattern==='combo' && slot.movementPattern!=='combo') return false;
+    if(slot.movementPattern && e.movementPattern!==slot.movementPattern) return false;
+    if(slot.muscleGroup && (e.m||[]).indexOf(slot.muscleGroup)===-1) return false;
+    if(e.contraindications && e.contraindications.some(function(c){ return sgContra.indexOf(c)!==-1; })) return false;
+    if(((ttForImpact && ttForImpact.excludeHighImpact) || sgLowImpact) && e.highImpact) return false;
+    return true;
+  });
+}
+function sgScoreCandidates(candidates, pickedMuscles, preferPatterns){
+  return candidates.map(function(e){
+    var score=0, reasons=[];
+    if(preferPatterns && preferPatterns.indexOf(e.movementPattern)!==-1){ score+=12; reasons.push('conditioning-style'); }
+    if(e.compound && e.compoundTier==='primary'){ score+=18; reasons.push('primary compound lift'); }
+    var hist = sgHistory.filter(function(h){ return h.exerciseId===e.id; });
+    if(!hist.length){ score+=50; reasons.push('not in logged history'); }
+    else {
+      var days = hist.map(function(h){ return Math.floor((new Date()-new Date(h.date))/86400000); }).sort(function(a,b){ return a-b; })[0];
+      if(days<=7){ score-=100; reasons.push('used '+days+'d ago'); }
+      else if(days<=30){ score-=30; reasons.push('used '+days+'d ago'); }
+      else { score+=40; reasons.push('not used in '+days+'+ days'); }
+    }
+    var muscleHit = sgHistory.some(function(h){
+      if(h.exerciseId===e.id) return false;
+      var he = getExercise(h.exerciseId);
+      var days = Math.floor((new Date()-new Date(h.date))/86400000);
+      return he && (he.m||[]).some(function(m){ return (e.m||[]).indexOf(m)!==-1; }) && days<=3;
+    });
+    if(muscleHit){ score-=15; reasons.push('shared muscle trained in last 3 days'); }
+    var overlap = (e.m||[]).filter(function(m){ return pickedMuscles.indexOf(m)!==-1; }).length;
+    if(overlap>0){ score-=10*overlap; reasons.push(overlap+' muscle overlap'); }
+    return { ex:e, score:score, reasons:reasons };
+  }).sort(function(a,b){ return (b.score-a.score) || a.ex.id.localeCompare(b.ex.id); });
+}
+function sgOrderCompoundFirst(slots){
+  return slots.map(function(s,i){ return {s:s,i:i}; })
+    .sort(function(a,b){ return (sgRoleWeight(a.s.role)-sgRoleWeight(b.s.role))||(a.i-b.i); })
+    .map(function(x){ return x.s; });
+}
+function sgRoleWeight(role){ return role==='compound' ? 0 : 1; }
+
+/* UI wiring */
+function openSmartGen(){
+  sgHistory = sgBuildHistory();
+  document.getElementById("sg-tt").innerHTML = SG_TRAINING_TYPES.map(function(t){ return '<option value="'+t.id+'">'+t.name+'</option>'; }).join("");
+  document.getElementById("sg-protocol").innerHTML = SG_PROTOCOLS.map(function(p){ return '<option value="'+p.id+'">'+p.name+' ('+p.workSeconds+'s/'+p.stationRestSeconds+'s)</option>'; }).join("");
+  var rec = getClientHubRecord();
+  sgContra = (rec && rec.client && rec.client.contraindications) ? rec.client.contraindications.slice() : [];
+  sgLowImpact = false; sgCardioFinisher = false; sgMode = 'preset'; sgMuscleSelect = [];
+  document.getElementById("sg-lowimpact").classList.remove("active");
+  document.getElementById("sg-cardio-fin").classList.remove("active");
+  document.getElementById("sg-mode-preset").classList.add("active");
+  document.getElementById("sg-mode-muscle").classList.remove("active");
+  document.getElementById("sg-contra-chips").innerHTML = SG_CONTRA_TAGS.map(function(c){
+    return '<div class="chip'+(sgContra.indexOf(c)!==-1?' active':'')+'" data-sg-contra="'+c+'">'+c+'</div>'; }).join("");
+  document.getElementById("sg-muscle-chips").innerHTML = SG_MUSCLES.map(function(m){
+    return '<div class="chip" data-sg-muscle="'+m+'">'+m+'</div>'; }).join("");
+  document.getElementById("sg-format").innerHTML = SG_FORMATS.map(function(f){ return '<option value="'+f.id+'">'+f.name+'</option>'; }).join("");
+  document.getElementById("sg-preset-wrap").classList.remove("hidden");
+  document.getElementById("sg-muscle-wrap").classList.add("hidden");
+  document.getElementById("sg-results").innerHTML = "";
+  document.getElementById("sg-use-btn").style.display = "none";
+  // A nice-to-have default: if this client's own profile category maps to a known training
+  // type, pre-select it. Purely a convenience default, not a mismatch warning (there's no
+  // separate coach here to double-check against - this is the client generating for themself).
+  var CAT_TO_SG_TT = {strength:"strength", fatloss:"fatloss", medweight:"mwl", menopause:"menopause",
+    general:"general", musclebuild:"hypertrophy", junior:"junior", paired:"general"};
+  if(rec && rec.client && rec.client.trainingCat && CAT_TO_SG_TT[rec.client.trainingCat]){
+    document.getElementById("sg-tt").value = CAT_TO_SG_TT[rec.client.trainingCat];
+  }
+  sgOnTrainingTypeChange();
+  openModal("sg-modal");
+}
+document.getElementById('setsmith-generate-btn').addEventListener('click', openSmartGen);
+document.getElementById('sg-tt').addEventListener('change', sgOnTrainingTypeChange);
+function sgOnTrainingTypeChange(){
+  var t = sgGetTT();
+  document.getElementById("sg-tt-desc").textContent = t.desc;
+  document.getElementById("sg-circuit-wrap").classList.toggle("hidden", !t.isCircuit);
+  document.getElementById("sg-format-wrap").classList.toggle("hidden", !!t.isCircuit);
+  sgUpdateSuggestion();
+}
+document.getElementById('sg-protocol').addEventListener('change', sgUpdateSuggestion);
+document.getElementById('sg-area').addEventListener('change', sgUpdateSuggestion);
+document.getElementById('sg-contra-chips').addEventListener('click', function(e){
+  var c = e.target.getAttribute('data-sg-contra');
+  if(c === null) return;
+  var i = sgContra.indexOf(c);
+  if(i>-1) sgContra.splice(i,1); else sgContra.push(c);
+  e.target.classList.toggle('active', sgContra.indexOf(c)!==-1);
+});
+document.getElementById('sg-lowimpact').addEventListener('click', function(){
+  sgLowImpact = !sgLowImpact;
+  document.getElementById('sg-lowimpact').classList.toggle('active', sgLowImpact);
+});
+document.getElementById('sg-cardio-fin').addEventListener('click', function(){
+  sgCardioFinisher = !sgCardioFinisher;
+  document.getElementById('sg-cardio-fin').classList.toggle('active', sgCardioFinisher);
+});
+document.getElementById('sg-mode-preset').addEventListener('click', function(){ sgSetMode('preset'); });
+document.getElementById('sg-mode-muscle').addEventListener('click', function(){ sgSetMode('muscle'); });
+function sgSetMode(mode){
+  sgMode = mode;
+  document.getElementById("sg-mode-preset").classList.toggle("active", mode==='preset');
+  document.getElementById("sg-mode-muscle").classList.toggle("active", mode==='muscle');
+  document.getElementById("sg-preset-wrap").classList.toggle("hidden", mode!=='preset');
+  document.getElementById("sg-muscle-wrap").classList.toggle("hidden", mode!=='muscle');
+  sgUpdateSuggestion();
+}
+document.getElementById('sg-format').addEventListener('change', sgUpdateSuggestion);
+document.getElementById('sg-muscle-chips').addEventListener('click', function(e){
+  var m = e.target.getAttribute('data-sg-muscle');
+  if(m === null) return;
+  var i = sgMuscleSelect.indexOf(m);
+  if(i>-1) sgMuscleSelect.splice(i,1); else sgMuscleSelect.push(m);
+  e.target.classList.toggle('active', sgMuscleSelect.indexOf(m)!==-1);
+  sgUpdateSuggestion();
+});
+function sgUpdateSuggestion(){
+  var t = sgGetTT();
+  var n, label;
+  if(t.isCircuit){ var p=sgGetProtocol(); n=p.suggestedCount; label=p.desc; }
+  else if(sgMode==='muscle'){ n=Math.max(3, sgMuscleSelect.length*2); label='muscle selection'; }
+  else { var f=SG_FORMATS.find(function(x){ return x.id===document.getElementById("sg-format").value; }); n=f?f.slots.length:5; label=f?f.name:''; }
+  document.getElementById("sg-count-hint").textContent = "Suggested: "+n+" exercises for "+label;
+  if(!document.getElementById("sg-count").value) document.getElementById("sg-count").placeholder = "e.g. "+n;
+}
+
+document.getElementById('sg-generate-btn').addEventListener('click', sgGenerate);
+function sgGenerate(){
+  var t = sgGetTT();
+  var countInput = parseInt(document.getElementById("sg-count").value,10) || null;
+  if(t.isCircuit) sgGenerateCircuit(t, countInput);
+  else if(sgMode==='muscle') sgGenerateMuscle(t, countInput);
+  else sgGenerateStandard(t, countInput);
+  sgRenderResults();
+  document.getElementById("sg-use-btn").style.display = sgWorkout && sgWorkout.slots.some(function(s){ return s.chosen; }) ? "block" : "none";
+}
+function sgGenerateStandard(tt, countInput){
+  var format = SG_FORMATS.find(function(f){ return f.id===document.getElementById("sg-format").value; });
+  var slots = format.slots.map(function(s,i){ return Object.assign({}, s, {slotIndex:i}); });
+  if(countInput){
+    if(countInput<=slots.length) slots = slots.slice(0,countInput);
+    else { var ext=[]; for(var i=0;i<countInput;i++) ext.push(Object.assign({}, slots[i%slots.length], {slotIndex:i})); slots=ext; }
+  }
+  sgBuildSlots(slots, tt, format.name);
+}
+function sgGenerateMuscle(tt, countInput){
+  if(!sgMuscleSelect.length){ toast("Pick at least one muscle"); return; }
+  var count = countInput || Math.max(3, sgMuscleSelect.length*2);
+  var slots = [];
+  for(var i=0;i<count;i++) slots.push({role: i%2===0?'compound':'accessory', muscleGroup: sgMuscleSelect[i%sgMuscleSelect.length], slotIndex:i});
+  sgBuildSlots(slots, tt, "Custom: "+sgMuscleSelect.join(', '));
+}
+function sgGenerateCircuit(tt, countInput){
+  var protocol = sgGetProtocol();
+  var muscles = SG_AREA_FOCUS[sgGetArea()];
+  var count = countInput || protocol.suggestedCount;
+  var slots = [];
+  for(var i=0;i<count;i++){
+    var slot = { role: i%2===0?'compound':'accessory', slotIndex:i };
+    if(muscles) slot.muscleGroup = muscles[i%muscles.length];
+    slots.push(slot);
+  }
+  sgBuildSlots(slots, tt, protocol.name+" Circuit", {isCircuit:true, protocol:protocol});
+}
+function sgGetSetsReps(tt, slot, chosenEx){
+  if(chosenEx && slot.role==='compound' && tt.compoundPatternOverrides && tt.compoundPatternOverrides[chosenEx.movementPattern]){
+    return tt.compoundPatternOverrides[chosenEx.movementPattern];
+  }
+  return tt.defaultSetsReps ? tt.defaultSetsReps[slot.role] : {sets:3,reps:'10'};
+}
+function sgBuildSlots(slots, tt, formatName, circuitInfo){
+  var pickedMuscles = [], pickedIds = {};
+  var preferPatterns = circuitInfo && ['tabata','vo2max'].indexOf(circuitInfo.protocol.id)!==-1 ? ['cardio','combo'] : null;
+  var built = slots.map(function(slot){
+    var candidates = sgHardFilter(slot, tt).filter(function(e){ return !pickedIds[e.id]; });
+    if(!candidates.length) candidates = sgHardFilter(slot, tt);
+    var ranked = sgScoreCandidates(candidates, pickedMuscles, preferPatterns);
+    var chosenEx = ranked.length ? ranked[0].ex : null;
+    var setsReps = circuitInfo ? null : sgGetSetsReps(tt, slot, chosenEx);
+    if(chosenEx){ pickedMuscles.push.apply(pickedMuscles, (chosenEx.m||[])); pickedIds[chosenEx.id]=true; }
+    return Object.assign({}, slot, { ranked:ranked, rerollIndex:0, chosen:chosenEx,
+      chosenReasons: ranked.length?ranked[0].reasons:[], setsReps:setsReps, manualOverride:false });
+  });
+  if(!circuitInfo) built = sgOrderCompoundFirst(built);
+  if(sgCardioFinisher && !circuitInfo){
+    var fSlot = {role:null, movementPattern:'cardio'};
+    var cand = sgHardFilter(fSlot, tt).filter(function(e){ return !pickedIds[e.id]; });
+    if(!cand.length) cand = sgHardFilter(fSlot, tt);
+    if(cand.length){
+      var ranked2 = sgScoreCandidates(cand, pickedMuscles);
+      built.push({ role:'finisher', ranked:ranked2, rerollIndex:0, chosen:ranked2[0].ex,
+        chosenReasons: ranked2[0].reasons.concat(['cardio finisher']), setsReps:{sets:1,reps:'60-90s'}, manualOverride:false });
+    }
+  }
+  sgWorkout = { slots: built, trainingTypeId: tt.id, formatName: formatName, isCircuit: !!circuitInfo, protocol: circuitInfo?circuitInfo.protocol:null };
+}
+
+function sgRenderResults(){
+  var el = document.getElementById("sg-results");
+  if(!sgWorkout){ el.innerHTML=""; return; }
+  el.innerHTML = '<div class="session-ex-last" style="font-weight:700;margin:10px 0;">'+sgWorkout.formatName+'</div>' +
+    sgWorkout.slots.map(function(s,i){ return sgRenderSlot(s,i); }).join("");
+}
+function sgRenderSlot(s,i){
+  if(!s.chosen){
+    return '<div class="session-ex-card"><div class="session-ex-last">No match for this slot\'s criteria</div></div>';
+  }
+  var ex = s.chosen;
+  var suggested = !sgWorkout.isCircuit ? sgSuggestedWeight(ex) : null;
+  var badge = sgWorkout.isCircuit ? (sgWorkout.protocol.workSeconds+'s/'+sgWorkout.protocol.stationRestSeconds+'s') : (s.setsReps.sets+'&times;'+s.setsReps.reps);
+  var isFinisher = s.role==='finisher';
+  return '<div class="session-ex-card">'+
+    '<div class="session-ex-head"><div class="session-ex-name">'+escapeHtml(ex.name)+' <span style="font-family:monospace;font-weight:400;text-transform:none;font-size:12px;color:var(--t4);">('+badge+')</span></div></div>'+
+    '<div class="session-ex-last">'+(ex.m||[]).join(', ')+' &middot; '+s.chosenReasons.join(' &middot; ')+'</div>'+
+    (suggested!==null ? '<div class="session-ex-last" style="color:#4ade80;">Suggested: '+suggested+'kg</div>' : '')+
+    '<div class="row gap8" style="flex-wrap:wrap;margin-bottom:8px;">'+
+      '<button class="btn btn-gh" style="padding:7px 10px;font-size:12px;" data-sg-reroll="'+i+'">&#8635; Re-roll ('+(s.rerollIndex+1)+'/'+(s.ranked.length||1)+')</button>'+
+      '<button class="btn btn-gh" style="padding:7px 10px;font-size:12px;" data-sg-swap="'+i+'">Swap</button>'+
+      (!isFinisher && !sgWorkout.isCircuit ? '<button class="btn btn-gh" style="padding:7px 10px;font-size:12px;" data-sg-move="'+i+'" data-sg-dir="-1">&#8593;</button>'+
+      '<button class="btn btn-gh" style="padding:7px 10px;font-size:12px;" data-sg-move="'+i+'" data-sg-dir="1">&#8595;</button>' : '')+
+    '</div>'+
+    (!sgWorkout.isCircuit ? '<div class="row gap8" style="align-items:center;">'+
+      '<span class="lbl" style="margin-bottom:0;">Sets</span>'+
+      '<input class="inp" style="width:50px;padding:7px;" type="number" value="'+s.setsReps.sets+'" data-sg-sets="'+i+'">'+
+      '<span class="lbl" style="margin-bottom:0;">Reps</span>'+
+      '<input class="inp" style="width:70px;padding:7px;" value="'+s.setsReps.reps+'" data-sg-reps="'+i+'">'+
+    '</div>' : '')+
+  '</div>';
+}
+document.getElementById('sg-results').addEventListener('click', function(e){
+  var reroll = e.target.getAttribute('data-sg-reroll');
+  if(reroll !== null){ sgReroll(parseInt(reroll,10)); return; }
+  var swap = e.target.getAttribute('data-sg-swap');
+  if(swap !== null){ openSgPicker(parseInt(swap,10)); return; }
+  var move = e.target.getAttribute('data-sg-move');
+  if(move !== null){ sgMove(parseInt(move,10), parseInt(e.target.getAttribute('data-sg-dir'),10)); return; }
+});
+document.getElementById('sg-results').addEventListener('change', function(e){
+  var setsIdx = e.target.getAttribute('data-sg-sets');
+  if(setsIdx !== null){ sgUpdateSets(parseInt(setsIdx,10), e.target.value); return; }
+  var repsIdx = e.target.getAttribute('data-sg-reps');
+  if(repsIdx !== null){ sgUpdateReps(parseInt(repsIdx,10), e.target.value); return; }
+});
+function sgUpdateSets(i,val){ var n=parseInt(val,10); if(!isNaN(n)&&n>0) sgWorkout.slots[i].setsReps.sets=n; }
+function sgUpdateReps(i,val){ sgWorkout.slots[i].setsReps.reps=val; }
+function sgMove(i,dir){
+  var slots = sgWorkout.slots; var j=i+dir;
+  if(j<0||j>=slots.length) return;
+  if(slots[i].role==='finisher'||slots[j].role==='finisher') return;
+  var tmp = slots[i]; slots[i]=slots[j]; slots[j]=tmp;
+  sgRenderResults();
+}
+function sgReroll(i){
+  var s = sgWorkout.slots[i];
+  if(!s.ranked.length) return;
+  s.rerollIndex = (s.rerollIndex+1) % s.ranked.length;
+  var pick = s.ranked[s.rerollIndex];
+  s.chosen = pick.ex; s.chosenReasons = pick.reasons; s.manualOverride=false;
+  if(!sgWorkout.isCircuit){
+    var tt = SG_TRAINING_TYPES.find(function(t){ return t.id===sgWorkout.trainingTypeId; });
+    if(tt) s.setsReps = sgGetSetsReps(tt, s, s.chosen);
+  }
+  sgRenderResults();
+}
+function openSgPicker(i){
+  sgPickerSlotIndex = i;
+  document.getElementById("sg-pick-search").value = "";
+  sgRenderPickList();
+  openModal("sg-pick-modal");
+}
+document.getElementById('sg-pick-search').addEventListener('input', sgRenderPickList);
+function sgRenderPickList(){
+  var q = document.getElementById("sg-pick-search").value.toLowerCase();
+  var list = allExercises().filter(function(e){ return e.name.toLowerCase().indexOf(q)!==-1; }).slice(0,120);
+  document.getElementById("sg-pick-list").innerHTML = list.map(function(e){ return '<div class="ex-row" data-sg-pick="'+e.id+'">'+
+    '<div class="ex-info"><div class="ex-name">'+escapeHtml(e.name)+'</div><div class="ex-meta">'+(e.m||[]).join(', ')+'</div></div>'+
+  '</div>'; }).join("");
+}
+document.getElementById('sg-pick-list').addEventListener('click', function(e){
+  var row = e.target.closest ? e.target.closest('[data-sg-pick]') : null;
+  var id = row ? row.getAttribute('data-sg-pick') : null;
+  if(!id) return;
+  sgPickExercise(id);
+});
+function sgPickExercise(id){
+  var ex = getExercise(id);
+  var s = sgWorkout.slots[sgPickerSlotIndex];
+  s.chosen = ex; s.chosenReasons = ['manually selected']; s.manualOverride = true;
+  if(!sgWorkout.isCircuit){
+    var tt = SG_TRAINING_TYPES.find(function(t){ return t.id===sgWorkout.trainingTypeId; });
+    if(tt) s.setsReps = sgGetSetsReps(tt, s, ex);
+  }
+  closeModal("sg-pick-modal");
+  sgRenderResults();
+}
+document.getElementById('sg-use-btn').addEventListener('click', sgUseWorkout);
+function sgUseWorkout(){
+  if(!sgWorkout) return;
+  draftWorkout = {
+    id: null,
+    title: sgWorkout.formatName,
+    exercises: sgWorkout.slots.filter(function(s){ return s.chosen; }).map(function(s){
+      var suggested = !sgWorkout.isCircuit ? sgSuggestedWeight(s.chosen) : null;
+      var plannedWeight = suggested!==null ? String(suggested) : "";
+      var plannedReps = s.setsReps ? String(s.setsReps.reps).split('-')[0] : "";
+      var setsCount = s.setsReps ? s.setsReps.sets : 1;
+      var sets = [];
+      for(var i=0;i<setsCount;i++) sets.push({ plannedWeight: plannedWeight, plannedReps: plannedReps });
+      return { exerciseId: s.chosen.id, name: s.chosen.name, cat: s.chosen.cat, sets: sets };
+    })
+  };
+  document.getElementById('plan-modal-title').textContent = 'Create workout';
+  document.getElementById('plan-title-input').value = draftWorkout.title;
+  renderPlanExList();
+  closeModal('sg-modal');
+  openModal('plan-modal');
+  toast('Loaded into Create Workout — review, then Save');
+}
+
+/* ============ LOG ACTIVITY (non-gym activity/class - simple entry) ============
+   Separate from the structured exercise-based Create Workout flow: one activity, a date,
+   a duration and optional notes - still saved as a normal session so it counts toward
+   History/Calendar and syncs back to the PT-App the same way any other session does. */
+var ACTIVITY_PRESET_IDS = ["CV47","CV45","CV46","CV48","CV49","CV50"]; // Swimming, Outdoor Run/Jog, Outdoor Bike Ride, Walk/Hike, Football/5-a-side, Fitness Class
+var activitySelectedId = null;
+function renderActivityPresetChips(){
+  var wrap = document.getElementById('activity-preset-chips');
+  wrap.innerHTML = '';
+  ACTIVITY_PRESET_IDS.forEach(function(id){
+    var ex = getExercise(id);
+    if(!ex) return;
+    var chip = document.createElement('div');
+    chip.className = 'chip' + (activitySelectedId===id ? ' active' : '');
+    chip.textContent = ex.name;
+    chip.setAttribute('data-activity-preset', id);
+    wrap.appendChild(chip);
+  });
+}
+document.getElementById('activity-preset-chips').addEventListener('click', function(e){
+  var id = e.target.getAttribute('data-activity-preset');
+  if(!id) return;
+  var ex = getExercise(id);
+  if(!ex) return;
+  activitySelectedId = id;
+  document.getElementById('activity-name-input').value = ex.name;
+  renderActivityPresetChips();
+});
+document.getElementById('activity-name-input').addEventListener('input', function(){
+  // Typing a custom name (or editing a preset's name) means it's no longer tied to that
+  // preset's exerciseId - it'll just save as a plain named activity with no library match.
+  if(activitySelectedId){
+    var ex = getExercise(activitySelectedId);
+    if(!ex || ex.name !== document.getElementById('activity-name-input').value){
+      activitySelectedId = null;
+      renderActivityPresetChips();
+    }
+  }
+});
+document.getElementById('log-activity-btn').addEventListener('click', function(){
+  activitySelectedId = null;
+  document.getElementById('activity-name-input').value = '';
+  document.getElementById('activity-date-input').value = dateKey(new Date());
+  document.getElementById('activity-duration-input').value = '';
+  document.getElementById('activity-notes-input').value = '';
+  renderActivityPresetChips();
+  openModal('activity-modal');
+});
+document.getElementById('activity-save-btn').addEventListener('click', function(){
+  var name = document.getElementById('activity-name-input').value.trim();
+  if(!name){ toast('Give the activity a name'); return; }
+  var date = document.getElementById('activity-date-input').value || dateKey(new Date());
+  var duration = document.getElementById('activity-duration-input').value.trim();
+  var notes = document.getElementById('activity-notes-input').value.trim();
+  var p = getActiveProfile();
+  if(!p.sessions) p.sessions = [];
+  var nowIso = new Date().toISOString();
+  var sess = {
+    id: uid(),
+    date: date,
+    startedAt: nowIso,
+    finishedAt: nowIso,
+    title: name,
+    isActivityLog: true,
+    exercises: [{
+      exerciseId: activitySelectedId,
+      name: name,
+      cat: 'cardio',
+      sets: [{ distance:'', bpm:'', duration: duration, notes: notes }]
+    }]
+  };
+  p.sessions.push(sess);
+  saveStore(store);
+  syncWorkoutCompletion(sess);
+  closeModal('activity-modal');
+  renderLogScreen();
+  toast('Activity logged');
+});
+
 function renderPlannedList(){
   var p = getActiveProfile();
   var plans = p.plannedWorkouts || [];
@@ -1804,8 +2428,15 @@ function renderHistory(){
     item.className = 'session-item';
     var dateLine = fmtDate(s.date) + (s.title ? ' · ' + escapeHtml(s.title) : '');
     var srcLabel = s.assignedByCoach ? 'PT Workout' : 'Client Workout';
+    var subLine;
+    if(s.isActivityLog){
+      var dur = (s.exercises[0] && s.exercises[0].sets[0] && s.exercises[0].sets[0].duration) || '';
+      subLine = 'Activity' + (dur ? ' · ' + escapeHtml(dur) : '');
+    } else {
+      subLine = s.exercises.length+' exercise'+(s.exercises.length===1?'':'s')+' · '+setCount+' set'+(setCount===1?'':'s')+' · '+srcLabel;
+    }
     item.innerHTML = '<div><div class="session-item-date">'+dateLine+'</div>'+
-      '<div class="session-item-sub">'+s.exercises.length+' exercise'+(s.exercises.length===1?'':'s')+' · '+setCount+' set'+(setCount===1?'':'s')+' · '+srcLabel+'</div></div>'+
+      '<div class="session-item-sub">'+subLine+'</div></div>'+
       '<div class="session-item-count">&#8250;</div>';
     item.addEventListener('click', function(){ openSessionDetail(s.id); });
     listEl.appendChild(item);
@@ -1818,6 +2449,18 @@ function openSessionDetail(sessionId){
   document.getElementById('sd-date-title').textContent = fmtDate(s.date);
   var body = document.getElementById('sd-body');
   body.innerHTML = '';
+  if(s.isActivityLog){
+    var set0 = (s.exercises[0] && s.exercises[0].sets[0]) || {};
+    var card0 = document.createElement('div');
+    card0.className = 'session-ex-card';
+    card0.innerHTML = '<div class="session-ex-name" style="margin-bottom:8px;">'+escapeHtml(s.title)+'</div>'+
+      (set0.duration ? '<div class="prog-entry"><span>Duration</span><span>'+escapeHtml(set0.duration)+'</span></div>' : '')+
+      (set0.notes ? '<div class="session-ex-last" style="margin-top:10px;white-space:pre-wrap;">'+escapeHtml(set0.notes)+'</div>' : '');
+    body.appendChild(card0);
+    document.getElementById('sd-delete-btn').setAttribute('data-session-id', sessionId);
+    openModal('session-detail-modal');
+    return;
+  }
   s.exercises.forEach(function(ex){
     var card = document.createElement('div');
     card.className = 'session-ex-card';
@@ -1849,6 +2492,7 @@ document.getElementById('sd-delete-btn').addEventListener('click', function(){
 function uniqueLoggedExercises(p){
   var map = {};
   (p.sessions||[]).forEach(function(s){
+    if(s.isActivityLog) return;
     s.exercises.forEach(function(ex){
       if(ex.sets.length === 0) return;
       if(!map[ex.exerciseId]) map[ex.exerciseId] = { exerciseId: ex.exerciseId, name: ex.name, count: 0 };
@@ -1889,6 +2533,7 @@ function openProgressDetail(exerciseId, name){
   var isCardio = exDef && exDef.cat === 'cardio';
   var performances = [];
   (p.sessions||[]).forEach(function(s){
+    if(s.isActivityLog) return;
     s.exercises.forEach(function(ex){
       if(ex.exerciseId === exerciseId && ex.sets.length > 0){
         var best = isCardio

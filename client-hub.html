@@ -599,7 +599,7 @@ function renderCalendarList(){
   document.getElementById("calendar-list").innerHTML = daySess.length ? daySess.map(s=>`
     <div class="list-row" onclick="${s.status==='completed' ? `openSessionDetailModal('${s.id}')` : `window.location.href='client-workout-tracker.html?openSession='+encodeURIComponent('${s.id}')`}">
       <div class="list-row-name">${s.name||"Workout"}</div>
-      <div class="list-row-sub">${s.loggedBy === "client" ? "Client Workout" : "PT Workout"} · ${s.status==="completed" ? "Done" : "Planned"}</div>
+      <div class="list-row-sub">${s.isActivityLog ? "Activity" : (s.loggedBy === "client" ? "Client Workout" : "PT Workout")} · ${s.status==="completed" ? "Done" : "Planned"}</div>
     </div>`).join("") : '<div class="empty-note">Nothing on this day</div>';
 }
 
@@ -611,12 +611,13 @@ function openSessionDetailModal(id){
   if(!s){ toast("Couldn't find that workout"); return; }
   document.getElementById("session-view-title").textContent = s.name || "Workout";
   document.getElementById("session-view-sub").textContent =
-    (s.date||"") + " · " + (s.loggedBy === "client" ? "Client Workout" : "PT Workout");
+    (s.date||"") + " · " + (s.isActivityLog ? "Activity" : (s.loggedBy === "client" ? "Client Workout" : "PT Workout"));
   const rows = s.rows || [];
   document.getElementById("session-view-body").innerHTML = rows.length ? rows.map(row=>{
     const sets = row.sets || [];
     const setRows = sets.length ? sets.map((set,i)=>`
       <div class="sv-set-row"><span class="sv-set-num">${i+1}</span><span>${fmtSvSet(row, set)}</span></div>
+      ${set.notes ? `<div class="sv-set-row"><span></span><span style="white-space:pre-wrap;">${set.notes}</span></div>` : ""}
     `).join("") : '<div class="sv-set-row"><span>No sets logged</span></div>';
     return `<div class="sv-ex-card"><div class="sv-ex-name">${row.exerciseName||"Exercise"}</div>${setRows}</div>`;
   }).join("") : '<div class="empty-note">No exercises recorded for this session</div>';
@@ -627,6 +628,7 @@ function fmtSvSet(row, set){
     const parts = [];
     if(set.distance) parts.push(set.distance+"km");
     if(set.bpm) parts.push(set.bpm+" bpm");
+    if(!parts.length && set.duration) parts.push(set.duration);
     return parts.length ? parts.join(" · ") : "—";
   }
   const kg = set.actualKg || set.kg || "";
