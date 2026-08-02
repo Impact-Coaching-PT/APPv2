@@ -455,6 +455,14 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
   </div>
 </div>
 
+<div class="page" id="pg-analytics">
+  <button class="back-btn" onclick="nav('dash')">‹ Dashboard</button>
+  <div class="pg-eyebrow">Analytics</div>
+  <div class="pg-title">Roster Exercise Usage</div>
+  <div class="pg-sub">Across every client's logged and planned sessions — spot what's overused and what's sitting unused in the library.</div>
+  <div id="analytics-body"></div>
+</div>
+
 <!-- ══════════════ FREE HUB QR MODAL ══════════════ -->
 <div class="modal-ov" id="hub-qr-modal">
   <div class="ms" style="text-align:center;">
@@ -562,6 +570,7 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     <div id="wb-exercise-cards"></div>
 
     <button class="btn btn-gh" onclick="openExercisePicker('create')">+ Add Exercise</button>
+    <button class="btn btn-gh" style="margin-top:8px;" onclick="openReuseWorkoutPicker()"><img src="data:image/png;base64,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" alt="" style="width:16px;height:16px;vertical-align:-3px;object-fit:contain;margin-right:4px;">Reuse a Past Workout</button>
 
     <div class="meno-radio-row" id="wb-assign-row" style="margin:16px 0;">
       <div class="meno-radio-opt" id="wb-assign-off" onclick="setWbAssign(false)">Save Only</div>
@@ -569,6 +578,19 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     </div>
 
     <button class="btn btn-grad" onclick="saveWorkout()">Save Workout</button>
+  </div>
+</div>
+
+<!-- ══════════════ REUSE A PAST WORKOUT ══════════════ -->
+<div class="modal-ov" id="wb-reuse-modal">
+  <div class="ms">
+    <div class="ms-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="pg-title" style="margin-bottom:0;">Reuse a Past Workout</div>
+      <button class="icon-btn" onclick="closeReuseModal()">✕</button>
+    </div>
+    <div class="pg-sub" style="margin-bottom:12px;">Pick a previous session for this client — it'll load into the workout below as an editable starting point, prefilled from what they last did.</div>
+    <div id="wb-reuse-list"></div>
   </div>
 </div>
 
@@ -629,6 +651,7 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     <div id="sg-results"></div>
 
     <button class="btn btn-grad" id="sg-use-btn" style="width:100%;margin-top:10px;display:none;" onclick="sgUseWorkout()">✓ Use This Workout</button>
+    <button class="btn btn-gh" id="sg-save-fmt-btn" style="width:100%;margin-top:8px;display:none;" onclick="sgSaveGeneratedAsFormat()">💾 Save this as a Custom Format</button>
   </div>
 </div>
 
@@ -1438,6 +1461,36 @@ function openCreateWorkoutModal(quickStart){
 function closeCreateWorkoutModal(){
   document.getElementById("wb-create-modal").classList.remove("show");
 }
+function openReuseWorkoutPicker(){
+  if(!builderClientId){ toast("Pick a client first"); return; }
+  const sessions = clientSessions(builderClientId).filter(s=>(s.rows||[]).length && !s.isActivityLog);
+  const listEl = document.getElementById("wb-reuse-list");
+  listEl.innerHTML = sessions.length ? sessions.map(s=>`
+    <div class="plan-row" style="cursor:pointer;" onclick="reuseWorkout('${s.id}')">
+      <div class="plan-row-top" style="margin-bottom:0;">
+        <span class="plan-row-name">${s.name||"Workout"}</span>
+        <span class="pg-sub" style="margin-bottom:0;">${fmtDate(s.date)}</span>
+      </div>
+      <div class="pg-sub">${s.rows.length} exercise${s.rows.length===1?"":"s"}${s.source==="setsmith"?" · SetSmith":""}</div>
+    </div>`).join("") : '<div class="empty-good">No past sessions logged for this client yet</div>';
+  document.getElementById("wb-reuse-modal").classList.add("show");
+}
+function closeReuseModal(){
+  document.getElementById("wb-reuse-modal").classList.remove("show");
+}
+function reuseWorkout(sessionId){
+  const s = DB.sessions.find(x=>x.id===sessionId);
+  if(!s) return;
+  wbDraft.exercises = (s.rows||[]).map(row=>({
+    name: row.exerciseName,
+    sets: (row.sets||[]).map(set=>({ kg: set.actualKg || set.kg || "", reps: set.reps || "" }))
+  }));
+  wbDraft.source = "reused";
+  if(!document.getElementById("wb-title").value.trim()) document.getElementById("wb-title").value = s.name || "Workout";
+  renderWbExerciseCards();
+  closeReuseModal();
+  toast("Loaded " + (s.name||"that workout") + " — review and adjust before saving");
+}
 function renderWbExerciseCards(){
   const el = document.getElementById("wb-exercise-cards");
   const nameA = getClient(builderClientId)?.name || "Client";
@@ -1543,6 +1596,9 @@ const SG_AREA_FOCUS = {
   upper: ["Chest","Triceps","Shoulders","Lats","Upper Back","Biceps"],
   lower: ["Quads","Glutes","Hamstrings","Adductors","Abductors"],
 };
+let sgCustomFormats = [];
+try{ sgCustomFormats = JSON.parse(localStorage.getItem('sg-custom-formats')||'[]'); }catch(e){ sgCustomFormats = []; }
+function sgAllFormats(){ return SG_FORMATS.concat(sgCustomFormats); }
 const SG_FORMATS = [
   { id:"fb-strength", name:"Full Body — Straight Sets", suitableFor:SG_ALL_TYPES, slots:[
     {role:"compound",movementPattern:"squat"},{role:"compound",movementPattern:"hinge"},
@@ -1775,7 +1831,7 @@ function openSmartGen(){
     `<div class="meno-radio-opt ${sgContra.includes(c)?'act':''}" style="flex:none;padding:8px 12px;" onclick="sgToggleContra('${c}')">${c}</div>`).join("");
   document.getElementById("sg-muscle-chips").innerHTML = SG_MUSCLES.map(m=>
     `<div class="meno-radio-opt" style="flex:none;padding:8px 12px;" onclick="sgToggleMuscle('${m}')">${m}</div>`).join("");
-  document.getElementById("sg-format").innerHTML = SG_FORMATS.map(f=>`<option value="${f.id}">${f.name}</option>`).join("");
+  document.getElementById("sg-format").innerHTML = sgAllFormats().map(f=>`<option value="${f.id}">${f.name}</option>`).join("");
   document.getElementById("sg-preset-wrap").style.display = "block";
   document.getElementById("sg-muscle-wrap").style.display = "none";
   document.getElementById("sg-results").innerHTML = "";
@@ -1830,7 +1886,7 @@ function sgUpdateSuggestion(){
   let n, label;
   if(t.isCircuit){ const p=sgGetProtocol(); n=p.suggestedCount; label=p.desc; }
   else if(sgMode==='muscle'){ n=Math.max(3, sgMuscleSelect.length*2); label='muscle selection'; }
-  else { const f=SG_FORMATS.find(x=>x.id===document.getElementById("sg-format").value); n=f?f.slots.length:5; label=f?f.name:''; }
+  else { const f=sgAllFormats().find(x=>x.id===document.getElementById("sg-format").value); n=f?f.slots.length:5; label=f?f.name:''; }
   document.getElementById("sg-count-hint").textContent = `Suggested: ${n} exercises for ${label}`;
   if(!document.getElementById("sg-count").value) document.getElementById("sg-count").placeholder = "e.g. "+n;
 }
@@ -1843,9 +1899,27 @@ function sgGenerate(){
   else sgGenerateStandard(t, countInput);
   sgRenderResults();
   document.getElementById("sg-use-btn").style.display = sgWorkout && sgWorkout.slots.some(s=>s.chosen) ? "block" : "none";
+  document.getElementById("sg-save-fmt-btn").style.display = sgWorkout && !sgWorkout.isCircuit && sgWorkout.slots.some(s=>s.chosen) ? "block" : "none";
+}
+function sgSaveGeneratedAsFormat(){
+  if(!sgWorkout || sgWorkout.isCircuit) return;
+  const name = prompt('Name this format:', sgWorkout.formatName + ' (saved)');
+  if(!name) return;
+  const fmt = {
+    id: 'custom-' + Date.now(),
+    name, suitableFor: [sgWorkout.trainingTypeId],
+    slots: sgWorkout.slots.filter(s=>s.role!=='finisher').map(s=>({
+      role: s.role, movementPattern: s.movementPattern||undefined, muscleGroup: s.muscleGroup||undefined,
+      equipment: s.equipment||'any', customSetsReps: s.setsReps
+    }))
+  };
+  sgCustomFormats.push(fmt);
+  localStorage.setItem('sg-custom-formats', JSON.stringify(sgCustomFormats));
+  document.getElementById("sg-format").innerHTML = sgAllFormats().map(f=>`<option value="${f.id}">${f.name}</option>`).join("");
+  toast('Saved as format: ' + name);
 }
 function sgGenerateStandard(tt, countInput){
-  const format = SG_FORMATS.find(f=>f.id===document.getElementById("sg-format").value);
+  const format = sgAllFormats().find(f=>f.id===document.getElementById("sg-format").value);
   let slots = format.slots.map((s,i)=>({...s, slotIndex:i}));
   if(countInput){
     if(countInput<=slots.length) slots = slots.slice(0,countInput);
@@ -1874,6 +1948,7 @@ function sgGenerateCircuit(tt, countInput){
   sgBuildSlots(slots, tt, `${protocol.name} Circuit`, {isCircuit:true, protocol});
 }
 function sgGetSetsReps(tt, slot, chosenEx){
+  if(slot.customSetsReps) return slot.customSetsReps;
   if(chosenEx && slot.role==='compound' && tt.compoundPatternOverrides && tt.compoundPatternOverrides[chosenEx.movementPattern]){
     return tt.compoundPatternOverrides[chosenEx.movementPattern];
   }
@@ -2014,6 +2089,7 @@ function sgUseWorkout(){
   wbDraft = {
     title: sgWorkout.formatName,
     date: new Date().toISOString().split("T")[0],
+    source: "setsmith",
     exercises: sgWorkout.slots.filter(s=>s.chosen).map(s=>{
       const suggested = !sgWorkout.isCircuit ? sgSuggestedWeight(s.chosen) : null;
       const kg = suggested!==null ? String(suggested) : "";
@@ -2120,9 +2196,9 @@ function saveWorkout(){
     }));
     if(wbEditingSessionId){
       const s = DB.sessions.find(x=>x.id===wbEditingSessionId);
-      if(s){ s.name=title; s.date=date; s.rows=rows; s.assignedByCoach=wbAssign; s.loggedBy="coach"; }
+      if(s){ s.name=title; s.date=date; s.rows=rows; s.assignedByCoach=wbAssign; s.loggedBy="coach"; if(wbDraft.source) s.source=wbDraft.source; }
     } else {
-      DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows, assignedByCoach:wbAssign, loggedBy:"coach" });
+      DB.sessions.push({ id:"s"+Date.now(), clientId:builderClientId, date, name:title, status:"planned", rows, assignedByCoach:wbAssign, loggedBy:"coach", source: wbDraft.source||"manual" });
     }
     saveDB();
     toast(wbAssign ? "Assigned to "+getClient(builderClientId).name : "Workout saved to "+getClient(builderClientId).name);
@@ -2142,8 +2218,8 @@ function saveWorkout(){
     });
     const idA = "s"+Date.now()+"a";
     const idB = "s"+Date.now()+"b";
-    DB.sessions.push({ id:idA, clientId:builderClientId, clientId2:builderClientId2, linkedSessionId:idB, date, name:title, status:"planned", rows:rowsFor("sets"), assignedByCoach:false, loggedBy:"coach" });
-    DB.sessions.push({ id:idB, clientId:builderClientId2, clientId2:builderClientId, linkedSessionId:idA, date, name:title, status:"planned", rows:rowsFor("sets2"), assignedByCoach:false, loggedBy:"coach" });
+    DB.sessions.push({ id:idA, clientId:builderClientId, clientId2:builderClientId2, linkedSessionId:idB, date, name:title, status:"planned", rows:rowsFor("sets"), assignedByCoach:false, loggedBy:"coach", source: wbDraft.source||"manual" });
+    DB.sessions.push({ id:idB, clientId:builderClientId2, clientId2:builderClientId, linkedSessionId:idA, date, name:title, status:"planned", rows:rowsFor("sets2"), assignedByCoach:false, loggedBy:"coach", source: wbDraft.source||"manual" });
     saveDB();
     toast("Workout saved to "+getClient(builderClientId).name+" & "+getClient(builderClientId2).name);
   }
@@ -2693,6 +2769,42 @@ function assignTdeeToClient(){
 // ═══════════════════════════════════════════════════════════
 let elCat = null;
 let elEq = null;
+// ═══════════════════════════════════════════════════════════
+// ANALYTICS (roster-wide exercise usage — most/least used, spotting library gaps)
+// ═══════════════════════════════════════════════════════════
+function openAnalytics(){
+  nav("analytics");
+  document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("act"));
+  renderAnalyticsView();
+}
+function renderAnalyticsView(){
+  const counts = {};
+  (DB.sessions||[]).forEach(s=>{
+    (s.rows||[]).forEach(r=>{
+      if(!r.exerciseName) return;
+      counts[r.exerciseName] = (counts[r.exerciseName]||0) + 1;
+    });
+  });
+  const usedNames = Object.keys(counts);
+  const mostUsed = usedNames.map(name=>({name, count:counts[name]})).sort((a,b)=>b.count-a.count).slice(0,15);
+  const lib = mainLib();
+  const usedSet = new Set(usedNames);
+  const neverUsed = lib.filter(e=>!usedSet.has(e.name));
+  const totalSessionsCounted = (DB.sessions||[]).length;
+  const body = document.getElementById("analytics-body");
+  if(!totalSessionsCounted){
+    body.innerHTML = `<div class="pg-sub">No sessions logged yet — usage stats will build up as workouts are created and completed.</div>`;
+    return;
+  }
+  body.innerHTML = `
+    <div class="pg-sub" style="font-weight:700;margin:14px 0 4px;">Most Used (top 15, across ${totalSessionsCounted} session${totalSessionsCounted===1?'':'s'})</div>
+    ${mostUsed.map(x=>`<div class="plan-row" style="display:flex;align-items:center;justify-content:space-between;"><div>${x.name}</div><div style="font-family:monospace;font-weight:700;color:#e8412c;">${x.count}&times;</div></div>`).join("") || `<div class="pg-sub">Nothing logged yet.</div>`}
+    <div class="pg-sub" style="font-weight:700;margin:20px 0 4px;">Never Used (${neverUsed.length} of ${lib.length} exercises in the library)</div>
+    <div class="pg-sub" style="margin-bottom:8px;">${neverUsed.length ? 'A long list here can be a sign the library has more variety than your programming is drawing on — or that some entries are redundant/mistagged.' : 'Every exercise in the library has been used at least once — nice and thorough.'}</div>
+    ${neverUsed.slice(0,40).map(e=>`<div class="plan-row">${e.name}</div>`).join("")}
+    ${neverUsed.length>40 ? `<div class="pg-sub">+ ${neverUsed.length-40} more</div>` : ""}
+  `;
+}
 function openExLibrary(){
   nav("exlibrary");
   document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("act"));
@@ -2770,6 +2882,7 @@ const TILES = [
   {ic:"🔢", img:"icons/icon-tdee.png", glow:"#e89a3a", lbl:"TDEE Calculator", sub:"Targets & macros", action:"openTdee()"},
   {ic:"📚", img:"icons/icon-exercise-library.png", glow:"#3ae87a", lbl:"Exercise Library", sub:"Full move list", action:"openExLibrary()"},
   {ic:"🔗", img:"icons/icon-links.png", glow:"#4a90e8", lbl:"Links", sub:"Quick access", action:"openLinks()"},
+  {ic:"📊", lbl:"Analytics", sub:"Roster exercise usage", action:"openAnalytics()"},
   {ic:"⚙️", img:"icons/icon-settings.png", lbl:"Settings", sub:"Sync & backend", action:"nav('settings')"}
 ];
 function renderTileGrid(){
@@ -3189,7 +3302,7 @@ function openCdSessionView(sessId){
   cdSvClientId = s.clientId;
   cdSvStatus = s.status || "planned";
   document.getElementById("cd-sv-title").textContent = s.name || "Session";
-  document.getElementById("cd-sv-date").textContent = fmtDate(s.date) + " · " + (s.loggedBy === "client" ? "Client Workout" : "PT Workout");
+  document.getElementById("cd-sv-date").textContent = fmtDate(s.date) + " · " + (s.loggedBy === "client" ? "Client Workout" : "PT Workout") + (s.source === "setsmith" ? " · SetSmith-generated" : s.source === "reused" ? " · Reused from a past session" : "");
   setCdSvStatus(cdSvStatus);
   cdSvDifficulty = s.difficulty || null;
   renderCdSvDifficulty();
