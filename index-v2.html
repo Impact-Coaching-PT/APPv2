@@ -1312,6 +1312,7 @@ function loadDB(){
   if(!DB.menoCustomExercises) DB.menoCustomExercises = {};
   if(!DB.customExercises) DB.customExercises = [];
   if(!DB.messages) DB.messages = [];
+  if(!DB.programs) DB.programs = [];
   // Script URL lives in its own dedicated key so it survives a data reset or a wipe in another app sharing this origin
   const savedUrl = localStorage.getItem(URL_KEY) || DEFAULT_SCRIPT_URL;
   if(savedUrl){ DB.settings.scriptUrl = savedUrl; localStorage.setItem(URL_KEY, savedUrl); }
