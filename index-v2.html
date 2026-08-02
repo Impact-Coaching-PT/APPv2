@@ -2268,7 +2268,7 @@ function sgOnProgramSessionSaved(session){
   program.easeStreak = easy ? program.easeStreak+1 : 0;
 
   const nextWeekObj = program.weeks.find(w=>w.weekNumber===weekObj.weekNumber+1);
-  if(!nextWeekObj) return; // program finished
+  if(!nextWeekObj){ program.status = 'completed'; return; } // that was the final week
 
   const tt = SG_TRAINING_TYPES.find(t=>t.id===program.trainingTypeId);
   const format = sgAllFormats().find(f=>f.id===program.formatId);
@@ -2310,10 +2310,18 @@ function openAdvancedProgramming(){
   nav("programs");
 }
 function renderProgramsList(){
-  const programs = DB.programs.filter(p=>p.clientId===builderClientId).sort((a,b)=>b.startDate.localeCompare(a.startDate));
+  const all = DB.programs.filter(p=>p.clientId===builderClientId);
+  // Active programs first (what's actionable right now), then completed ones by most recent.
+  // Cap completed history the same way the Sessions list does, rather than letting it grow
+  // unbounded as a client racks up finished programs over months.
+  const active = all.filter(p=>p.status==='active').sort((a,b)=>b.startDate.localeCompare(a.startDate));
+  const completed = all.filter(p=>p.status!=='active').sort((a,b)=>b.startDate.localeCompare(a.startDate));
+  const COMPLETED_CAP = 5;
+  const shown = [...active, ...completed.slice(0,COMPLETED_CAP)];
+  const hiddenCount = completed.length - COMPLETED_CAP;
   const el = document.getElementById("program-list");
-  if(!programs.length){ el.innerHTML = '<div class="empty-good" style="padding:40px 20px;">No programs built yet for this client.</div>'; return; }
-  el.innerHTML = programs.map(p=>{
+  if(!all.length){ el.innerHTML = '<div class="empty-good" style="padding:40px 20px;">No programs built yet for this client.</div>'; return; }
+  el.innerHTML = shown.map(p=>{
     const tt = SG_TRAINING_TYPES.find(t=>t.id===p.trainingTypeId);
     const completedWeeks = p.weeks.filter(w=>w.sessionIds.every(id=>{ const s=DB.sessions.find(x=>x.id===id); return s && s.status==='completed'; })).length;
     return `<div class="plan-row" style="cursor:pointer;" onclick="openProgramDetailModal('${p.id}')">
@@ -2323,7 +2331,7 @@ function renderProgramsList(){
       </div>
       <div class="pg-sub">Started ${fmtDate(p.startDate)} · ${completedWeeks}/${p.totalWeeks} weeks completed</div>
     </div>`;
-  }).join("");
+  }).join("") + (hiddenCount>0 ? `<div class="pg-sub" style="text-align:center;margin-top:8px;">+ ${hiddenCount} older completed program${hiddenCount===1?'':'s'} not shown</div>` : "");
 }
 function openProgramBuildModal(){
   if(!builderClientId){ toast("Pick a client first"); return; }
@@ -3335,7 +3343,7 @@ function daySessions(dateStr){
     // entirely means an older session logged directly in the PT-App - still shows.)
     if(s.loggedBy === "client") return;
     const c = getClient(s.clientId);
-    out.push({name:(s.name||"Session")+(c?" — "+c.name:""), status:s.status, tag:c?tagColor(c.trainingCat):"#68687c", meno:false, loggedBy:s.loggedBy});
+    out.push({id:s.id, name:(s.name||"Session")+(c?" — "+c.name:""), status:s.status, tag:c?tagColor(c.trainingCat):"#68687c", meno:false, loggedBy:s.loggedBy});
   });
   (DB.menoSessions||[]).forEach(m=>{
     if(m.date!==dateStr) return;
@@ -3409,7 +3417,7 @@ function renderCalendar(){
   document.getElementById("day-detail").innerHTML = `
     <div class="day-detail-hdr">${niceDate}</div>
     ${sess.length ? sess.map(s=>`
-      <div class="day-sess-row">
+      <div class="day-sess-row" ${s.meno?'':`onclick="openCdSessionView('${s.id}')"`} style="${s.meno?'':'cursor:pointer;'}">
         <span class="day-sess-dot" style="background:${s.tag}"></span>
         <div style="flex:1;min-width:0;">
           <div class="day-sess-name">${s.name}</div>
@@ -3649,9 +3657,17 @@ function renderClientDetail(){
       <div class="prog-wt">${p.weight}kg</div>
     </div>`).join("") : `<div class="empty-good">${progQuery?'No match for "'+progQuery+'"':'No logged lifts yet'}</div>`;
 
-  // Sessions (collapsible)
-  const sess = clientSessions(c.id).slice(0,6);
-  document.getElementById("sessions-count").textContent = sess.length;
+  // Sessions (collapsible) — show the single next upcoming session plus recent completed
+  // history, rather than just "latest by date": a multi-week program pre-creates many
+  // future-dated planned sessions, which would otherwise flood this list with nothing but
+  // far-future weeks. The full future schedule for a program is already fully browsable via
+  // its own Program Detail view (Advanced Programming), so nothing is lost by decluttering here.
+  const allSess = clientSessions(c.id);
+  const completedSess = allSess.filter(s=>s.status==='completed');
+  const upcomingSess = allSess.filter(s=>s.status==='planned').sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  const nextUpcoming = upcomingSess.length ? [upcomingSess[0]] : [];
+  const sess = [...nextUpcoming, ...completedSess].slice(0,6);
+  document.getElementById("sessions-count").textContent = allSess.length;
   document.getElementById("tl-list").innerHTML = sess.length ? sess.map((s,i)=>`
     <div class="tl-item" onclick="openCdSessionView('${s.id}')">
       <div class="tl-dot-wrap"><div class="tl-dot ${s.status==='completed'?'done':'planned'}"></div>${i<sess.length-1?'<div class="tl-line"></div>':''}</div>
