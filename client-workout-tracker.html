@@ -751,6 +751,9 @@ main{max-width:520px;margin:0 auto;padding:16px;}
       </div>
     </div>
 
+    <span class="lbl">Experience Level (limits exercise complexity)</span>
+    <div class="chip-row" id="sg-experience-chips" style="margin-bottom:14px;"></div>
+
     <span class="lbl">Contraindications (excludes matching exercises)</span>
     <div class="chip-row" id="sg-contra-chips" style="margin-bottom:14px;"></div>
 
@@ -864,7 +867,7 @@ function showInputModal(labelText, defaultValue, onSave){
 
 /* ============ EXERCISE LIBRARY ============ */
 let SHARED_LIB = [];
-const LIBRARY_VERSION = 4;
+const LIBRARY_VERSION = 5;
 async function loadSharedLibrary(){
   try{
     const res = await fetch('exercises.json?v=' + LIBRARY_VERSION, { cache: 'no-store' });
@@ -1889,6 +1892,14 @@ var SG_MUSCLES = ["Quads","Glutes","Hamstrings","Adductors","Abductors","Chest",
   "Lats","Upper Back","Biceps","Core"];
 var SG_CONTRA_TAGS = ["shoulder","lower-back","knee","wrist"];
 var sgContra = [];
+var sgExperienceLevel = 3;
+var SG_EXPERIENCE_LEVELS = [
+  {level:1, label:'1 · Complete beginner'},
+  {level:2, label:'2 · Beginner'},
+  {level:3, label:'3 · Intermediate'},
+  {level:4, label:'4 · Advanced'},
+  {level:5, label:'5 · Very advanced'},
+];
 var sgLowImpact = false;
 var sgCardioFinisher = false;
 var sgMode = 'preset';
@@ -2086,6 +2097,7 @@ function sgComputeProgrammingWarnings(built, circuitInfo){
 }
 
 function sgHardFilter(slot, ttForImpact){
+  var sgMaxDifficulty = Math.min(5, sgExperienceLevel + 1);
   return allExercises().filter(function(e){
     if(slot.role==='compound' && !e.compound) return false;
     if(slot.role==='accessory' && e.compound) return false;
@@ -2094,6 +2106,7 @@ function sgHardFilter(slot, ttForImpact){
     if(slot.muscleGroup && (e.m||[]).indexOf(slot.muscleGroup)===-1) return false;
     if(e.contraindications && e.contraindications.some(function(c){ return sgContra.indexOf(c)!==-1; })) return false;
     if(((ttForImpact && ttForImpact.excludeHighImpact) || sgLowImpact) && e.highImpact) return false;
+    if(e.difficulty && e.difficulty > sgMaxDifficulty) return false;
     return true;
   });
 }
@@ -2172,11 +2185,14 @@ function openSmartGen(){
   document.getElementById("sg-protocol").innerHTML = SG_PROTOCOLS.map(function(p){ return '<option value="'+p.id+'">'+p.name+' ('+p.workSeconds+'s/'+p.stationRestSeconds+'s)</option>'; }).join("");
   var rec = getClientHubRecord();
   sgContra = (rec && rec.client && rec.client.contraindications) ? rec.client.contraindications.slice() : [];
+  sgExperienceLevel = (rec && rec.client && rec.client.experienceLevel) ? rec.client.experienceLevel : 3;
   sgLowImpact = false; sgCardioFinisher = false; sgMode = 'preset'; sgMuscleSelect = [];
   document.getElementById("sg-lowimpact").classList.remove("active");
   document.getElementById("sg-cardio-fin").classList.remove("active");
   document.getElementById("sg-mode-preset").classList.add("active");
   document.getElementById("sg-mode-muscle").classList.remove("active");
+  document.getElementById("sg-experience-chips").innerHTML = SG_EXPERIENCE_LEVELS.map(function(x){
+    return '<div class="chip'+(sgExperienceLevel===x.level?' active':'')+'" data-sg-experience="'+x.level+'">'+x.label+'</div>'; }).join("");
   document.getElementById("sg-contra-chips").innerHTML = SG_CONTRA_TAGS.map(function(c){
     return '<div class="chip'+(sgContra.indexOf(c)!==-1?' active':'')+'" data-sg-contra="'+c+'">'+c+'</div>'; }).join("");
   document.getElementById("sg-muscle-chips").innerHTML = SG_MUSCLES.map(function(m){
@@ -2208,6 +2224,13 @@ function sgOnTrainingTypeChange(){
 }
 document.getElementById('sg-protocol').addEventListener('change', sgUpdateSuggestion);
 document.getElementById('sg-area').addEventListener('change', sgUpdateSuggestion);
+document.getElementById('sg-experience-chips').addEventListener('click', function(e){
+  var lvl = e.target.getAttribute('data-sg-experience');
+  if(lvl === null) return;
+  sgExperienceLevel = parseInt(lvl, 10);
+  document.getElementById("sg-experience-chips").innerHTML = SG_EXPERIENCE_LEVELS.map(function(x){
+    return '<div class="chip'+(sgExperienceLevel===x.level?' active':'')+'" data-sg-experience="'+x.level+'">'+x.label+'</div>'; }).join("");
+});
 document.getElementById('sg-contra-chips').addEventListener('click', function(e){
   var c = e.target.getAttribute('data-sg-contra');
   if(c === null) return;

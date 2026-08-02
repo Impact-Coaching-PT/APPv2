@@ -639,6 +639,9 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
       </div>
     </div>
 
+    <label class="lbl">Experience Level (limits exercise complexity)</label>
+    <div class="meno-radio-row" style="margin-bottom:12px;flex-wrap:wrap;gap:7px;" id="sg-experience-chips"></div>
+
     <label class="lbl">Contraindications (excludes matching exercises)</label>
     <div class="meno-radio-row" style="margin-bottom:12px;flex-wrap:wrap;gap:7px;" id="sg-contra-chips"></div>
 
@@ -1141,6 +1144,9 @@ body{margin:0;padding-bottom:24px;overscroll-behavior:none;}
     <label class="lbl">Training Category</label>
     <select class="inp" id="edit-cat"></select>
 
+    <label class="lbl">Experience Level (default for SetSmith generation)</label>
+    <div class="meno-radio-row" style="margin-bottom:16px;flex-wrap:wrap;gap:7px;" id="edit-experience-chips"></div>
+
     <label class="lbl">Contraindications (excludes matching exercises from SetSmith generation)</label>
     <div class="meno-radio-row" style="margin-bottom:16px;flex-wrap:wrap;gap:7px;" id="edit-contra-chips"></div>
 
@@ -1342,7 +1348,7 @@ function openSoon(title, sub){
 // ═══════════════════════════════════════════════════════════
 let EX_LIBRARY = [];
 function mainLib(){ return EX_LIBRARY.concat(DB.customExercises||[]); }
-const LIBRARY_VERSION = 4; // bump whenever exercises.json changes, forces a fresh fetch
+const LIBRARY_VERSION = 5; // bump whenever exercises.json changes, forces a fresh fetch
 async function loadExerciseLibrary(){
   try{
     const res = await fetch('exercises.json?v=' + LIBRARY_VERSION, { cache: 'no-store' });
@@ -1569,6 +1575,14 @@ const SG_MUSCLES = ["Quads","Glutes","Hamstrings","Adductors","Abductors","Chest
 const SG_CONTRA_TAGS = ["shoulder","lower-back","knee","wrist"];
 let sgContra = [];
 let sgLowImpact = false;
+let sgExperienceLevel = 3;
+const SG_EXPERIENCE_LEVELS = [
+  {level:1, label:'1 · Complete beginner'},
+  {level:2, label:'2 · Beginner'},
+  {level:3, label:'3 · Intermediate'},
+  {level:4, label:'4 · Advanced'},
+  {level:5, label:'5 · Very advanced'},
+];
 let sgCardioFinisher = false;
 let sgMode = 'preset';
 let sgMuscleSelect = [];
@@ -1744,6 +1758,7 @@ function sgComputeProgrammingWarnings(built, circuitInfo, clientId){
 }
 
 function sgHardFilter(slot, ttForImpact){
+  const sgMaxDifficulty = Math.min(5, sgExperienceLevel + 1);
   return mainLib().filter(e=>{
     if(slot.role==='compound' && !e.compound) return false;
     if(slot.role==='accessory' && e.compound) return false;
@@ -1752,6 +1767,7 @@ function sgHardFilter(slot, ttForImpact){
     if(slot.muscleGroup && !(e.m||[]).includes(slot.muscleGroup)) return false;
     if(e.contraindications && e.contraindications.some(c=>sgContra.includes(c))) return false;
     if(((ttForImpact && ttForImpact.excludeHighImpact) || sgLowImpact) && e.highImpact) return false;
+    if(e.difficulty && e.difficulty > sgMaxDifficulty) return false;
     return true;
   });
 }
@@ -1826,11 +1842,14 @@ function openSmartGen(){
   document.getElementById("sg-protocol").innerHTML = SG_PROTOCOLS.map(p=>`<option value="${p.id}">${p.name} (${p.workSeconds}s/${p.stationRestSeconds}s)</option>`).join("");
   const client = getClient(builderClientId);
   sgContra = [...(client && client.contraindications ? client.contraindications : [])];
+  sgExperienceLevel = (client && client.experienceLevel) || 3;
   sgLowImpact = false; sgCardioFinisher = false; sgMode = 'preset'; sgMuscleSelect = [];
   document.getElementById("sg-lowimpact").classList.remove("act");
   document.getElementById("sg-cardio-fin").classList.remove("act");
   document.getElementById("sg-mode-preset").classList.add("act");
   document.getElementById("sg-mode-muscle").classList.remove("act");
+  document.getElementById("sg-experience-chips").innerHTML = SG_EXPERIENCE_LEVELS.map(x=>
+    `<div class="meno-radio-opt ${sgExperienceLevel===x.level?'act':''}" style="flex:none;padding:8px 12px;" onclick="sgSetExperience(${x.level})">${x.label}</div>`).join("");
   document.getElementById("sg-contra-chips").innerHTML = SG_CONTRA_TAGS.map(c=>
     `<div class="meno-radio-opt ${sgContra.includes(c)?'act':''}" style="flex:none;padding:8px 12px;" onclick="sgToggleContra('${c}')">${c}</div>`).join("");
   document.getElementById("sg-muscle-chips").innerHTML = SG_MUSCLES.map(m=>
@@ -1869,6 +1888,11 @@ function sgToggleContra(c){
     `<div class="meno-radio-opt ${sgContra.includes(t)?"act":""}" style="flex:none;padding:8px 12px;" onclick="sgToggleContra('${t}')">${t}</div>`).join("");
 }
 function sgToggleLowImpact(){ sgLowImpact=!sgLowImpact; document.getElementById("sg-lowimpact").classList.toggle("act",sgLowImpact); }
+function sgSetExperience(level){
+  sgExperienceLevel = level;
+  document.getElementById("sg-experience-chips").innerHTML = SG_EXPERIENCE_LEVELS.map(x=>
+    `<div class="meno-radio-opt ${sgExperienceLevel===x.level?'act':''}" style="flex:none;padding:8px 12px;" onclick="sgSetExperience(${x.level})">${x.label}</div>`).join("");
+}
 function sgToggleCardioFinisher(){ sgCardioFinisher=!sgCardioFinisher; document.getElementById("sg-cardio-fin").classList.toggle("act",sgCardioFinisher); }
 function sgSetMode(mode){
   sgMode = mode;
@@ -3467,6 +3491,7 @@ function createClient(){
 }
 
 let ecContraDraft = [];
+let ecExperienceDraft = 3;
 function openEditModal(){
   const c = getClient(currentClientId);
   if(!c) return;
@@ -3477,9 +3502,16 @@ function openEditModal(){
   document.getElementById("edit-pin").value = c.pin||"";
   document.getElementById("edit-portal-link").textContent = portalLinkFor(c);
   ecContraDraft = [...(c.contraindications||[])];
+  ecExperienceDraft = c.experienceLevel || 3;
   renderEditContraChips();
+  renderEditExperienceChips();
   document.getElementById("edit-modal-ov").classList.add("show");
 }
+function renderEditExperienceChips(){
+  document.getElementById("edit-experience-chips").innerHTML = SG_EXPERIENCE_LEVELS.map(x=>
+    `<div class="meno-radio-opt ${ecExperienceDraft===x.level?'act':''}" style="flex:none;padding:8px 12px;" onclick="ecSetExperience(${x.level})">${x.label}</div>`).join("");
+}
+function ecSetExperience(level){ ecExperienceDraft = level; renderEditExperienceChips(); }
 function renderEditContraChips(){
   document.getElementById("edit-contra-chips").innerHTML = SG_CONTRA_TAGS.map(t=>
     `<div class="meno-radio-opt ${ecContraDraft.includes(t)?'act':''}" style="flex:none;padding:8px 12px;" onclick="ecToggleContra('${t}')">${t}</div>`).join("");
@@ -3503,6 +3535,7 @@ function saveEditModal(){
   c.trainingCat = document.getElementById("edit-cat").value;
   c.pin = pin;
   c.contraindications = [...ecContraDraft];
+  c.experienceLevel = ecExperienceDraft;
   saveDB();
   closeEditModal();
   renderClientDetail();
