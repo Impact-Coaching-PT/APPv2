@@ -3772,6 +3772,7 @@ function renderCdSvRows(){
         <div style="width:24px;height:24px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-family:var(--font-mono);flex-shrink:0;">${si+1}</div>
         <div class="pg-sub" style="margin-bottom:0;flex:1;">${set.kg||"—"}kg × ${set.reps||"—"}</div>
         <input class="plan-field-inp" placeholder="actual kg" value="${set.actualKg}" oninput="updateCdSvActual(${i},${si},this.value)" style="flex:1;">
+        <button class="ex-add-btn" style="background:none;color:var(--red);font-size:14px;width:20px;height:20px;" onclick="removeCdSvSetRow(${i},${si})">✕</button>
       </div>`).join("");
     return `
     <div class="plan-row">
@@ -3780,11 +3781,24 @@ function renderCdSvRows(){
         <button class="plan-row-rm" onclick="removeCdSvExercise(${i})">✕</button>
       </div>
       ${setsHtml}
+      <button class="btn btn-gh" style="margin:2px 0 0;padding:8px;font-size:12.5px;" onclick="addCdSvSetRow(${i})">+ Add Set</button>
     </div>`;
   }).join("") : '<div class="empty-good">No exercises logged for this session</div>';
 }
 function updateCdSvActual(exIdx, setIdx, val){
   svDraft[exIdx].sets[setIdx].actualKg = val;
+}
+function addCdSvSetRow(exIdx){
+  const sets = svDraft[exIdx].sets;
+  const prev = sets[sets.length-1];
+  sets.push(prev ? {kg:prev.kg, reps:prev.reps, actualKg:""} : {kg:"",reps:"",actualKg:""});
+  renderCdSvRows();
+}
+function removeCdSvSetRow(exIdx, setIdx){
+  const sets = svDraft[exIdx].sets;
+  if(sets.length <= 1){ toast("An exercise needs at least one set — remove the exercise instead"); return; }
+  sets.splice(setIdx,1);
+  renderCdSvRows();
 }
 function removeCdSvExercise(idx){
   svDraft.splice(idx,1);
